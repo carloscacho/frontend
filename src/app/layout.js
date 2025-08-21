@@ -1,15 +1,12 @@
-import { Geist, Geist_Mono } from "next/font/google";
+
+import Link from "next/link";
 import "./globals.css";
+import { UserContextProvider } from '@/context/UserContext'
+import { AuthProvider } from '@/context/AuthContext';
+import Header from "@/components/Header";
+import { AlertProvider } from "@/context/AlertContext";
+import Alert from "@/components/Alert";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata = {
   title: "Create Next App",
@@ -18,12 +15,41 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" data-theme="lemonade">
+      <head>
+
+        <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+        <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+      </head>
+      <body className="bg-ifms">
+
+
+        {/* <div className={"drawer" + drawer ? 'md:drawer-open': 'md:drawer-close'}> */}
+        {/* <div className='lg:drawer-open'>
+            <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
+            <div className="drawer-content flex flex-col items-center justify-center"> */}
+        <AlertProvider>
+          <AuthProvider>
+            <Alert />
+            {children}
+
+          </AuthProvider>
+        </AlertProvider>
+        {/* </div>
+            <div className="drawer-side">
+              <label htmlFor="my-drawer-2" aria-label="close sidebar" className="drawer-overlay"></label>
+              <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
+                {/* Sidebar content here */}
+        {/* <li><Link href='/turmas' >Turma</Link></li>
+                <li><Link href='/salas' >Sala</Link></li> */}
+
+        {/* </ul>
+            </div>
+          </div> */}
+
+
       </body>
+
     </html>
   );
 }
