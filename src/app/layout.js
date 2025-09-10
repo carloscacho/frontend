@@ -6,6 +6,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import Header from "@/components/Header";
 import { AlertProvider } from "@/context/AlertContext";
 import Alert from "@/components/Alert";
+import Drawer from "@/components/Drawer";
 
 
 export const metadata = {
@@ -24,28 +25,18 @@ export default function RootLayout({ children }) {
       <body className="bg-ifms">
 
 
-        {/* <div className={"drawer" + drawer ? 'md:drawer-open': 'md:drawer-close'}> */}
-        {/* <div className='lg:drawer-open'>
-            <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-            <div className="drawer-content flex flex-col items-center justify-center"> */}
-        <AlertProvider>
-          <AuthProvider>
-            <Alert />
-            {children}
+        <Drawer>
+          <AlertProvider>
+            <AuthProvider>
+              <Alert />
+              {children}
 
-          </AuthProvider>
-        </AlertProvider>
-        {/* </div>
-            <div className="drawer-side">
-              <label htmlFor="my-drawer-2" aria-label="close sidebar" className="drawer-overlay"></label>
-              <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-                {/* Sidebar content here */}
-        {/* <li><Link href='/turmas' >Turma</Link></li>
-                <li><Link href='/salas' >Sala</Link></li> */}
+            </AuthProvider>
+          </AlertProvider>
+        </Drawer>
 
-        {/* </ul>
-            </div>
-          </div> */}
+
+
 
 
       </body>
