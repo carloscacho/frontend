@@ -7,6 +7,8 @@ import Header from "@/components/Header";
 import { AlertProvider } from "@/context/AlertContext";
 import Alert from "@/components/Alert";
 import Drawer from "@/components/Drawer";
+import { DrawerProvider } from "@/context/DrawerContext";
+import Navbar from "@/components/Navbar";
 
 
 export const metadata = {
@@ -23,17 +25,19 @@ export default function RootLayout({ children }) {
         <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
       </head>
       <body className="bg-ifms">
+        <DrawerProvider>
+        <Navbar />
+          <Drawer>
+            <AlertProvider>
+              <AuthProvider>
+                <Alert />
+                {children}
 
+              </AuthProvider>
+            </AlertProvider>
+          </Drawer>
+        </DrawerProvider>
 
-        <Drawer>
-          <AlertProvider>
-            <AuthProvider>
-              <Alert />
-              {children}
-
-            </AuthProvider>
-          </AlertProvider>
-        </Drawer>
 
 
 
