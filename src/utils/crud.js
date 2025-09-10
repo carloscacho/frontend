@@ -1,21 +1,22 @@
-const BASE_URL = 'http://localhost:4000/crud'
+import API from "./api";
+
 
 export async function getAllRecords(path){
     try{
-      const data = await fetch(BASE_URL + path)
-      return await data.json()
+      const res = await API.get(path)
+      return res.data
     } catch(error) {
-      console.log("Erro Ao carregar os dados " + error.toString())
+      console.log("Erro Ao carregar os dados " + error.response.statusText)
       return;
     }
   }
 
 export async function getRecordById(path,id){
     try{
-      const data = await fetch(`${BASE_URL}${path}/${id}`)
-      return await data.json()
+      const res  = await API(`${path}/${id}`)
+      return res.data
     } catch(error) {
-      console.log("Erro Ao carregar os dados " + error.toString())
+      console.log("Erro Ao carregar os dados " + error.response.statusText)
       return;
     }
   }

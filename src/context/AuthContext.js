@@ -3,6 +3,8 @@ import { createContext, useContext, useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAlerta } from './AlertContext';
 
+import API from '@/utils/api';
+
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -29,54 +31,49 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (usuario){
+    if (usuario) {
       router.push('/admin/salas')
       console.log("Entrei aqui")
     }
   }, [usuario])
 
   const login = async () => {
-    console.log("fazendo login")
-    const res = await fetch('http://localhost:4000/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, senha }),
-    });
+    try {
+      console.log("fazendo login")
+      const res = await API.post("/auth/login", { email, senha });
+ 
+      const { token, user } = res.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('usuario', JSON.stringify(user));
+      setUsuario(user);
 
-    const data = await res.json(); // Captura a mensagem do backend
-    if(res.status === 200)
-    console.log(data)
-    if (!res.ok) {
-      mostrarAlerta('error', data.error || 'Erro ao fazer login');
-      throw new Error(data.error || 'Erro ao fazer login');
+    } catch (error) {
+      const { status, statusText } = error.response
+      mostrarAlerta('error' + status, statusText || 'Erro ao fazer login');
+      throw new Error(statusText || 'Erro ao fazer login');
     }
 
 
-    const { token, user } = data;
-    localStorage.setItem('token', token);
-    localStorage.setItem('usuario', JSON.stringify(user));
-    setUsuario(user);
+
   };
 
   const cadastrar = async () => {
-    console.log("fazendo Cadastro")
-    const res = await fetch('http://localhost:4000/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, cpf, email, senha }),
-    });
+    try {
+      console.log("fazendo Cadastro")
+      const res = await API.get("/auth/signup", { nome, cpf, email, senha })
 
-    const data = await res.json(); // Captura a mensagem do backend
 
-    if (!res.ok) {
-      mostrarAlerta('error', data.error || 'Erro ao fazer cadastro');
-      throw new Error(data.error || 'Erro ao fazer cadastro');
-    
+      const { message, id } = res.data;
+      setSingupOpen(false)
+      mostrarAlerta('success', message)
+    } catch (error) {
+
+      const { status, statusText } = error.response
+      mostrarAlerta('error' + status, statusText || 'Erro ao fazer cadastro');
+      throw new Error(statusText || 'Erro ao fazer cadastro');
+
     }
 
-    const { message, id } = data;
-    setSingupOpen(false)
-    mostrarAlerta('success', message)
   };
 
   const logout = () => {
@@ -98,7 +95,7 @@ export function AuthProvider({ children }) {
         usuario,
         login,
         logout,
-        singupOpen, 
+        singupOpen,
         setSingupOpen,
         cadastrar
       }}>
