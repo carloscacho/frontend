@@ -9,6 +9,7 @@ import Alert from "@/components/Alert";
 import Drawer from "@/components/Drawer";
 import { DrawerProvider } from "@/context/DrawerContext";
 import Navbar from "@/components/Navbar";
+import { ModalProvider } from "@/context/ModalContext";
 
 
 export const metadata = {
@@ -26,15 +27,17 @@ export default function RootLayout({ children }) {
       </head>
       <body className="bg-ifms">
         <DrawerProvider>
-        <Navbar />
+          <Navbar />
           <Drawer>
-            <AlertProvider>
-              <AuthProvider>
-                <Alert />
-                {children}
+            <ModalProvider>
+              <AlertProvider>
+                <AuthProvider>
+                  <Alert />
+                  {children}
 
-              </AuthProvider>
-            </AlertProvider>
+                </AuthProvider>
+              </AlertProvider>
+            </ModalProvider>
           </Drawer>
         </DrawerProvider>
 

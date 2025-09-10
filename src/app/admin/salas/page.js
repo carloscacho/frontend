@@ -31,10 +31,10 @@ export default function Page() {
   }, [novaSala])
 
   return (
-    <div className="hero bg-base-200 min-h-screen min-w-md">
+    <div className="hero min-h-screen min-w-md">
       <div className="hero-content w-full flex-col">
         <div className="text-center lg:text-left">
-          <h1 className="text-5xl font-bold">Cadastro de Salas</h1>
+          <h1 className="text-5xl text-base-300 font-bold">Cadastro de Salas</h1>
         </div>
         <div className="flex w-full justify-between">
 
