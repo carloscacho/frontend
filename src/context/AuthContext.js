@@ -3,6 +3,8 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAlerta } from './AlertContext';
 
+import API from '@/utils/api';
+
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {

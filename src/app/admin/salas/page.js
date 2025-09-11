@@ -1,10 +1,10 @@
 'use client'
 import { useState, useEffect } from "react"
 
-import TextInputWithButton from "@/components/TextInputWithButton"
+import TextInputWithButton from "@/components/utils/TextInputWithButton"
 import { getAllRecords } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
-import ListItens from "@/components/ListItens"
+import ListItens from "@/components/displays/ListItens"
 
 export default function Page() {
   const [salas, setSalas] = useState([])
@@ -31,10 +31,10 @@ export default function Page() {
   }, [novaSala])
 
   return (
-    <div className="hero bg-base-200 min-h-screen min-w-md">
+    <div className="hero min-h-screen min-w-md">
       <div className="hero-content w-full flex-col">
         <div className="text-center lg:text-left">
-          <h1 className="text-5xl font-bold">Cadastro de Salas</h1>
+          <h1 className="text-5xl text-base-300 font-bold">Cadastro de Salas</h1>
         </div>
         <div className="flex w-full justify-between">
 
