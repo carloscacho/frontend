@@ -2,7 +2,10 @@
 import Link from "next/link";
 import React from "react";
 import { MdOutlineGroups2 } from "react-icons/md";
-import { SiGoogleclassroom } from "react-icons/si";
+import { SiGoogleclassroom, SiGoogletasks  } from "react-icons/si";
+import { TbSunMoon } from "react-icons/tb";
+import { PiUsersDuotone, PiCertificateDuotone, PiCalendarCheckDuotone,PiChalkboardTeacherDuotone   } from "react-icons/pi";
+
 import { useDrawer } from "@/context/DrawerContext";
 
 const Drawer = ({ children }) => {
@@ -23,14 +26,14 @@ const Drawer = ({ children }) => {
                 
                 <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
                 
-                    <li className="text-lg"><Link href='/admin/salas' ><SiGoogleclassroom />Atividades</Link></li>
-                    <li className="text-lg"><Link href='/admin/salas' ><SiGoogleclassroom />Certificados</Link></li>
-                    <li className="text-lg"><Link href='/admin/salas' ><SiGoogleclassroom />Eventos</Link></li>
-                    <li className="text-lg"><Link href='/admin/palestrantes' ><SiGoogleclassroom />Palestrantes</Link></li>
+                    <li className="text-lg"><Link href='/admin/salas' ><SiGoogletasks  />Atividades</Link></li>
+                    <li className="text-lg"><Link href='/admin/salas' ><PiCertificateDuotone  />Certificados</Link></li>
+                    <li className="text-lg"><Link href='/admin/salas' ><PiCalendarCheckDuotone  />Eventos</Link></li>
+                    <li className="text-lg"><Link href='/admin/palestrantes' ><PiChalkboardTeacherDuotone  />Palestrantes</Link></li>
                     <li className="text-lg"><Link href='/admin/salas' ><SiGoogleclassroom />Salas</Link></li>
                     <li className="text-lg"><Link href='/admin/turmas' ><MdOutlineGroups2 />Turmas</Link></li>
-                    <li className="text-lg"><Link href='/admin/salas' ><SiGoogleclassroom />Turnos</Link></li>
-                    <li className="text-lg"><Link href='/admin/salas' ><SiGoogleclassroom />Usuários</Link></li>
+                    <li className="text-lg"><Link href='/admin/turnos' ><TbSunMoon />Turnos</Link></li>
+                    <li className="text-lg"><Link href='/admin/salas' ><PiUsersDuotone />Usuários</Link></li>
 
                 </ul>
             </div>
