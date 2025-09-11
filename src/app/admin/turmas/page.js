@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import TextInputWithButton from "@/components/utils/TextInputWithButton"
 import { getAllRecords } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
-import ListItens from "@/components/ListItens"
+import ListItens from "@/components/displays/ListItens"
 import Hero from "@/components/displays/Hero"
 
 export default function Page() {

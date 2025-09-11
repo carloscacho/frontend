@@ -1,9 +1,10 @@
 'use client'
 import { useModal } from "@/context/ModalContext";
 import React from "react";
+import Button from "../utils/Button";
 
 
-export default function Modal( {children, refModal}) {
+export default function Modal({ children, refModal, onClickSalvar, onClickCancelar }) {
 
     const { refMd, setRefMd } = useModal()
 
@@ -15,9 +16,14 @@ export default function Modal( {children, refModal}) {
                 <form method="dialog">
                     {/* if there is a button in form, it will close the modal */}
                     <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                   
+
+                    {children}
+
+                    <div className="btns w-100 flex justify-end mt-2">
+                        <Button onClick={onClickSalvar} label="salvar" color="success" mode="active" />
+                        <Button onClick={onClickCancelar} label="cancelar" color="error" mode="active" />
+                    </div>
                 </form>
-                {children}
             </div>
         </dialog>
     )
