@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useState, useEffect, use } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAlerta } from './AlertContext';
 
@@ -22,35 +22,38 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('usuario');
-    if (false) {
-      console.log('usuario logado')
+    // 1. CORREÇÃO: Verifica se o token e o usuário existem para manter o login
+    if (token && user) {
+      console.log('Usuário recuperado do localStorage.');
       setUsuario(JSON.parse(user));
     }
   }, []);
 
   useEffect(() => {
-    if (usuario){
+    if (usuario) {
       router.push('/admin/salas')
       console.log("Entrei aqui")
     }
   }, [usuario])
 
   const login = async () => {
-    console.log("fazendo login")
-    const res = await fetch('http://localhost:4000/auth/login', {
+    // 2. MELHORIA: Usar variável de ambiente para a URL da API
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4444';
+    console.log("Fazendo login...");
+    const res = await fetch(`${apiUrl}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, senha }),
     });
 
-    const data = await res.json(); // Captura a mensagem do backend
-    if(res.status === 200)
-    console.log(data)
-    if (!res.ok) {
-      mostrarAlerta('error', data.error || 'Erro ao fazer login');
-      throw new Error(data.error || 'Erro ao fazer login');
-    }
+    const data = await res.json();
 
+    if (!res.ok) {
+      // 3. MELHORIA: Tratamento de erro mais robusto
+      const errorMessage = data.message || data.error || 'Erro ao fazer login';
+      mostrarAlerta('error', errorMessage);
+      throw new Error(errorMessage);
+    }
 
     const { token, user } = data;
     localStorage.setItem('token', token);
@@ -59,24 +62,26 @@ export function AuthProvider({ children }) {
   };
 
   const cadastrar = async () => {
-    console.log("fazendo Cadastro")
-    const res = await fetch('http://localhost:4000/auth/signup', {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4444';
+    console.log("Fazendo cadastro...");
+    const res = await fetch(`${apiUrl}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nome, cpf, email, senha }),
     });
 
-    const data = await res.json(); // Captura a mensagem do backend
+    const data = await res.json();
 
     if (!res.ok) {
-      mostrarAlerta('error', data.error || 'Erro ao fazer cadastro');
-      throw new Error(data.error || 'Erro ao fazer cadastro');
-    
+      const errorMessage = data.message || data.error || 'Erro ao fazer cadastro';
+      mostrarAlerta('error', errorMessage);
+      throw new Error(errorMessage);
     }
 
-    const { message, id } = data;
-    setSingupOpen(false)
-    mostrarAlerta('success', message)
+    // 4. CORREÇÃO: A API retorna o objeto 'user', não 'message' e 'id'
+    console.log('Usuário cadastrado:', data);
+    setSingupOpen(false);
+    mostrarAlerta('success', 'Cadastro realizado com sucesso!');
   };
 
   const logout = () => {
@@ -98,7 +103,7 @@ export function AuthProvider({ children }) {
         usuario,
         login,
         logout,
-        singupOpen, 
+        singupOpen,
         setSingupOpen,
         cadastrar
       }}>
