@@ -1,13 +1,13 @@
 'use client'
 import { useState, useEffect, useRef } from "react"
 
-import TextInputWithButton from "@/components/TextInputWithButton"
+import TextInputWithButton from "@/components/utils/TextInputWithButton"
 import { getAllRecords } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
-import ListItens from "@/components/ListItens"
-import Hero from "@/components/Hero"
+import ListItens from "@/components/displays/ListItens"
+import Hero from "@/components/displays/Hero"
 import { useModal } from "@/context/ModalContext"
-import Modal from "@/components/Modal"
+import Modal from "@/components/displays/Modal"
 import Palestrantes from "@/components/Modais/Palestrantes"
 
 export default function Page() {
