@@ -1,11 +1,11 @@
 'use client'
 import { useState, useEffect } from "react"
 
-import TextInputWithButton from "@/components/TextInputWithButton"
+import TextInputWithButton from "@/components/utils/TextInputWithButton"
 import { getAllRecords } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
 import ListItens from "@/components/ListItens"
-import Hero from "@/components/Hero"
+import Hero from "@/components/displays/Hero"
 
 export default function Page() {
   const [turnos, setTurnos] = useState([])

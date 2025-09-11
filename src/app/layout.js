@@ -3,12 +3,12 @@ import Link from "next/link";
 import "./globals.css";
 import { UserContextProvider } from '@/context/UserContext'
 import { AuthProvider } from '@/context/AuthContext';
-import Header from "@/components/Header";
+import Header from "@/components/navigation/Header";
 import { AlertProvider } from "@/context/AlertContext";
-import Alert from "@/components/Alert";
-import Drawer from "@/components/Drawer";
+import Alert from "@/components/feedback/Alert";
+import Drawer from "@/components/navigation/Drawer";
 import { DrawerProvider } from "@/context/DrawerContext";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navigation/Navbar";
 import { ModalProvider } from "@/context/ModalContext";
 
 

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 
 import { useAuth } from '@/context/AuthContext'
-import Card from "@/components/Card";
+import Card from "@/components/displays/Card";
 import Input from "@/components/utils/Input";
 import { mostrarAlerta } from "@/context/AlertContext"
 

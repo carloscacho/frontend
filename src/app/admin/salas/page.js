@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from "react"
 
-import TextInputWithButton from "@/components/TextInputWithButton"
+import TextInputWithButton from "@/components/utils/TextInputWithButton"
 import { getAllRecords } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
 import ListItens from "@/components/ListItens"
