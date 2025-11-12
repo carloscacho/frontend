@@ -28,7 +28,7 @@ const Drawer = ({ children }) => {
                 
                     <li className="text-lg"><Link href='/admin/salas' ><SiGoogletasks  />Atividades</Link></li>
                     <li className="text-lg"><Link href='/admin/salas' ><PiCertificateDuotone  />Certificados</Link></li>
-                    <li className="text-lg"><Link href='/admin/salas' ><PiCalendarCheckDuotone  />Eventos</Link></li>
+                    <li className="text-lg"><Link href='/admin/eventos' ><PiCalendarCheckDuotone  />Eventos</Link></li>
                     <li className="text-lg"><Link href='/admin/palestrantes' ><PiChalkboardTeacherDuotone  />Palestrantes</Link></li>
                     <li className="text-lg"><Link href='/admin/salas' ><SiGoogleclassroom />Salas</Link></li>
                     <li className="text-lg"><Link href='/admin/turmas' ><MdOutlineGroups2 />Turmas</Link></li>

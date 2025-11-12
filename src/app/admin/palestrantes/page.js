@@ -20,7 +20,7 @@ export default function Page() {
 
   useEffect(() => {
     async function getAllpalestrante() {
-      const palestranteApi = await getAllRecords('/turno')
+      const palestranteApi = await getAllRecords('/palestrante')
       setPalestrantes(palestranteApi)
       setPalestrantesF(palestranteApi)
     }
@@ -28,7 +28,7 @@ export default function Page() {
   }, [])
 
   function normalizarLista(lista) {
-    return lista.map(item => ({ id: item.id_turno, nome: item.nome }))
+    return lista.map(item => ({ id: item.id_turno, nome: item.nome, description: item.email }))
   }
 
   useEffect(() => {

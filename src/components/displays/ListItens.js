@@ -6,7 +6,7 @@ export default function ListItens(props) {
       <li className="p-4 pb-2 text-xs opacity-60 tracking-wide">{props.info}</li>
 
       {props.list.map(item => (
-        <li className="list-row">
+        <li key={item.id} className="list-row">
           <div className="text-2xl font-thin opacity-30 tabular-nums">{item.id}</div>
           <div className="list-col-grow">
             <div>{item.nome}</div>
