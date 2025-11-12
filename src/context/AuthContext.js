@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
 
   const login = async () => {
     // 2. MELHORIA: Usar variável de ambiente para a URL da API
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4444';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
     console.log("Fazendo login...");
     const res = await fetch(`${apiUrl}/auth/login`, {
       method: 'POST',
@@ -64,7 +64,7 @@ export function AuthProvider({ children }) {
   };
 
   const cadastrar = async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4444';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
     console.log("Fazendo cadastro...");
     const res = await fetch(`${apiUrl}/auth/register`, {
       method: 'POST',

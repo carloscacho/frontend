@@ -19,7 +19,7 @@ export default function Login() {
           <Input 
             label="Email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={setEmail}
             type="email"
             placeholder="Digite seu email"
           />
@@ -27,7 +27,7 @@ export default function Login() {
           <Input
             label="Senha"
             value={senha}
-            onChange={(event) => setSenha(event.target.value)}
+            onChange={setSenha}
             type="password"
             placeholder="Digite sua senha"
           />

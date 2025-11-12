@@ -1,7 +1,7 @@
 export default function ListItens(props) {
 
   return (
-    <ul className="list bg-base-100 rounded-box shadow-md">
+    <ul className="list bg-base-100 rounded-box shadow-md overflow-y-auto h-screen pb-7">
 
       <li className="p-4 pb-2 text-xs opacity-60 tracking-wide">{props.info}</li>
 

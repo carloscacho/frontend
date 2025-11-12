@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext'
 import Card from "@/components/displays/Card";
 import Input from "@/components/utils/Input";
-import { mostrarAlerta } from "@/context/AlertContext"
+import { useAlerta } from "@/context/AlertContext"
 
 export default function Cadastro() {
   const { email, setEmail, senha, setSenha, login,
     nome, setNome, cpf, setCpf, singupOpen, setSingupOpen, cadastrar, } = useAuth()
   const [confSenha, setConfSenha] = useState('')
+
+  const {mostrarAlerta} = useAlerta()
 
   const preCadastro = () => {
     if (senha.length < 6) {
@@ -39,14 +41,14 @@ export default function Cadastro() {
           <Input
             label="Nome"
             value={nome}
-            onChange={(event) => setNome(event.target.value)}
+            onChange={setNome}
             type="text"
             placeholder="Digite seu nome"
           />
           <Input
             label="Email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={setEmail}
             type="email"
             placeholder="Digite seu email"
           />
@@ -54,7 +56,7 @@ export default function Cadastro() {
           <Input
             label="CPF"
             value={cpf}
-            onChange={(event) => setCpf(event.target.value)}
+            onChange={setCpf}
             type="text"
             placeholder="Digite seu CPF"
           />
@@ -62,14 +64,14 @@ export default function Cadastro() {
           <Input
             label="Senha"
             value={senha}
-            onChange={(event) => setSenha(event.target.value)}
+            onChange={setSenha}
             type="password"
             placeholder="Digite sua senha"
           />
           <Input
-            label="Confirmação de Senha"
+            label="Conf Senha"
             value={confSenha}
-            onChange={(event) => setConfSenha(event.target.value)}
+            onChange={setConfSenha}
             type="password"
             placeholder="Digite sua confirmação da senha"
           />
