@@ -26,14 +26,14 @@ const Drawer = ({ children }) => {
                 
                 <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
                 
-                    <li className="text-lg"><Link href='/admin/salas' ><SiGoogletasks  />Atividades</Link></li>
-                    <li className="text-lg"><Link href='/admin/salas' ><PiCertificateDuotone  />Certificados</Link></li>
+                    <li className="text-lg"><Link href='/admin/atividades' ><SiGoogletasks  />Atividades</Link></li>
+                    <li className="text-lg"><Link href='/admin/certificados' ><PiCertificateDuotone  />Certificados</Link></li>
                     <li className="text-lg"><Link href='/admin/eventos' ><PiCalendarCheckDuotone  />Eventos</Link></li>
                     <li className="text-lg"><Link href='/admin/palestrantes' ><PiChalkboardTeacherDuotone  />Palestrantes</Link></li>
                     <li className="text-lg"><Link href='/admin/salas' ><SiGoogleclassroom />Salas</Link></li>
                     <li className="text-lg"><Link href='/admin/turmas' ><MdOutlineGroups2 />Turmas</Link></li>
                     <li className="text-lg"><Link href='/admin/turnos' ><TbSunMoon />Turnos</Link></li>
-                    <li className="text-lg"><Link href='/admin/salas' ><PiUsersDuotone />Usuários</Link></li>
+                    <li className="text-lg"><Link href='/admin/usuarios' ><PiUsersDuotone />Usuários</Link></li>
 
                 </ul>
             </div>
