@@ -24,8 +24,8 @@ export default function Page() {
 
   useEffect(() => {
     async function getAllatividade() {
-      console.log(isEmpty(eventoSelect)? "/atividade/full/11": "/atividade/full/" + eventoSelect.id_evento)
-      const atividadeApi = await getAllRecords(isEmpty(eventoSelect)? "/atividade/full/11": "/atividade/full/" + eventoSelect.id_evento)
+      console.log(isEmpty(eventoSelect) ? "/atividade/full/11" : "/atividade/full/" + eventoSelect.id_evento)
+      const atividadeApi = await getAllRecords(isEmpty(eventoSelect) ? "/atividade/full/11" : "/atividade/full/" + eventoSelect.id_evento)
       setAtividades(atividadeApi)
       setAtividadesF(atividadeApi)
     }
@@ -69,8 +69,14 @@ export default function Page() {
           btnLabel='pesquisar'
           btncolor="info"
         />
-        
-        <Select label="Selecione um evento" options={eventoOptions} selectValue={eventoSelect} onChange={setEventoSelect} />
+
+        <Select
+          label="Selecione um evento"
+          options={eventoOptions}
+          selectValue={eventoSelect}
+          onChange={setEventoSelect}
+          valueKey="id_evento"
+        />
       </div>
       <div>
         <ListItens info="lista de atividade cadastradas"
