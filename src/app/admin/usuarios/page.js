@@ -1,14 +1,14 @@
 'use client'
 import { useState, useEffect, useRef } from "react"
 
-import TextInputWithButton from "@/components/utils/TextInputWithButton"
+import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
 import { getAllRecords } from "@/utils/crud"
 import { filterItems, formatCPF } from "@/utils/filter"
-import ListItens from "@/components/displays/ListItens"
-import Hero from "@/components/displays/Hero"
+import ListItens from "@/app/_components/displays/ListItens"
+import Hero from "@/app/_components/displays/Hero"
 import { useModal } from "@/context/ModalContext"
-import Modal from "@/components/displays/Modal"
-// import Usuarios from "@/components/Modais/Usuarios"
+import Modal from "@/app/_components/displays/Modal"
+import Usuarios from "@/app/_components/Modais/Usuarios"
 
 export default function Page() {
   const [usuario, setUsuarios] = useState([])
@@ -48,7 +48,7 @@ export default function Page() {
 
   return (
     <Hero title="Cadastro de usuario">
-      <div className="my-3 mx-2">
+      <div class="my-3 mx-2">
 
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
@@ -67,10 +67,10 @@ export default function Page() {
       </div>
       <Modal refModal={refMdUsuarios}
         onClickCancelar={() => console.log("cancelando")}>
-        <h3 className="font-bold text-2xl ml-2">
+        <h3 class="font-bold text-2xl ml-2">
           Cadastrar Novos Usuarios
         </h3>
-        {/* <Usuarios /> */}
+        <Usuarios />
       </Modal>
     </Hero>
 

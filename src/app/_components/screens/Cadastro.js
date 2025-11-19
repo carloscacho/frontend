@@ -2,8 +2,8 @@
 import { useState } from 'react';
 
 import { useAuth } from '@/context/AuthContext'
-import Card from "@/components/displays/Card";
-import Input from "@/components/utils/Input";
+import Card from "@/app/_components/displays/Card";
+import Input from "@/app/_components/utils/Input";
 import { useAlerta } from "@/context/AlertContext"
 
 export default function Cadastro() {

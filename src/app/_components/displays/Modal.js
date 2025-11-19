@@ -19,7 +19,7 @@ export default function Modal({ children, refModal, onClickSalvar, onClickCancel
 
                     {children}
 
-                    <div className="btns w-100 flex justify-end mt-2">
+                    <div className="btns w-full flex justify-end mt-2">
                         <Button onClick={onClickSalvar} label="salvar" color="success" mode="active" />
                         <Button onClick={onClickCancelar} label="cancelar" color="error" mode="active" />
                     </div>

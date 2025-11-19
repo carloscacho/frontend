@@ -3,13 +3,16 @@ import Link from "next/link";
 import "./globals.css";
 import { UserContextProvider } from '@/context/UserContext'
 import { AuthProvider } from '@/context/AuthContext';
-import Header from "@/components/navigation/Header";
+import Header from "@/app/_components/navigation/Header";
 import { AlertProvider } from "@/context/AlertContext";
-import Alert from "@/components/feedback/Alert";
-import Drawer from "@/components/navigation/Drawer";
+import Alert from "@/app/_components/feedback/Alert";
+import Drawer from "@/app/_components/navigation/Drawer";
+
 import { DrawerProvider } from "@/context/DrawerContext";
-import Navbar from "@/components/navigation/Navbar";
+import Navbar from "@/app/_components/navigation/Navbar";
+// const Navbar = dynamic(() => import("./app/_components/navigation/Navbar"), {ssr: false})
 import { ModalProvider } from "@/context/ModalContext";
+import dynamic from "next/dynamic";
 
 
 export const metadata = {
@@ -22,24 +25,23 @@ export default function RootLayout({ children }) {
     <html lang="en" data-theme="lemonade">
       <head>
         <title>IFMS Eventos - SMA</title>
-        <link rel="icon" href="favicon.jpg"/>
+        <link rel="icon" href="favicon.jpg" />
         <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
         <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
       </head>
       <body className="bg-ifms">
         <DrawerProvider>
-          <Navbar />
-          <Drawer>
-            <ModalProvider>
-              <AlertProvider>
-                <AuthProvider>
+          <ModalProvider>
+            <AlertProvider>
+              <AuthProvider>
+                <Navbar />
+                <Drawer>
                   <Alert />
                   {children}
-
-                </AuthProvider>
-              </AlertProvider>
-            </ModalProvider>
-          </Drawer>
+                </Drawer>
+              </AuthProvider>
+            </AlertProvider>
+          </ModalProvider>
         </DrawerProvider>
 
 

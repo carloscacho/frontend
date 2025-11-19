@@ -10,7 +10,7 @@ export default function Palestrantes() {
     const {refMd} = useModal()
 
     return (
-        <div className="w-100">
+        <div className="w-full">
             <Input
                 label="Nome:"
                 value={nome}

@@ -1,8 +1,8 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext'
-import Card from "@/components/displays/Card";
-import Input from "@/components/utils/Input";
+import Card from "@/app/_components/displays/Card";
+import Input from "@/app/_components/utils/Input";
 
 export default function Login() {
   const { email, setEmail, senha, setSenha, login, setSingupOpen } = useAuth()
