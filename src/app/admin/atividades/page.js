@@ -24,8 +24,8 @@ export default function Page() {
 
   useEffect(() => {
     async function getAllatividade() {
-      console.log(isEmpty(eventoSelect) ? "/atividade/full/11" : "/atividade/full/" + eventoSelect.id_evento)
-      const atividadeApi = await getAllRecords(isEmpty(eventoSelect) ? "/atividade/full/11" : "/atividade/full/" + eventoSelect.id_evento)
+      const url = isEmpty(eventoSelect) ? "/atividade" : "/atividade/full/" + eventoSelect.id_evento
+      const atividadeApi = await getAllRecords(url)
       setAtividades(atividadeApi)
       setAtividadesF(atividadeApi)
     }
@@ -36,6 +36,14 @@ export default function Page() {
     async function getAllEventos() {
       const eventoApi = await getAllRecords('/evento')
       setEventoOptions(eventoApi)
+      if (eventoApi && eventoApi.length > 0) {
+        // Sort by ID descending to get the last one (assuming higher ID = newer)
+        // Or just use the last element if the API returns them in insertion order.
+        // To be safe, let's sort.
+        const sortedEventos = [...eventoApi].sort((a, b) => a.id_evento - b.id_evento)
+        const lastEvent = sortedEventos[sortedEventos.length - 1]
+        setEventoSelect(lastEvent)
+      }
     }
     getAllEventos()
   }, [])
