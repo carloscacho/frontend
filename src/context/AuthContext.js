@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { useAlerta } from './AlertContext';
 
@@ -22,11 +23,11 @@ export function AuthProvider({ children }) {
 
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('usuario');
+    const token = Cookies.get('token');
+    const user = Cookies.get('usuario');
     // 1. CORREÇÃO: Verifica se o token e o usuário existem para manter o login
     if (token && user) {
-      console.log('Usuário recuperado do localStorage.');
+      console.log('Usuário recuperado dos cookies.');
       setUsuario(JSON.parse(user));
     }
   }, []);
@@ -58,8 +59,8 @@ export function AuthProvider({ children }) {
     }
 
     const { token, user } = data;
-    localStorage.setItem('token', token);
-    localStorage.setItem('usuario', JSON.stringify(user));
+    Cookies.set('token', token, { expires: 7 }); // Expira em 7 dias
+    Cookies.set('usuario', JSON.stringify(user), { expires: 7 });
     setUsuario(user);
   };
 
@@ -87,8 +88,8 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
+    Cookies.remove('token');
+    Cookies.remove('usuario');
     setUsuario(null);
   };
 
