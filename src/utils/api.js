@@ -19,7 +19,7 @@ API.interceptors.response.use(
                 document.cookie = 'token=; Max-Age=0; path=/';
                 document.cookie = 'usuario=; Max-Age=0; path=/';
 
-                window.location.href = '/login';
+                window.location.href = '/';
             }
         }
         return Promise.reject(error);

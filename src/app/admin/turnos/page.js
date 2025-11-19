@@ -1,8 +1,9 @@
 'use client'
 import { useState, useEffect } from "react"
+import { useAlerta } from "@/context/AlertContext"
 
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords } from "@/utils/crud"
+import { getAllRecords, createRecord } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
@@ -11,6 +12,7 @@ export default function Page() {
   const [turnos, setTurnos] = useState([])
   const [turnosF, setTurnosF] = useState([])
   const [novaTurno, setNovaTurno] = useState("")
+  const { mostrarAlerta } = useAlerta()
 
   useEffect(() => {
     async function getAllturnos() {
@@ -23,6 +25,20 @@ export default function Page() {
 
   function normalizarLista(lista) {
     return lista.map(item => ({ id: item.id_turno, nome: item.nome }))
+  }
+
+  async function handleCadastrar() {
+    if (!novaTurno) return;
+    try {
+      await createRecord('/turno', { nome: novaTurno });
+      setNovaTurno("");
+      const turnosApi = await getAllRecords('/turno');
+      setTurnos(turnosApi);
+      setTurnosF(turnosApi);
+      mostrarAlerta("success", "Turno cadastrado com sucesso!");
+    } catch (error) {
+      mostrarAlerta("error", "Erro ao cadastrar turno.");
+    }
   }
 
   useEffect(() => {
@@ -40,7 +56,7 @@ export default function Page() {
           type='text'
           value={novaTurno}
           onChange={setNovaTurno}
-          onClick={console.log("btn Clickado")}
+          onClick={handleCadastrar}
           btnLabel='pesquisar'
           btncolor="info"
         />
