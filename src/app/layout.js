@@ -1,18 +1,13 @@
 
-import Link from "next/link";
 import "./globals.css";
-import { UserContextProvider } from '@/context/UserContext'
 import { AuthProvider } from '@/context/AuthContext';
-import Header from "@/app/_components/navigation/Header";
 import { AlertProvider } from "@/context/AlertContext";
 import Alert from "@/app/_components/feedback/Alert";
 import Drawer from "@/app/_components/navigation/Drawer";
 
 import { DrawerProvider } from "@/context/DrawerContext";
 import Navbar from "@/app/_components/navigation/Navbar";
-// const Navbar = dynamic(() => import("./app/_components/navigation/Navbar"), {ssr: false})
 import { ModalProvider } from "@/context/ModalContext";
-import dynamic from "next/dynamic";
 
 
 export const metadata = {
@@ -24,7 +19,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="lemonade">
       <head>
-        <title>IFMS Eventos - SMA</title>
+        <title>IFMS Eventos</title>
         <link rel="icon" href="favicon.jpg" />
         <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
         <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>

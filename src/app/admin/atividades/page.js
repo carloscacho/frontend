@@ -6,6 +6,7 @@ import { getAllRecords } from "@/utils/crud"
 import { filterItems, isEmpty } from "@/utils/filter"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
+import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
 import Select from "@/app/_components/utils/Select"
@@ -37,9 +38,6 @@ export default function Page() {
       const eventoApi = await getAllRecords('/evento')
       setEventoOptions(eventoApi)
       if (eventoApi && eventoApi.length > 0) {
-        // Sort by ID descending to get the last one (assuming higher ID = newer)
-        // Or just use the last element if the API returns them in insertion order.
-        // To be safe, let's sort.
         const sortedEventos = [...eventoApi].sort((a, b) => a.id_evento - b.id_evento)
         const lastEvent = sortedEventos[sortedEventos.length - 1]
         setEventoSelect(lastEvent)
@@ -65,7 +63,8 @@ export default function Page() {
   }, [novaAtividade])
 
   return (
-    <Hero title="Cadastro de atividade">
+    <PageContainer>
+      <Hero title="Cadastro de atividade" />
       <div className="my-3 mx-2 flex justify-between">
 
         <TextInputWithButton
@@ -98,7 +97,6 @@ export default function Page() {
         </h3>
         {/* <Atividades /> */}
       </Modal>
-    </Hero>
-
+    </PageContainer>
   )
 }

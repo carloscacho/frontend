@@ -1,17 +1,22 @@
 'use client'
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAlerta } from "@/context/AlertContext"
 
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords, createRecord } from "@/utils/crud"
+import { getAllRecords, createRecord, deleteRecord, updateRecord } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
 import ListItens from "@/app/_components/displays/ListItens"
+import Hero from "@/app/_components/displays/Hero"
+import PageContainer from "@/app/_components/displays/PageContainer"
+import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
 
 export default function Page() {
   const [salas, setSalas] = useState([])
   const [salasF, setSalasF] = useState([])
   const [novaSala, setNovaSala] = useState("")
   const { mostrarAlerta } = useAlerta()
+  const [idToDelete, setIdToDelete] = useState(null)
+  const deleteModalRef = useRef(null)
 
   useEffect(() => {
     async function getAllSalas() {
@@ -40,6 +45,37 @@ export default function Page() {
     }
   }
 
+  function openDeleteModal(id) {
+    setIdToDelete(id);
+    deleteModalRef.current.showModal();
+  }
+
+  async function confirmDelete() {
+    if (!idToDelete) return;
+    try {
+      await deleteRecord('/sala', idToDelete);
+      const salasApi = await getAllRecords('/sala');
+      setSalas(salasApi);
+      setSalasF(salasApi);
+      mostrarAlerta("success", "Sala deletada com sucesso!");
+      deleteModalRef.current.close();
+    } catch (error) {
+      mostrarAlerta("error", "Erro ao deletar sala.");
+    }
+  }
+
+  async function handleEdit(id, data) {
+    try {
+      await updateRecord('/sala', id, data);
+      const salasApi = await getAllRecords('/sala');
+      setSalas(salasApi);
+      setSalasF(salasApi);
+      mostrarAlerta("success", "Sala atualizada com sucesso!");
+    } catch (error) {
+      mostrarAlerta("error", "Erro ao atualizar sala.");
+    }
+  }
+
   useEffect(() => {
     setSalasF(salas)
     const results = filterItems(salas, novaSala)
@@ -47,32 +83,29 @@ export default function Page() {
   }, [novaSala])
 
   return (
-    <div className="hero min-h-screen min-w-md">
-      <div className="hero-content w-full flex-col">
-        <div className="text-center lg:text-left">
-          <h1 className="text-5xl text-base-300 font-bold">Cadastro de Salas</h1>
-        </div>
-        <div className="flex w-full justify-between">
+    <PageContainer>
+      <Hero title="Cadastro de Salas" />
+      <div className="my-3 mx-2">
 
-          <div className="overflow-x-auto w-full rounded-box border border-base-content/5 bg-base-100">
-            <div className="my-3 mx-2">
-
-              <TextInputWithButton
-                placeholder="Digite para pesquisar ou cadastrar"
-                type='text'
-                value={novaSala}
-                onChange={setNovaSala}
-                onClick={handleCadastrar}
-                btnLabel='pesquisar'
-              />
-            </div>
-            <div>
-              <ListItens info="lista de Salas cadastradas" list={normalizarLista(salasF)} />
-            </div>
-          </div>
-        </div>
+        <TextInputWithButton
+          placeholder="Digite para pesquisar ou cadastrar"
+          type='text'
+          value={novaSala}
+          onChange={setNovaSala}
+          onClick={handleCadastrar}
+          btnLabel='pesquisar'
+        />
       </div>
-    </div>
-
+      <div>
+        <ListItens info="lista de Salas cadastradas" list={normalizarLista(salasF)} onDelete={openDeleteModal} onEdit={handleEdit} />
+      </div>
+      <ConfirmDialog
+        refModal={deleteModalRef}
+        title="Excluir Sala"
+        message="Tem certeza que deseja excluir esta sala? Esta ação não pode ser desfeita."
+        onConfirm={confirmDelete}
+        onCancel={() => deleteModalRef.current.close()}
+      />
+    </PageContainer>
   )
 }

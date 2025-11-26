@@ -6,6 +6,7 @@ import { getAllRecords } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
+import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
 // import Certificados from "@/components/Modais/Certificados"
@@ -45,7 +46,8 @@ export default function Page() {
   }, [novaCertificado])
 
   return (
-    <Hero title="Cadastro de certificado">
+    <PageContainer>
+      <Hero title="Cadastro de certificado" />
       <div className="my-3 mx-2">
 
         <TextInputWithButton
@@ -70,7 +72,6 @@ export default function Page() {
         </h3>
         {/* <Certificados /> */}
       </Modal>
-    </Hero>
-
+    </PageContainer>
   )
 }

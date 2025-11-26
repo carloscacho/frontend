@@ -2,44 +2,57 @@
 import Link from "next/link";
 import React from "react";
 import { MdOutlineGroups2 } from "react-icons/md";
-import { SiGoogleclassroom, SiGoogletasks  } from "react-icons/si";
+import { SiGoogleclassroom, SiGoogletasks } from "react-icons/si";
 import { TbSunMoon } from "react-icons/tb";
-import { PiUsersDuotone, PiCertificateDuotone, PiCalendarCheckDuotone,PiChalkboardTeacherDuotone   } from "react-icons/pi";
+import { PiUsersDuotone, PiCertificateDuotone, PiCalendarCheckDuotone, PiChalkboardTeacherDuotone } from "react-icons/pi";
 
 import { useDrawer } from "@/context/DrawerContext";
 
 const Drawer = ({ children }) => {
 
-    const {drawer} = useDrawer()
+    const { drawer } = useDrawer()
+
+    const menuItems = [
+        { name: "Atividades", icon: <SiGoogletasks size={24} />, path: "/admin/atividades" },
+        { name: "Certificados", icon: <PiCertificateDuotone size={24} />, path: "/admin/certificados" },
+        { name: "Eventos", icon: <PiCalendarCheckDuotone size={24} />, path: "/admin/eventos" },
+        { name: "Palestrantes", icon: <PiChalkboardTeacherDuotone size={24} />, path: "/admin/palestrantes" },
+        { name: "Salas", icon: <SiGoogleclassroom size={24} />, path: "/admin/salas" },
+        { name: "Turmas", icon: <MdOutlineGroups2 size={24} />, path: "/admin/turmas" },
+        { name: "Turnos", icon: <TbSunMoon size={24} />, path: "/admin/turnos" },
+        { name: "Usuários", icon: <PiUsersDuotone size={24} />, path: "/admin/usuarios" },
+    ];
 
     return (
-        <div className={ drawer ? "drawer drawer-open fixed mt-12" : "drawer drawer-close"}>
+        <div className="drawer drawer-open fixed mt-12">
 
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
             <div className="drawer-content flex flex-col items-center justify-center">
                 {children}
             </div>
-            <div className="drawer-side">
+            <div className={`drawer-side z-20 ${!drawer ? "overflow-visible" : ""}`}>
                 <label htmlFor="my-drawer-2" aria-label="close sidebar" className="drawer-overlay">
 
                 </label>
-                
-                <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-                
-                    <li className="text-lg"><Link href='/admin/atividades' ><SiGoogletasks  />Atividades</Link></li>
-                    <li className="text-lg"><Link href='/admin/certificados' ><PiCertificateDuotone  />Certificados</Link></li>
-                    <li className="text-lg"><Link href='/admin/eventos' ><PiCalendarCheckDuotone  />Eventos</Link></li>
-                    <li className="text-lg"><Link href='/admin/palestrantes' ><PiChalkboardTeacherDuotone  />Palestrantes</Link></li>
-                    <li className="text-lg"><Link href='/admin/salas' ><SiGoogleclassroom />Salas</Link></li>
-                    <li className="text-lg"><Link href='/admin/turmas' ><MdOutlineGroups2 />Turmas</Link></li>
-                    <li className="text-lg"><Link href='/admin/turnos' ><TbSunMoon />Turnos</Link></li>
-                    <li className="text-lg"><Link href='/admin/usuarios' ><PiUsersDuotone />Usuários</Link></li>
 
+                <ul className={`menu bg-base-200 text-base-content min-h-full p-4 transition-all duration-300 ${drawer ? "w-80" : "w-20 overflow-visible"}`}>
+                    {menuItems.map((item, index) => (
+                        <li key={index} className="mb-2">
+                            <Link
+                                href={item.path}
+                                className={`flex items-center p-2 ${!drawer ? "tooltip tooltip-right z-50" : ""}`}
+                                data-tip={item.name}
+                            >
+                                <span className="text-xl">{item.icon}</span>
+                                <span className={`ml-4 text-lg font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${drawer ? "opacity-100 inline" : "opacity-0 hidden w-0"}`}>
+                                    {item.name}
+                                </span>
+                            </Link>
+                        </li>
+                    ))}
                 </ul>
             </div>
         </div>
-
-
     )
 }
 

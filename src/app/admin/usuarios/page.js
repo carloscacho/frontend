@@ -6,6 +6,7 @@ import { getAllRecords } from "@/utils/crud"
 import { filterItems, formatCPF } from "@/utils/filter"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
+import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
 import Usuarios from "@/app/_components/Modais/Usuarios"
@@ -15,7 +16,7 @@ export default function Page() {
   const [usuarioF, setUsuariosF] = useState([])
   const [novaUsuario, setNovaUsuario] = useState("")
 
-  const tipos =["admin", "comum", "auxiliar"]
+  const tipos = ["admin", "comum", "auxiliar"]
 
   const refMdUsuarios = useRef(null)
   const { refMd } = useModal()
@@ -36,7 +37,7 @@ export default function Page() {
         nome: item.nome,
         description: `${item.email} - 
         ${formatCPF(item.cpf)} - 
-        ${tipos[item.tipo -1]}`
+        ${tipos[item.tipo - 1]}`
       }))
   }
 
@@ -47,8 +48,9 @@ export default function Page() {
   }, [novaUsuario])
 
   return (
-    <Hero title="Cadastro de usuario">
-      <div class="my-3 mx-2">
+    <PageContainer>
+      <Hero title="Cadastro de usuario" />
+      <div className="my-3 mx-2">
 
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
@@ -67,12 +69,11 @@ export default function Page() {
       </div>
       <Modal refModal={refMdUsuarios}
         onClickCancelar={() => console.log("cancelando")}>
-        <h3 class="font-bold text-2xl ml-2">
+        <h3 className="font-bold text-2xl ml-2">
           Cadastrar Novos Usuarios
         </h3>
         <Usuarios />
       </Modal>
-    </Hero>
-
+    </PageContainer>
   )
 }
