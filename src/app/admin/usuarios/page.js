@@ -33,7 +33,7 @@ export default function Page() {
   function normalizarLista(lista) {
     return lista.map(item => (
       {
-        id: item.id_turno,
+        id: item.id_usuario,
         nome: item.nome,
         description: `${item.email} - 
         ${formatCPF(item.cpf)} - 

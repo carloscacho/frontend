@@ -31,7 +31,7 @@ export default function Page() {
   function normalizarLista(lista) {
     return lista.map(item => (
       {
-        id: item.id_turno,
+        id: item.id_evento,
         nome: item.nome,
         description: `${item.ano} - 
         ${new Date(item.inicio).toLocaleDateString()} - 

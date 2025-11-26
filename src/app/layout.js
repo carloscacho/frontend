@@ -6,6 +6,7 @@ import Alert from "@/app/_components/feedback/Alert";
 import Drawer from "@/app/_components/navigation/Drawer";
 
 import { DrawerProvider } from "@/context/DrawerContext";
+import { EventFilterProvider } from "@/context/EventFilterContext";
 import Navbar from "@/app/_components/navigation/Navbar";
 import { ModalProvider } from "@/context/ModalContext";
 
@@ -26,17 +27,19 @@ export default function RootLayout({ children }) {
       </head>
       <body className="bg-ifms">
         <DrawerProvider>
-          <ModalProvider>
-            <AlertProvider>
-              <AuthProvider>
-                <Navbar />
-                <Drawer>
-                  <Alert />
-                  {children}
-                </Drawer>
-              </AuthProvider>
-            </AlertProvider>
-          </ModalProvider>
+          <EventFilterProvider>
+            <ModalProvider>
+              <AlertProvider>
+                <AuthProvider>
+                  <Navbar />
+                  <Drawer>
+                    <Alert />
+                    {children}
+                  </Drawer>
+                </AuthProvider>
+              </AlertProvider>
+            </ModalProvider>
+          </EventFilterProvider>
         </DrawerProvider>
 
 

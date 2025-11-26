@@ -9,7 +9,7 @@ import Hero from "@/app/_components/displays/Hero"
 import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
-import Select from "@/app/_components/utils/Select"
+import { useEventFilter } from "@/context/EventFilterContext"
 // import Atividades from "@/components/Modais/Atividades"
 
 export default function Page() {
@@ -17,8 +17,7 @@ export default function Page() {
   const [atividadeF, setAtividadesF] = useState([])
   const [novaAtividade, setNovaAtividade] = useState("")
 
-  const [eventoOptions, setEventoOptions] = useState([])
-  const [eventoSelect, setEventoSelect] = useState({})
+  const { eventoSelect } = useEventFilter()
 
   const refMdAtividades = useRef(null)
   const { refMd } = useModal()
@@ -33,23 +32,10 @@ export default function Page() {
     getAllatividade()
   }, [eventoSelect])
 
-  useEffect(() => {
-    async function getAllEventos() {
-      const eventoApi = await getAllRecords('/evento')
-      setEventoOptions(eventoApi)
-      if (eventoApi && eventoApi.length > 0) {
-        const sortedEventos = [...eventoApi].sort((a, b) => a.id_evento - b.id_evento)
-        const lastEvent = sortedEventos[sortedEventos.length - 1]
-        setEventoSelect(lastEvent)
-      }
-    }
-    getAllEventos()
-  }, [])
-
   function normalizarLista(lista) {
     return lista.map(item => (
       {
-        id: item.id_turno,
+        id: item.id_atividade,
         nome: item.nome,
         description: `${item.descricao} - 
         limite: ${item.limite}`
@@ -77,13 +63,6 @@ export default function Page() {
           btncolor="info"
         />
 
-        <Select
-          label="Selecione um evento"
-          options={eventoOptions}
-          selectValue={eventoSelect}
-          onChange={setEventoSelect}
-          valueKey="id_evento"
-        />
       </div>
       <div>
         <ListItens info="lista de atividade cadastradas"

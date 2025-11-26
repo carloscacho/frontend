@@ -10,15 +10,14 @@ import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
 import Palestrantes from "@/app/_components/Modais/Palestrantes"
-import Select from "@/app/_components/utils/Select"
+import { useEventFilter } from "@/context/EventFilterContext"
 
 export default function Page() {
   const [palestrante, setPalestrantes] = useState([])
   const [palestranteF, setPalestrantesF] = useState([])
   const [novaPalestrante, setNovaPalestrante] = useState("")
 
-  const [eventoOptions, setEventoOptions] = useState([])
-  const [eventoSelect, setEventoSelect] = useState({})
+  const { eventoSelect } = useEventFilter()
 
   const refMdPalestrantes = useRef(null)
   const { refMd } = useModal()
@@ -33,21 +32,8 @@ export default function Page() {
     getAllpalestrante()
   }, [eventoSelect])
 
-  useEffect(() => {
-    async function getAllEventos() {
-      const eventoApi = await getAllRecords('/evento')
-      setEventoOptions(eventoApi)
-      if (eventoApi && eventoApi.length > 0) {
-        const sortedEventos = [...eventoApi].sort((a, b) => a.id_evento - b.id_evento)
-        const lastEvent = sortedEventos[sortedEventos.length - 1]
-        setEventoSelect(lastEvent)
-      }
-    }
-    getAllEventos()
-  }, [])
-
   function normalizarLista(lista) {
-    return lista.map(item => ({ id: item.id_turno, nome: item.nome, description: item.email }))
+    return lista.map(item => ({ id: item.id_palestrante, nome: item.nome, description: item.email }))
   }
 
   useEffect(() => {
@@ -71,13 +57,6 @@ export default function Page() {
           btncolor="info"
         />
 
-        <Select
-          label="Selecione um evento"
-          options={eventoOptions}
-          selectValue={eventoSelect}
-          onChange={setEventoSelect}
-          valueKey="id_evento"
-        />
       </div>
       <div>
         <ListItens info="lista de palestrante cadastradas" list={normalizarLista(palestranteF)} />

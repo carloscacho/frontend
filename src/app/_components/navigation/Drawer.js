@@ -24,23 +24,23 @@ const Drawer = ({ children }) => {
     ];
 
     return (
-        <div className="drawer drawer-open fixed mt-12">
+        <div className="drawer drawer-open fixed mt-12 overflow-visible">
 
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-            <div className="drawer-content flex flex-col items-center justify-center">
+            <div className="drawer-content flex flex-col items-center justify-center relative z-0">
                 {children}
             </div>
-            <div className={`drawer-side z-20 ${!drawer ? "overflow-visible" : ""}`}>
+            <div className={`drawer-side absolute z-30 ${!drawer ? "overflow-visible" : ""}`}>
                 <label htmlFor="my-drawer-2" aria-label="close sidebar" className="drawer-overlay">
 
                 </label>
 
-                <ul className={`menu bg-base-200 text-base-content min-h-full p-4 transition-all duration-300 ${drawer ? "w-80" : "w-20 overflow-visible"}`}>
+                <ul className={`menu bg-base-200 text-base-content min-h-full pt-16 p-4 transition-all duration-300 ${drawer ? "w-80" : "w-20 overflow-visible"}`}>
                     {menuItems.map((item, index) => (
                         <li key={index} className="mb-2">
                             <Link
                                 href={item.path}
-                                className={`flex items-center p-2 ${!drawer ? "tooltip tooltip-right z-50" : ""}`}
+                                className={`flex items-center p-2 ${!drawer ? "tooltip tooltip-top z-50" : ""}`}
                                 data-tip={item.name}
                             >
                                 <span className="text-xl">{item.icon}</span>

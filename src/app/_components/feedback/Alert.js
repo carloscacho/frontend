@@ -9,27 +9,27 @@ export default function Alert() {
   switch (alerta.tipo) {
     case 'info':
       return (
-        <div role="alert" className="alert alert-info slide-bottom pos-abs">
+        <div role="alert" className="alert alert-info slide-bottom pos-abs z-40">
           <span>{alerta.msg}</span>
         </div>
       )
     case 'success':
       return (
-        <div role="alert" className="alert alert-success slide-bottom pos-abs">
+        <div role="alert" className="alert alert-success slide-bottom pos-abs z-40">
           <span>{alerta.msg}</span>
         </div>
       )
 
     case 'warning':
       return (
-        <div role="alert" className="alert alert-warning slide-bottom pos-abs">
+        <div role="alert" className="alert alert-warning slide-bottom pos-abs z-40">
           <span>{alerta.msg}</span>
         </div>
       )
 
     case 'error':
       return (
-        <div role="alert" className="alert alert-error slide-bottom pos-abs">
+        <div role="alert" className="alert alert-error slide-bottom pos-abs z-40">
           <span>{alerta.msg}</span>
         </div>
       )
@@ -37,7 +37,7 @@ export default function Alert() {
     default:
 
       return (
-        <div role="alert" className="alert alert-info slide-bottom pos-abs">
+        <div role="alert" className="alert alert-info slide-bottom pos-abs z-40">
           <span>{alerta.msg}</span>
         </div>
       )
