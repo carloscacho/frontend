@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { PiUser } from "react-icons/pi";
 
 export default function Header(props) {
   return (
@@ -16,7 +17,7 @@ export default function Header(props) {
       <div className="navbar-end">
         <button className="btn btn-ghost btn-circle">
           <div className="indicator">
-            <ion-icon className="w-3xl" name="person-outline"></ion-icon>
+            <PiUser size={24} />
           </div>
         </button>
       </div>

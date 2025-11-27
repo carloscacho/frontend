@@ -9,7 +9,7 @@ export default function Input({ label, placeholder, value, onChange, type, badge
         className="peer input input-bordered w-full bg-transparent text-base text-gray-900 
            focus:border-primary focus:outline-none"
         placeholder=" "
-        value={value}
+        value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         type={type}
       />

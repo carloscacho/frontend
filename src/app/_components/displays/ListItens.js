@@ -1,10 +1,15 @@
 import { useState } from "react";
+import { PiCheck, PiX, PiPencilSimple, PiTrash } from "react-icons/pi";
 
 export default function ListItens(props) {
   const [editingId, setEditingId] = useState(null);
   const [tempValue, setTempValue] = useState("");
 
   const handleEditClick = (item) => {
+    if (props.editFunction) {
+      props.editFunction(item);
+      return;
+    }
     setEditingId(item.id);
     setTempValue(item.nome);
   };
@@ -22,7 +27,7 @@ export default function ListItens(props) {
   };
 
   return (
-    <ul className="list bg-base-100 rounded-box shadow-md overflow-y-auto h-screen pb-7">
+    <ul className="list bg-base-100 rounded-box shadow-md overflow-y-auto h-[calc(100vh-300px)] pb-3">
 
       <li className="p-4 pb-2 text-xs opacity-60 tracking-wide">{props.info}</li>
 
@@ -49,23 +54,23 @@ export default function ListItens(props) {
             {editingId === item.id ? (
               <>
                 <button className="btn btn-square btn-sm btn-success btn-ghost md:btn-outline md:w-auto md:px-5" onClick={() => handleSaveClick(item.id)} title="Salvar">
-                  <ion-icon name="checkmark-outline" size="small"></ion-icon>
+                  <PiCheck size={20} />
                   <span className="hidden md:inline">Salvar</span>
                 </button>
                 <button className="btn btn-square btn-sm btn-error btn-ghost md:btn-outline md:w-auto md:px-5" onClick={handleCancelClick} title="Cancelar">
-                  <ion-icon name="close-outline" size="small"></ion-icon>
+                  <PiX size={20} />
                   <span className="hidden md:inline">Cancelar</span>
                 </button>
               </>
             ) : (
               <button className="btn btn-square btn-sm btn-ghost md:btn-outline md:btn-primary md:w-auto md:px-5" onClick={() => handleEditClick(item)} title="Editar">
-                <ion-icon name="create-outline" size="small"></ion-icon>
+                <PiPencilSimple size={20} />
                 <span className="hidden md:inline">Editar</span>
               </button>
             )}
 
             <button className="btn btn-square btn-sm btn-ghost text-error md:btn-outline md:btn-error md:text-base-content md:w-auto md:px-5" onClick={() => props.deleteFunction && props.deleteFunction(item.id)} title="Deletar">
-              <ion-icon name="trash-outline" size="small"></ion-icon>
+              <PiTrash size={20} />
               <span className="hidden md:inline">Deletar</span>
             </button>
           </div>
