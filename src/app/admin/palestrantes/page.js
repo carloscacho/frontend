@@ -61,9 +61,9 @@ export default function Page() {
       <div>
         <ListItens info="lista de palestrante cadastradas" list={normalizarLista(palestranteF)} />
       </div>
-      <Modal refModal={refMdPalestrantes} onClickCancelar={() => console.log("cancelando")}>
+      <Modal refModal={refMdPalestrantes}>
         <h3 className="font-bold text-2xl ml-2">Cadastrar Novos Palestrantes</h3>
-        <Palestrantes />
+        <Palestrantes onClickCancelar={() => console.log("cancelando")} onClickSalvar={() => console.log("salvando")} />
       </Modal>
     </PageContainer>
   )

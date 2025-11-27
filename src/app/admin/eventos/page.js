@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords } from "@/utils/crud"
+import { getAllRecords, createRecord, deleteRecord } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
@@ -10,6 +10,7 @@ import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
 import Eventos from "@/app/_components/Modais/Eventos"
+import { dateFormateBr } from "@/utils/dateUtils"
 
 export default function Page() {
   const [evento, setEventos] = useState([])
@@ -20,13 +21,34 @@ export default function Page() {
   const { refMd } = useModal()
 
   useEffect(() => {
-    async function getAllevento() {
-      const eventoApi = await getAllRecords('/evento')
-      setEventos(eventoApi)
-      setEventosF(eventoApi)
-    }
     getAllevento()
   }, [])
+
+  async function getAllevento() {
+    const eventoApi = await getAllRecords('/evento')
+    setEventos(eventoApi)
+    setEventosF(eventoApi)
+  }
+
+  const handleSave = async (data) => {
+    try {
+      const result = await createRecord('/evento', data);
+      await getAllevento();
+      refMdEventos.current.close();
+    } catch (error) {
+      console.error("[Eventos Page] Error creating event:", error);
+      console.error("[Eventos Page] Error response:", error.response);
+    }
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteRecord('/evento', id);
+      await getAllevento();
+    } catch (error) {
+      console.error("[Eventos Page] Error deleting event:", error);
+    }
+  }
 
   function normalizarLista(lista) {
     return lista.map(item => (
@@ -34,8 +56,8 @@ export default function Page() {
         id: item.id_evento,
         nome: item.nome,
         description: `${item.ano} - 
-        ${new Date(item.inicio).toLocaleDateString()} - 
-        ${new Date(item.final).toLocaleDateString()}`
+        ${dateFormateBr(item.inicio)} - 
+        ${dateFormateBr(item.final)}`
       }))
   }
 
@@ -63,14 +85,14 @@ export default function Page() {
       <div>
         <ListItens info="lista de evento cadastradas"
           list={normalizarLista(eventoF)}
+          deleteFunction={handleDelete}
         />
       </div>
-      <Modal refModal={refMdEventos}
-        onClickCancelar={() => console.log("cancelando")}>
+      <Modal refModal={refMdEventos}>
         <h3 className="font-bold text-2xl ml-2">
           Cadastrar Novos Eventos
         </h3>
-        <Eventos />
+        <Eventos onClickCancelar={() => refMdEventos.current.close()} onClickSalvar={handleSave} />
       </Modal>
     </PageContainer>
   )

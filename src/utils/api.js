@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const API = axios.create({
     baseURL: "http://localhost:4455/",
@@ -8,17 +9,32 @@ const API = axios.create({
     }
 })
 
+API.interceptors.request.use((config) => {
+    const token = Cookies.get('token');
+    console.log('[API] Making request to:', config.url);
+    console.log('[API] Token present:', !!token);
+    if (token) {
+        console.log('[API] Token (first 20 chars):', token.substring(0, 20));
+        config.headers.Authorization = `Bearer ${token}`;
+    } else {
+        console.warn('[API] No token found in cookies!');
+    }
+    return config;
+});
+
 API.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        console.log('[API] Response received:', response.status);
+        return response;
+    },
     (error) => {
+        console.error('[API] Request failed:', error.response?.status, error.response?.statusText);
+        console.error('[API] Error details:', error.response?.data);
         if (error.response && error.response.status === 401) {
+            console.error('[API] 401 Unauthorized - redirecting to login');
             if (typeof window !== 'undefined') {
-                // Remove cookies usando js-cookie se disponível, ou document.cookie como fallback
-                // Como este arquivo é um utilitário, vamos assumir que o js-cookie pode não estar importado aqui.
-                // Para garantir, vamos usar document.cookie para limpar.
                 document.cookie = 'token=; Max-Age=0; path=/';
                 document.cookie = 'usuario=; Max-Age=0; path=/';
-
                 window.location.href = '/';
             }
         }

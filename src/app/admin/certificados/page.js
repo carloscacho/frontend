@@ -9,6 +9,7 @@ import Hero from "@/app/_components/displays/Hero"
 import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
+import { dateFormateBr } from "@/utils/dateUtils"
 // import Certificados from "@/components/Modais/Certificados"
 
 export default function Page() {
@@ -34,8 +35,8 @@ export default function Page() {
         id: item.id_turno,
         nome: item.nome,
         description: `${item.ano} - 
-        ${new Date(item.inicio).toLocaleDateString()} - 
-        ${new Date(item.final).toLocaleDateString()}`
+        ${dateFormateBr(item.inicio)} - 
+        ${dateFormateBr(item.final)}`
       }))
   }
 

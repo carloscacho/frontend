@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import Input from "../utils/Input";
 import Button from "../utils/Button";
 import { useModal } from "@/context/ModalContext";
+import { formatDateToISO } from "@/utils/dateUtils";
 
-export default function Palestrantes() {
+export default function Eventos({ onClickSalvar, onClickCancelar }) {
     const [nome, setNome] = useState("")
     const [dataInicio, setDataInicio] = useState(new Date())
     const [dataFim, setDataFim] = useState(new Date())
     const [ano, setAno] = useState(new Date().getFullYear())
-    const {refMd} = useModal()
+    const { refMd } = useModal()
 
     return (
         <div className="w-full">
@@ -38,7 +39,7 @@ export default function Palestrantes() {
                 type="date"
                 badge='obrigatorio'
                 badgeColor='error'
-                
+
             />
 
             <Input
@@ -49,9 +50,22 @@ export default function Palestrantes() {
                 type="date"
                 badge='obrigatorio'
                 badgeColor='error'
-                
+
             />
-          
+
+            <div className="btns w-full flex justify-end mt-2">
+                <Button onClick={() => {
+                    const payload = { 
+                        nome, 
+                        data_inicio: formatDateToISO(dataInicio),
+                        data_fim: formatDateToISO(dataFim),
+                        ano
+                    };
+                    console.log('[Eventos Modal] Payload being sent:', payload);
+                    onClickSalvar(payload);
+                }} label="salvar" color="success" mode="active" />
+                <Button onClick={onClickCancelar} label="cancelar" color="error" mode="active" />
+            </div>
         </div>
     )
 }

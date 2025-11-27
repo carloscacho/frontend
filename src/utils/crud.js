@@ -23,6 +23,7 @@ export async function getRecordById(path, id) {
 export async function createRecord(path, data) {
   try {
     const res = await API.post(path, data)
+    console.log(res.data)
     return res.data
   } catch (error) {
     console.log("Erro ao criar registro " + error.response?.statusText)

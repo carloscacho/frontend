@@ -3,11 +3,11 @@ import Input from "../utils/Input";
 import Button from "../utils/Button";
 import { useModal } from "@/context/ModalContext";
 
-export default function Palestrantes() {
+export default function Palestrantes({ onClickSalvar, onClickCancelar }) {
     const [nome, setNome] = useState("")
     const [email, setEmail] = useState("")
     const [instituicao, setInstituicao] = useState("")
-    const {refMd} = useModal()
+    const { refMd } = useModal()
 
     return (
         <div className="w-full">
@@ -36,9 +36,13 @@ export default function Palestrantes() {
                 placeholder="Preencha a Instituição do paletrante"
                 type="text"
                 badge='opcional'
-                
+
             />
-          
+
+            <div className="btns w-full flex justify-end mt-2">
+                <Button onClick={onClickSalvar} label="salvar" color="success" mode="active" />
+                <Button onClick={onClickCancelar} label="cancelar" color="error" mode="active" />
+            </div>
         </div>
     )
 }

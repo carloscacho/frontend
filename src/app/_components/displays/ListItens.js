@@ -48,21 +48,25 @@ export default function ListItens(props) {
           <div className="flex gap-2">
             {editingId === item.id ? (
               <>
-                <button className="btn btn-square btn-sm btn-success btn-ghost" onClick={() => handleSaveClick(item.id)} title="Salvar">
+                <button className="btn btn-square btn-sm btn-success btn-ghost md:btn-outline md:w-auto md:px-5" onClick={() => handleSaveClick(item.id)} title="Salvar">
                   <ion-icon name="checkmark-outline" size="small"></ion-icon>
+                  <span className="hidden md:inline">Salvar</span>
                 </button>
-                <button className="btn btn-square btn-sm btn-error btn-ghost" onClick={handleCancelClick} title="Cancelar">
+                <button className="btn btn-square btn-sm btn-error btn-ghost md:btn-outline md:w-auto md:px-5" onClick={handleCancelClick} title="Cancelar">
                   <ion-icon name="close-outline" size="small"></ion-icon>
+                  <span className="hidden md:inline">Cancelar</span>
                 </button>
               </>
             ) : (
-              <button className="btn btn-square btn-sm btn-ghost" onClick={() => handleEditClick(item)} title="Editar">
+              <button className="btn btn-square btn-sm btn-ghost md:btn-outline md:btn-primary md:w-auto md:px-5" onClick={() => handleEditClick(item)} title="Editar">
                 <ion-icon name="create-outline" size="small"></ion-icon>
+                <span className="hidden md:inline">Editar</span>
               </button>
             )}
 
-            <button className="btn btn-square btn-sm btn-ghost text-error" onClick={() => props.onDelete && props.onDelete(item.id)} title="Deletar">
+            <button className="btn btn-square btn-sm btn-ghost text-error md:btn-outline md:btn-error md:text-base-content md:w-auto md:px-5" onClick={() => props.deleteFunction && props.deleteFunction(item.id)} title="Deletar">
               <ion-icon name="trash-outline" size="small"></ion-icon>
+              <span className="hidden md:inline">Deletar</span>
             </button>
           </div>
         </li>
