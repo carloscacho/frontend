@@ -4,9 +4,11 @@ import React from "react";
 import { MdOutlineGroups2 } from "react-icons/md";
 import { SiGoogleclassroom, SiGoogletasks } from "react-icons/si";
 import { TbSunMoon } from "react-icons/tb";
-import { PiUsersDuotone, PiCertificateDuotone, PiCalendarCheckDuotone, PiChalkboardTeacherDuotone } from "react-icons/pi";
+import { PiUsersDuotone, PiCertificateDuotone, PiCalendarCheckDuotone, PiChalkboardTeacherDuotone, PiHome } from "react-icons/pi";
 
 import { useDrawer } from "@/context/DrawerContext";
+import Image from "next/image";
+import logoIFEventos from "../../../assets/logoIFEventosnbg.png"
 
 const Drawer = ({ children }) => {
 
@@ -35,7 +37,13 @@ const Drawer = ({ children }) => {
 
                 </label>
 
-                <ul className={`menu bg-base-200 text-base-content min-h-full pt-16 p-4 transition-all duration-300 ${drawer ? "w-80" : "w-20 overflow-visible"}`}>
+                <ul className={`menu bg-base-200 text-base-content min-h-full pt-8 p-4 transition-all duration-300 ${drawer ? "w-80" : "w-20 overflow-visible"}`}>
+                    <li>
+                        <Link href="/admin" className="flex items-center p-2">
+                            <span className="text-xl"><Image width={32} height={32} src={logoIFEventos} alt="logo do IFMS Eventos" /></span>
+                            <span className={`ml-2 text-lg font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${drawer ? "opacity-100 inline" : "opacity-0 hidden w-0"}`}>Inicio</span>
+                        </Link>
+                    </li>
                     {menuItems.map((item, index) => (
                         <li key={index} className="mb-2">
                             <Link

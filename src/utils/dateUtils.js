@@ -1,3 +1,4 @@
+
 const formatDateToISO = (date) => {
     if (!date) return null;
     if (typeof date === 'string') {
@@ -11,7 +12,7 @@ const formatDateToISO = (date) => {
 
 const dateFormateBr = (date) => {
     if (!date) return "";
-    return new Date(date).toLocaleDateString('pt-BR');
+    return new Date(date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
 
 export { formatDateToISO, dateFormateBr }

@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords } from "@/utils/crud"
+import { getAllRecords, deleteRecord } from "@/utils/crud"
 import { filterItems, formatCPF } from "@/utils/filter"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
@@ -10,6 +10,7 @@ import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
 import Usuarios from "@/app/_components/Modais/Usuarios"
+import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
 
 export default function Page() {
   const [usuario, setUsuarios] = useState([])
@@ -19,7 +20,9 @@ export default function Page() {
   const tipos = ["admin", "comum", "auxiliar"]
 
   const refMdUsuarios = useRef(null)
+  const refMdConfirmation = useRef(null)
   const { refMd } = useModal()
+  const [idToDelete, setIdToDelete] = useState(null)
 
   useEffect(() => {
     async function getAllusuario() {
@@ -47,6 +50,25 @@ export default function Page() {
     setUsuariosF(results)
   }, [novaUsuario])
 
+  const handleDelete = (id) => {
+    setIdToDelete(id);
+    refMdConfirmation.current.showModal();
+  }
+
+  const confirmDelete = async () => {
+    if (!idToDelete) return;
+    try {
+      await deleteRecord('/usuario', idToDelete);
+      const usuarioApi = await getAllRecords('/usuario');
+      setUsuarios(usuarioApi);
+      setUsuariosF(usuarioApi);
+      refMdConfirmation.current.close();
+      setIdToDelete(null);
+    } catch (error) {
+      console.error("Error deleting usuario:", error);
+    }
+  }
+
   return (
     <PageContainer>
       <Hero title="Cadastro de usuario" />
@@ -65,6 +87,7 @@ export default function Page() {
       <div>
         <ListItens info="lista de usuario cadastradas"
           list={normalizarLista(usuarioF)}
+          deleteFunction={handleDelete}
         />
       </div>
       <Modal refModal={refMdUsuarios}
@@ -74,6 +97,17 @@ export default function Page() {
         </h3>
         <Usuarios />
       </Modal>
+
+      <ConfirmDialog
+        refModal={refMdConfirmation}
+        title="Deletar Usuário"
+        message="Tem certeza que deseja deletar este usuário?"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          refMdConfirmation.current.close()
+          setIdToDelete(null)
+        }}
+      />
     </PageContainer>
   )
 }

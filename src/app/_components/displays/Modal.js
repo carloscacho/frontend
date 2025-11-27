@@ -1,16 +1,10 @@
 'use client'
-import { useModal } from "@/context/ModalContext";
 import React from "react";
 
 
 export default function Modal({ children, refModal }) {
-
-    const { refMd, setRefMd } = useModal()
-
-    setRefMd(refModal)
-
     return (
-        <dialog ref={refMd} id="my_modal_3" className="modal">
+        <dialog ref={refModal} className="modal">
             <div className="modal-box">
                 <form method="dialog">
                     {/* if there is a button in form, it will close the modal */}

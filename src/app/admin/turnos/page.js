@@ -98,7 +98,7 @@ export default function Page() {
         />
       </div>
       <div>
-        <ListItens info="lista de turnos cadastradas" list={normalizarLista(turnosF)} onDelete={openDeleteModal} onEdit={handleEdit} />
+        <ListItens info="lista de turnos cadastradas" list={normalizarLista(turnosF)} deleteFunction={openDeleteModal} onEdit={handleEdit} />
       </div>
       <ConfirmDialog
         refModal={deleteModalRef}

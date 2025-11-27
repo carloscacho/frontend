@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from "react"
 
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords } from "@/utils/crud"
 import { filterItems, isEmpty } from "@/utils/filter"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
@@ -10,27 +9,65 @@ import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
 import Palestrantes from "@/app/_components/Modais/Palestrantes"
+import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
 import { useEventFilter } from "@/context/EventFilterContext"
+import { createRecord, deleteRecord, updateRecord, getAllRecords } from "@/utils/crud"
 
 export default function Page() {
   const [palestrante, setPalestrantes] = useState([])
   const [palestranteF, setPalestrantesF] = useState([])
   const [novaPalestrante, setNovaPalestrante] = useState("")
+  const [editingPalestrante, setEditingPalestrante] = useState(null)
+  const [idToDelete, setIdToDelete] = useState(null)
 
   const { eventoSelect } = useEventFilter()
 
   const refMdPalestrantes = useRef(null)
+  const refMdConfirmation = useRef(null)
   const { refMd } = useModal()
 
   useEffect(() => {
-    async function getAllpalestrante() {
-      const url = isEmpty(eventoSelect) ? "/palestrante" : "/palestrante/full/" + eventoSelect.id_evento
-      const palestranteApi = await getAllRecords(url)
-      setPalestrantes(palestranteApi)
-      setPalestrantesF(palestranteApi)
-    }
     getAllpalestrante()
   }, [eventoSelect])
+
+  async function getAllpalestrante() {
+    const url = isEmpty(eventoSelect) ? "/palestrante" : "/palestrante/full/" + eventoSelect.id_evento
+    const palestranteApi = await getAllRecords(url)
+    setPalestrantes(palestranteApi)
+    setPalestrantesF(palestranteApi)
+  }
+
+  const handleSave = async (data) => {
+    try {
+      if (editingPalestrante) {
+        await updateRecord('/palestrante', editingPalestrante.id_palestrante, data);
+      } else {
+        await createRecord('/palestrante', data);
+      }
+      await getAllpalestrante();
+      refMdPalestrantes.current.close();
+      setEditingPalestrante(null);
+    } catch (error) {
+      console.error("Error saving palestrante:", error);
+    }
+  }
+
+  const handleDelete = (id) => {
+    setIdToDelete(id);
+    refMdConfirmation.current.showModal();
+  }
+
+  const confirmDelete = async () => {
+    if (!idToDelete) return;
+    try {
+      await deleteRecord('/palestrante', idToDelete);
+      await getAllpalestrante();
+      refMdConfirmation.current.close();
+      setIdToDelete(null);
+    } catch (error) {
+      console.error("Error deleting palestrante:", error);
+    }
+  }
 
   function normalizarLista(lista) {
     return lista.map(item => ({ id: item.id_palestrante, nome: item.nome, description: item.email }))
@@ -59,12 +96,39 @@ export default function Page() {
 
       </div>
       <div>
-        <ListItens info="lista de palestrante cadastradas" list={normalizarLista(palestranteF)} />
+        <ListItens
+          info="lista de palestrante cadastradas"
+          list={normalizarLista(palestranteF)}
+          deleteFunction={handleDelete}
+          editFunction={(item) => {
+            const fullPalestrante = palestrante.find(p => p.id_palestrante === item.id)
+            setEditingPalestrante(fullPalestrante)
+            refMdPalestrantes.current.showModal()
+          }}
+        />
       </div>
       <Modal refModal={refMdPalestrantes}>
         <h3 className="font-bold text-2xl ml-2">Cadastrar Novos Palestrantes</h3>
-        <Palestrantes onClickCancelar={() => console.log("cancelando")} onClickSalvar={() => console.log("salvando")} />
+        <Palestrantes
+          onClickCancelar={() => {
+            refMdPalestrantes.current.close()
+            setEditingPalestrante(null)
+          }}
+          onClickSalvar={handleSave}
+          initialData={editingPalestrante}
+        />
       </Modal>
+
+      <ConfirmDialog
+        refModal={refMdConfirmation}
+        title="Deletar Palestrante"
+        message="Tem certeza que deseja deletar este palestrante?"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          refMdConfirmation.current.close()
+          setIdToDelete(null)
+        }}
+      />
     </PageContainer>
   )
 }
