@@ -107,7 +107,10 @@ export default function Page() {
           type='text'
           value={novaEvento}
           onChange={setNovaEvento}
-          onClick={() => refMdEventos.current.showModal()}
+          onClick={() => {
+            setEditingEvent(null);
+            refMdEventos.current.showModal();
+          }}
           btnLabel='pesquisar'
           hideButton={!isAdmin}
         />

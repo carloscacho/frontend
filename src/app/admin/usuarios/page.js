@@ -20,7 +20,7 @@ export default function Page() {
   const [usuarioF, setUsuariosF] = useState([])
   const [novaUsuario, setNovaUsuario] = useState("")
 
-  const { usuario } = useAuth()
+  const { usuario, resetForm } = useAuth()
   const isAdmin = usuario?.tipo === 1
   const { mostrarAlerta } = useAlerta()
 
@@ -114,7 +114,10 @@ export default function Page() {
           type='text'
           value={novaUsuario}
           onChange={setNovaUsuario}
-          onClick={() => refMdUsuarios.current.showModal()}
+          onClick={() => {
+            resetForm();
+            refMdUsuarios.current.showModal();
+          }}
           btnLabel='pesquisar'
           hideButton={!isAdmin}
         />

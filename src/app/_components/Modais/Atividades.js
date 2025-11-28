@@ -59,6 +59,17 @@ export default function Atividades({ onClickSalvar, onClickCancelar, initialData
                 setHora(da.hora ? da.hora.split('T')[1].substring(0, 5) : "");
                 setDuracao(da.duracao ? da.duracao.split('T')[1].substring(0, 5) : "");
             }
+        } else {
+            // Reset fields for create mode
+            setNome("");
+            setDescricao("");
+            setObservacao("");
+            setLimite("");
+            setSala(null);
+            setPalestrantes([]);
+            setData("");
+            setHora("");
+            setDuracao("");
         }
     }, [initialData]);
 

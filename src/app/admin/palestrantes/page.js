@@ -109,7 +109,10 @@ export default function Page() {
           type='text'
           value={novaPalestrante}
           onChange={setNovaPalestrante}
-          onClick={() => refMdPalestrantes.current.showModal()}
+          onClick={() => {
+            setEditingPalestrante(null);
+            refMdPalestrantes.current.showModal();
+          }}
           btnLabel='pesquisar'
           hideButton={!isAdmin}
         />
