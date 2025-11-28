@@ -37,7 +37,7 @@ export default function Palestrantes({ onClickSalvar, onClickCancelar, initialDa
                 value={email || ""}
                 onChange={setEmail}
                 placeholder="Preencha o email do paletrante"
-                type="text"
+                type="email"
                 badge='obrigatorio'
                 badgeColor='error'
             />
