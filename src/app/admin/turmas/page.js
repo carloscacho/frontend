@@ -9,6 +9,7 @@ import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
 import PageContainer from "@/app/_components/displays/PageContainer"
 import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
+import { useAuth } from "@/context/AuthContext"
 
 export default function Page() {
   const [turmas, setTurmas] = useState([])
@@ -17,6 +18,9 @@ export default function Page() {
   const { mostrarAlerta } = useAlerta()
   const [idToDelete, setIdToDelete] = useState(null)
   const deleteModalRef = useRef(null)
+
+  const { usuario } = useAuth()
+  const isAdmin = usuario?.tipo === 1
 
   useEffect(() => {
     async function getAllTurmas() {
@@ -95,10 +99,11 @@ export default function Page() {
           onClick={handleCadastrar}
           btnLabel='pesquisar'
           btncolor="info"
+          hideButton={!isAdmin}
         />
       </div>
       <div>
-        <ListItens info="lista de turmas cadastradas" list={normalizarLista(turmasF)} deleteFunction={openDeleteModal} onEdit={handleEdit} />
+        <ListItens info="lista de turmas cadastradas" list={normalizarLista(turmasF)} deleteFunction={isAdmin ? openDeleteModal : null} onEdit={isAdmin ? handleEdit : null} />
       </div>
       <ConfirmDialog
         refModal={deleteModalRef}

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Input from "../utils/Input";
 import Button from "../utils/Button";
-import { useModal } from "@/context/ModalContext";
+import { useEventFilter } from "@/context/EventFilterContext";
 
 export default function Palestrantes({ onClickSalvar, onClickCancelar, initialData }) {
     const [nome, setNome] = useState("")
     const [email, setEmail] = useState("")
     const [instituicao, setInstituicao] = useState("")
-    const { refMd } = useModal()
+
+    const { eventoSelect } = useEventFilter();
 
     useEffect(() => {
         if (initialData) {
@@ -48,15 +49,24 @@ export default function Palestrantes({ onClickSalvar, onClickCancelar, initialDa
                 placeholder="Preencha a Instituição do paletrante"
                 type="text"
                 badge='opcional'
-
             />
 
-            <div className="btns w-full flex justify-end mt-2">
+            <div className="btns w-full flex justify-end mt-4 gap-2">
+                <Button onClick={onClickCancelar} label="Cancelar" color="error" mode="active" />
                 <Button onClick={() => {
-                    const payload = { nome, email, instituicao }
+                    const payload = {
+                        nome,
+                        email,
+                        instituicao
+                    }
+
+                    // If creating a new speaker, link to the selected event
+                    if (!initialData && eventoSelect?.id_evento) {
+                        payload.eventos = [eventoSelect.id_evento];
+                    }
+
                     onClickSalvar(payload)
                 }} label={initialData ? "Atualizar" : "Salvar"} color="success" mode="active" />
-                <Button onClick={onClickCancelar} label="cancelar" color="error" mode="active" />
             </div>
         </div>
     )

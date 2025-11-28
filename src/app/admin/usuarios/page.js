@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords, deleteRecord } from "@/utils/crud"
+import { getAllRecords, deleteRecord, updateRecord } from "@/utils/crud"
 import { filterItems, formatCPF } from "@/utils/filter"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
@@ -10,28 +10,38 @@ import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
 import Usuarios from "@/app/_components/Modais/Usuarios"
+import RoleChangeModal from "@/app/_components/Modais/RoleChangeModal"
 import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
+import { useAuth } from "@/context/AuthContext"
+import { useAlerta } from "@/context/AlertContext"
 
 export default function Page() {
-  const [usuario, setUsuarios] = useState([])
+  const [usuarioList, setUsuarioList] = useState([])
   const [usuarioF, setUsuariosF] = useState([])
   const [novaUsuario, setNovaUsuario] = useState("")
+
+  const { usuario } = useAuth()
+  const isAdmin = usuario?.tipo === 1
+  const { mostrarAlerta } = useAlerta()
 
   const tipos = ["admin", "comum", "auxiliar"]
 
   const refMdUsuarios = useRef(null)
+  const refMdRole = useRef(null)
   const refMdConfirmation = useRef(null)
   const { refMd } = useModal()
   const [idToDelete, setIdToDelete] = useState(null)
+  const [userToChangeRole, setUserToChangeRole] = useState(null)
 
   useEffect(() => {
-    async function getAllusuario() {
-      const usuarioApi = await getAllRecords('/usuario')
-      setUsuarios(usuarioApi)
-      setUsuariosF(usuarioApi)
-    }
     getAllusuario()
   }, [])
+
+  async function getAllusuario() {
+    const usuarioApi = await getAllRecords('/usuario')
+    setUsuarioList(usuarioApi)
+    setUsuariosF(usuarioApi)
+  }
 
   function normalizarLista(lista) {
     return lista.map(item => (
@@ -45,10 +55,10 @@ export default function Page() {
   }
 
   useEffect(() => {
-    setUsuariosF(usuario)
-    const results = filterItems(usuario, novaUsuario)
+    setUsuariosF(usuarioList)
+    const results = filterItems(usuarioList, novaUsuario)
     setUsuariosF(results)
-  }, [novaUsuario])
+  }, [novaUsuario, usuarioList])
 
   const handleDelete = (id) => {
     setIdToDelete(id);
@@ -59,13 +69,34 @@ export default function Page() {
     if (!idToDelete) return;
     try {
       await deleteRecord('/usuario', idToDelete);
-      const usuarioApi = await getAllRecords('/usuario');
-      setUsuarios(usuarioApi);
-      setUsuariosF(usuarioApi);
+      await getAllusuario();
       refMdConfirmation.current.close();
       setIdToDelete(null);
     } catch (error) {
       console.error("Error deleting usuario:", error);
+    }
+  }
+
+  const handleRoleClick = (item) => {
+    if (usuario?.tipo !== 1) {
+      mostrarAlerta("error", "Apenas administradores podem alterar cargos.");
+      return;
+    }
+    const fullUser = usuarioList.find(u => u.id_usuario === item.id);
+    setUserToChangeRole(fullUser);
+    refMdRole.current.showModal();
+  }
+
+  const saveRoleChange = async (id, newRole) => {
+    try {
+      await updateRecord('/usuario', id, { tipo: newRole });
+      mostrarAlerta("success", "Cargo atualizado com sucesso!");
+      await getAllusuario();
+      refMdRole.current.close();
+      setUserToChangeRole(null);
+    } catch (error) {
+      console.error("Error updating role:", error);
+      mostrarAlerta("error", "Erro ao atualizar cargo.");
     }
   }
 
@@ -82,12 +113,14 @@ export default function Page() {
           onClick={() => refMdUsuarios.current.showModal()}
           btnLabel='pesquisar'
           btncolor="info"
+          hideButton={!isAdmin}
         />
       </div>
       <div>
         <ListItens info="lista de usuario cadastradas"
           list={normalizarLista(usuarioF)}
-          deleteFunction={handleDelete}
+          deleteFunction={isAdmin ? handleDelete : null}
+          roleFunction={isAdmin ? handleRoleClick : null}
         />
       </div>
       <Modal refModal={refMdUsuarios}
@@ -96,6 +129,17 @@ export default function Page() {
           Cadastrar Novos Usuarios
         </h3>
         <Usuarios />
+      </Modal>
+
+      <Modal refModal={refMdRole}>
+        <RoleChangeModal
+          user={userToChangeRole}
+          onSave={saveRoleChange}
+          onCancel={() => {
+            refMdRole.current.close();
+            setUserToChangeRole(null);
+          }}
+        />
       </Modal>
 
       <ConfirmDialog

@@ -10,12 +10,16 @@ import PageContainer from "@/app/_components/displays/PageContainer"
 import { useModal } from "@/context/ModalContext"
 import Modal from "@/app/_components/displays/Modal"
 import { useEventFilter } from "@/context/EventFilterContext"
+import { useAuth } from "@/context/AuthContext"
 // import Atividades from "@/components/Modais/Atividades"
 
 export default function Page() {
   const [atividade, setAtividades] = useState([])
   const [atividadeF, setAtividadesF] = useState([])
   const [novaAtividade, setNovaAtividade] = useState("")
+
+  const { usuario } = useAuth()
+  const isAdmin = usuario?.tipo === 1
 
   const { eventoSelect } = useEventFilter()
 
@@ -61,6 +65,7 @@ export default function Page() {
           onClick={() => refMdAtividades.current.showModal()}
           btnLabel='pesquisar'
           btncolor="info"
+          hideButton={!isAdmin}
         />
 
       </div>
