@@ -37,7 +37,7 @@ export default function Page() {
   }, [eventoSelect])
 
   async function getAllatividade() {
-    const url = isEmpty(eventoSelect) ? "/atividade" : "/atividade/full/" + eventoSelect.id_evento
+    const url = isEmpty(eventoSelect) ? "/atividade/full" : "/atividade/full/" + eventoSelect.id_evento
     const atividadeApi = await getAllRecords(url)
     setAtividades(atividadeApi)
     setAtividadesF(atividadeApi)

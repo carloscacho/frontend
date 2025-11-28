@@ -144,7 +144,7 @@ export default function Atividades({ onClickSalvar, onClickCancelar, initialData
                         className={`absolute left-3 top-2 text-gray-500 duration-300 transform origin-left pointer-events-none
                             ${sala ? '-translate-y-5 scale-75 text-primary font-bold bg-white px-2 z-10' : 'translate-y-0 scale-100'}`}
                     >
-                        Local
+                        Local:
                     </label>
                 </div>
             </div>
