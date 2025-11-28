@@ -12,6 +12,7 @@ import Palestrantes from "@/app/_components/Modais/Palestrantes"
 import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
 import { useEventFilter } from "@/context/EventFilterContext"
 import { createRecord, deleteRecord, updateRecord, getAllRecords } from "@/utils/crud"
+import { useAuth } from "@/context/AuthContext"
 
 export default function Page() {
   const [palestrante, setPalestrantes] = useState([])
@@ -19,6 +20,9 @@ export default function Page() {
   const [novaPalestrante, setNovaPalestrante] = useState("")
   const [editingPalestrante, setEditingPalestrante] = useState(null)
   const [idToDelete, setIdToDelete] = useState(null)
+
+  const { usuario } = useAuth()
+  const isAdmin = usuario?.tipo === 1
 
   const { eventoSelect } = useEventFilter()
 
@@ -70,7 +74,14 @@ export default function Page() {
   }
 
   function normalizarLista(lista) {
-    return lista.map(item => ({ id: item.id_palestrante, nome: item.nome, description: item.email }))
+    return lista.map(item => {
+      const eventos = item.palestrante_evento?.map(pe => pe.evento.nome).join(", ") || "Nenhum evento";
+      return {
+        id: item.id_palestrante,
+        nome: item.nome,
+        description: `${item.email} - Eventos: ${eventos}`
+      }
+    })
   }
 
   useEffect(() => {
@@ -92,6 +103,7 @@ export default function Page() {
           onClick={() => refMdPalestrantes.current.showModal()}
           btnLabel='pesquisar'
           btncolor="info"
+          hideButton={!isAdmin}
         />
 
       </div>
@@ -99,12 +111,12 @@ export default function Page() {
         <ListItens
           info="lista de palestrante cadastradas"
           list={normalizarLista(palestranteF)}
-          deleteFunction={handleDelete}
-          editFunction={(item) => {
+          deleteFunction={isAdmin ? handleDelete : null}
+          editFunction={isAdmin ? (item) => {
             const fullPalestrante = palestrante.find(p => p.id_palestrante === item.id)
             setEditingPalestrante(fullPalestrante)
             refMdPalestrantes.current.showModal()
-          }}
+          } : null}
         />
       </div>
       <Modal refModal={refMdPalestrantes}>

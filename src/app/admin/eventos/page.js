@@ -12,6 +12,7 @@ import Modal from "@/app/_components/displays/Modal"
 import Eventos from "@/app/_components/Modais/Eventos"
 import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
 import { dateFormateBr } from "@/utils/dateUtils"
+import { useAuth } from "@/context/AuthContext"
 
 export default function Page() {
   const [evento, setEventos] = useState([])
@@ -19,6 +20,9 @@ export default function Page() {
   const [novaEvento, setNovaEvento] = useState("")
   const [editingEvent, setEditingEvent] = useState(null)
   const [itemToDelete, setItemToDelete] = useState(null)
+
+  const { usuario } = useAuth()
+  const isAdmin = usuario?.tipo === 1
 
   const refMdEventos = useRef(null)
   const refMdConfirmation = useRef(null)
@@ -97,17 +101,18 @@ export default function Page() {
           onClick={() => refMdEventos.current.showModal()}
           btnLabel='pesquisar'
           btncolor="info"
+          hideButton={!isAdmin}
         />
       </div>
       <div>
         <ListItens info="lista de evento cadastradas"
           list={normalizarLista(eventoF)}
-          deleteFunction={handleDelete}
-          editFunction={(item) => {
+          deleteFunction={isAdmin ? handleDelete : null}
+          editFunction={isAdmin ? (item) => {
             const fullEvent = evento.find(e => e.id_evento === item.id)
             setEditingEvent(fullEvent)
             refMdEventos.current.showModal()
-          }}
+          } : null}
         />
       </div>
       <Modal refModal={refMdEventos}>

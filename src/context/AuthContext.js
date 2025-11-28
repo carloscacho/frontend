@@ -58,7 +58,8 @@ export function AuthProvider({ children }) {
       throw new Error(errorMessage);
     }
 
-    const { token, user } = data;
+    const { access_token, user } = data;
+    const token = access_token;
     console.log('[AuthContext] Login successful, token received:', token ? token.substring(0, 20) + '...' : 'MISSING');
     Cookies.set('token', token, { expires: 7 }); // Expira em 7 dias
     Cookies.set('usuario', JSON.stringify(user), { expires: 7 });

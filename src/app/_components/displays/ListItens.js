@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PiCheck, PiX, PiPencilSimple, PiTrash } from "react-icons/pi";
+import { PiCheck, PiX, PiPencilSimple, PiTrash, PiUserGear } from "react-icons/pi";
 
 export default function ListItens(props) {
   const [editingId, setEditingId] = useState(null);
@@ -51,28 +51,39 @@ export default function ListItens(props) {
           </div>
 
           <div className="flex gap-2">
-            {editingId === item.id ? (
-              <>
-                <button className="btn btn-square btn-sm btn-success btn-ghost md:btn-outline md:w-auto md:px-5" onClick={() => handleSaveClick(item.id)} title="Salvar">
-                  <PiCheck size={20} />
-                  <span className="hidden md:inline">Salvar</span>
+            {(props.editFunction || props.onEdit) && (
+              editingId === item.id ? (
+                <>
+                  <button className="btn btn-square btn-sm btn-success btn-ghost md:btn-outline md:w-auto md:px-5" onClick={() => handleSaveClick(item.id)} title="Salvar">
+                    <PiCheck size={20} />
+                    <span className="hidden md:inline">Salvar</span>
+                  </button>
+                  <button className="btn btn-square btn-sm btn-error btn-ghost md:btn-outline md:w-auto md:px-5" onClick={handleCancelClick} title="Cancelar">
+                    <PiX size={20} />
+                    <span className="hidden md:inline">Cancelar</span>
+                  </button>
+                </>
+              ) : (
+                <button className="btn btn-square btn-sm btn-ghost md:btn-outline md:btn-primary md:w-auto md:px-5" onClick={() => handleEditClick(item)} title="Editar">
+                  <PiPencilSimple size={20} />
+                  <span className="hidden md:inline">Editar</span>
                 </button>
-                <button className="btn btn-square btn-sm btn-error btn-ghost md:btn-outline md:w-auto md:px-5" onClick={handleCancelClick} title="Cancelar">
-                  <PiX size={20} />
-                  <span className="hidden md:inline">Cancelar</span>
-                </button>
-              </>
-            ) : (
-              <button className="btn btn-square btn-sm btn-ghost md:btn-outline md:btn-primary md:w-auto md:px-5" onClick={() => handleEditClick(item)} title="Editar">
-                <PiPencilSimple size={20} />
-                <span className="hidden md:inline">Editar</span>
+              )
+            )}
+
+            {props.roleFunction && (
+              <button className="btn btn-square btn-sm btn-ghost md:btn-outline md:btn-warning md:w-auto md:px-5" onClick={() => props.roleFunction(item)} title="Alterar Cargo">
+                <PiUserGear size={20} />
+                <span className="hidden md:inline">Cargo</span>
               </button>
             )}
 
-            <button className="btn btn-square btn-sm btn-ghost text-error md:btn-outline md:btn-error md:text-base-content md:w-auto md:px-5" onClick={() => props.deleteFunction && props.deleteFunction(item.id)} title="Deletar">
-              <PiTrash size={20} />
-              <span className="hidden md:inline">Deletar</span>
-            </button>
+            {props.deleteFunction && (
+              <button className="btn btn-square btn-sm btn-ghost text-error md:btn-outline md:btn-error md:text-base-content md:w-auto md:px-5" onClick={() => props.deleteFunction && props.deleteFunction(item.id)} title="Deletar">
+                <PiTrash size={20} />
+                <span className="hidden md:inline">Deletar</span>
+              </button>
+            )}
           </div>
         </li>
       ))}
