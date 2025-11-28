@@ -62,9 +62,11 @@ export default function Page() {
       setTurnos(turnosApi);
       setTurnosF(turnosApi);
       mostrarAlerta("success", "Turno deletado com sucesso!");
-      deleteModalRef.current.close();
     } catch (error) {
-      mostrarAlerta("error", "Erro ao deletar turno.");
+      const msg = error.response?.data?.message || "Erro ao deletar turno.";
+      mostrarAlerta("error", msg);
+    } finally {
+      deleteModalRef.current.close();
     }
   }
 

@@ -72,11 +72,13 @@ export default function Page() {
       await deleteRecord('/palestrante', idToDelete);
       mostrarAlerta("success", "Palestrante deletado com sucesso!");
       await getAllpalestrante();
-      refMdConfirmation.current.close();
-      setIdToDelete(null);
     } catch (error) {
       console.error("Error deleting palestrante:", error);
-      mostrarAlerta("error", "Erro ao deletar palestrante.");
+      const msg = error.response?.data?.message || "Erro ao deletar palestrante.";
+      mostrarAlerta("error", msg);
+    } finally {
+      refMdConfirmation.current.close();
+      setIdToDelete(null);
     }
   }
 

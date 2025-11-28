@@ -62,9 +62,11 @@ export default function Page() {
       setSalas(salasApi);
       setSalasF(salasApi);
       mostrarAlerta("success", "Sala deletada com sucesso!");
-      deleteModalRef.current.close();
     } catch (error) {
-      mostrarAlerta("error", "Erro ao deletar sala.");
+      const msg = error.response?.data?.message || "Erro ao deletar sala.";
+      mostrarAlerta("error", msg);
+    } finally {
+      deleteModalRef.current.close();
     }
   }
 

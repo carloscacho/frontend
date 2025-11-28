@@ -70,11 +70,13 @@ export default function Page() {
       await deleteRecord('/evento', itemToDelete);
       mostrarAlerta("success", "Evento deletado com sucesso!");
       await getAllevento();
-      refMdConfirmation.current.close();
-      setItemToDelete(null);
     } catch (error) {
       console.error("[Eventos Page] Error deleting event:", error);
-      mostrarAlerta("error", "Erro ao deletar evento.");
+      const msg = error.response?.data?.message || "Erro ao deletar evento.";
+      mostrarAlerta("error", msg);
+    } finally {
+      refMdConfirmation.current.close();
+      setItemToDelete(null);
     }
   }
 

@@ -71,11 +71,13 @@ export default function Page() {
       await deleteRecord('/usuario', idToDelete);
       mostrarAlerta("success", "Usuário deletado com sucesso!");
       await getAllusuario();
-      refMdConfirmation.current.close();
-      setIdToDelete(null);
     } catch (error) {
       console.error("Error deleting usuario:", error);
-      mostrarAlerta("error", "Erro ao deletar usuário.");
+      const msg = error.response?.data?.message || "Erro ao deletar usuário.";
+      mostrarAlerta("error", msg);
+    } finally {
+      refMdConfirmation.current.close();
+      setIdToDelete(null);
     }
   }
 

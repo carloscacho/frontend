@@ -62,9 +62,11 @@ export default function Page() {
       setTurmas(turmasApi);
       setTurmasF(turmasApi);
       mostrarAlerta("success", "Turma deletada com sucesso!");
-      deleteModalRef.current.close();
     } catch (error) {
-      mostrarAlerta("error", "Erro ao deletar turma.");
+      const msg = error.response?.data?.message || "Erro ao deletar turma.";
+      mostrarAlerta("error", msg);
+    } finally {
+      deleteModalRef.current.close();
     }
   }
 
