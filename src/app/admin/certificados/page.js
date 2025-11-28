@@ -62,7 +62,6 @@ export default function Page() {
           onChange={setNovaCertificado}
           onClick={() => refMdCertificados.current.showModal()}
           btnLabel='pesquisar'
-          btncolor="info"
           hideButton={!isAdmin}
         />
       </div>

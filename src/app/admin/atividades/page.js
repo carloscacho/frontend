@@ -64,7 +64,6 @@ export default function Page() {
           onChange={setNovaAtividade}
           onClick={() => refMdAtividades.current.showModal()}
           btnLabel='pesquisar'
-          btncolor="info"
           hideButton={!isAdmin}
         />
 

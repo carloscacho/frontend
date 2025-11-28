@@ -69,11 +69,13 @@ export default function Page() {
     if (!idToDelete) return;
     try {
       await deleteRecord('/usuario', idToDelete);
+      mostrarAlerta("success", "Usuário deletado com sucesso!");
       await getAllusuario();
       refMdConfirmation.current.close();
       setIdToDelete(null);
     } catch (error) {
       console.error("Error deleting usuario:", error);
+      mostrarAlerta("error", "Erro ao deletar usuário.");
     }
   }
 
@@ -112,7 +114,6 @@ export default function Page() {
           onChange={setNovaUsuario}
           onClick={() => refMdUsuarios.current.showModal()}
           btnLabel='pesquisar'
-          btncolor="info"
           hideButton={!isAdmin}
         />
       </div>

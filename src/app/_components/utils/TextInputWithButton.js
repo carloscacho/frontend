@@ -16,7 +16,7 @@ export default function TextInputWithButton(props) {
       </div>
       <div className="flex gap-2 w-full sm:w-auto justify-end">
         <button
-          className={`btn btn-${props.btncolor || 'info'} flex-1 sm:flex-none`}
+          className={`btn btn-info flex-1 sm:flex-none`}
         >
           {props.btnLabel || 'Pesquisar'}
         </button>

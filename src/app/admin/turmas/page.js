@@ -98,7 +98,6 @@ export default function Page() {
           onChange={setNovaTurma}
           onClick={handleCadastrar}
           btnLabel='pesquisar'
-          btncolor="info"
           hideButton={!isAdmin}
         />
       </div>

@@ -98,7 +98,6 @@ export default function Page() {
           onChange={setNovaTurno}
           onClick={handleCadastrar}
           btnLabel='pesquisar'
-          btncolor="info"
           hideButton={!isAdmin}
         />
       </div>

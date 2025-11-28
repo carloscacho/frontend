@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Select({ selectValue, onChange, options, label,  valueKey = "id", labelKey = "nome" }) {
+export default function Select({ selectValue, onChange, options, label, valueKey = "id", labelKey = "nome" }) {
     return (
         <select
             value={selectValue?.[valueKey] || ""}
@@ -8,7 +8,7 @@ export default function Select({ selectValue, onChange, options, label,  valueKe
                 const selected = options.find(opt => opt[valueKey] == e.target.value)
                 onChange(selected || {})
             }}
-            className="select select-primary text-black"
+            className="select select-primary"
         >
             <option disabled>{label}</option>
             {options.map((opt) => (

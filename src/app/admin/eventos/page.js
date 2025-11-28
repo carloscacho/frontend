@@ -13,6 +13,7 @@ import Eventos from "@/app/_components/Modais/Eventos"
 import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
 import { dateFormateBr } from "@/utils/dateUtils"
 import { useAuth } from "@/context/AuthContext"
+import { useAlerta } from "@/context/AlertContext"
 
 export default function Page() {
   const [evento, setEventos] = useState([])
@@ -23,6 +24,7 @@ export default function Page() {
 
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
+  const { mostrarAlerta } = useAlerta()
 
   const refMdEventos = useRef(null)
   const refMdConfirmation = useRef(null)
@@ -42,8 +44,10 @@ export default function Page() {
     try {
       if (editingEvent) {
         await updateRecord('/evento', editingEvent.id_evento, data);
+        mostrarAlerta("success", "Evento atualizado com sucesso!");
       } else {
         const result = await createRecord('/evento', data);
+        mostrarAlerta("success", "Evento criado com sucesso!");
       }
       await getAllevento();
       refMdEventos.current.close();
@@ -51,6 +55,7 @@ export default function Page() {
     } catch (error) {
       console.error("[Eventos Page] Error saving event:", error);
       console.error("[Eventos Page] Error response:", error.response);
+      mostrarAlerta("error", "Erro ao salvar evento.");
     }
   }
 
@@ -63,11 +68,13 @@ export default function Page() {
     if (!itemToDelete) return;
     try {
       await deleteRecord('/evento', itemToDelete);
+      mostrarAlerta("success", "Evento deletado com sucesso!");
       await getAllevento();
       refMdConfirmation.current.close();
       setItemToDelete(null);
     } catch (error) {
       console.error("[Eventos Page] Error deleting event:", error);
+      mostrarAlerta("error", "Erro ao deletar evento.");
     }
   }
 
@@ -100,7 +107,6 @@ export default function Page() {
           onChange={setNovaEvento}
           onClick={() => refMdEventos.current.showModal()}
           btnLabel='pesquisar'
-          btncolor="info"
           hideButton={!isAdmin}
         />
       </div>

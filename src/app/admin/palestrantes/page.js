@@ -13,6 +13,7 @@ import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
 import { useEventFilter } from "@/context/EventFilterContext"
 import { createRecord, deleteRecord, updateRecord, getAllRecords } from "@/utils/crud"
 import { useAuth } from "@/context/AuthContext"
+import { useAlerta } from "@/context/AlertContext"
 
 export default function Page() {
   const [palestrante, setPalestrantes] = useState([])
@@ -23,6 +24,7 @@ export default function Page() {
 
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
+  const { mostrarAlerta } = useAlerta()
 
   const { eventoSelect } = useEventFilter()
 
@@ -45,14 +47,17 @@ export default function Page() {
     try {
       if (editingPalestrante) {
         await updateRecord('/palestrante', editingPalestrante.id_palestrante, data);
+        mostrarAlerta("success", "Palestrante atualizado com sucesso!");
       } else {
         await createRecord('/palestrante', data);
+        mostrarAlerta("success", "Palestrante criado com sucesso!");
       }
       await getAllpalestrante();
       refMdPalestrantes.current.close();
       setEditingPalestrante(null);
     } catch (error) {
       console.error("Error saving palestrante:", error);
+      mostrarAlerta("error", "Erro ao salvar palestrante.");
     }
   }
 
@@ -65,11 +70,13 @@ export default function Page() {
     if (!idToDelete) return;
     try {
       await deleteRecord('/palestrante', idToDelete);
+      mostrarAlerta("success", "Palestrante deletado com sucesso!");
       await getAllpalestrante();
       refMdConfirmation.current.close();
       setIdToDelete(null);
     } catch (error) {
       console.error("Error deleting palestrante:", error);
+      mostrarAlerta("error", "Erro ao deletar palestrante.");
     }
   }
 
@@ -102,7 +109,6 @@ export default function Page() {
           onChange={setNovaPalestrante}
           onClick={() => refMdPalestrantes.current.showModal()}
           btnLabel='pesquisar'
-          btncolor="info"
           hideButton={!isAdmin}
         />
 
