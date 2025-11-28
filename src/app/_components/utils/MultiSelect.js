@@ -47,7 +47,7 @@ export default function MultiSelect({ options, selectedValues, onChange, label, 
                 <span className="label-text font-bold">{label}</span>
             </label>
 
-            <div className="flex flex-wrap items-center gap-2 p-2 border rounded-lg border-gray-300 bg-white min-h-[3rem] focus-within:border-primary focus-within:ring-1 focus-within:ring-primary relative">
+            <div className="flex flex-wrap items-center gap-2 p-2 border rounded-lg border-gray-300 bg-transparent min-h-[3rem] focus-within:border-primary focus-within:ring-1 focus-within:ring-primary relative">
                 {/* Tags */}
                 {selectedObjects.map((opt) => (
                     <div key={opt[valueKey]} className="badge badge-primary gap-1 p-3">

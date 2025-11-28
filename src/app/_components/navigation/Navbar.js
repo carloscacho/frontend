@@ -5,7 +5,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { PiUserCircleDashedDuotone, PiUserCircleCheckDuotone, PiSunDuotone, PiMoonDuotone } from "react-icons/pi";
 import { useEventFilter } from "@/context/EventFilterContext";
-import Select from "@/app/_components/utils/Select";
+import SingleSelect from "@/app/_components/utils/SingleSelect";
+import Image from "next/image";
+import logoIFEventos from "../../../assets/logoIFEventosnbg.png";
 
 
 export default function Navbar() {
@@ -42,14 +44,18 @@ export default function Navbar() {
                 </button>
             </div>
             <div className="flex-1 flex items-center gap-4">
-                <a className="btn btn-ghost text-xl"><h3 className="text-3xl">IFMS Eventos <span className="text-sm">v: 2.0</span></h3></a>
+                <a className="btn btn-ghost text-xl flex items-center gap-2">
+                    <Image src={logoIFEventos} alt="IFMS Eventos" height={40} className="h-10 w-auto" />
+                    <h3 className="text-3xl hidden md:block">IFMS Eventos <span className="text-sm">v: 2.0</span></h3>
+                </a>
                 <div className="w-64">
-                    <Select
+                    <SingleSelect
                         label="Selecione um evento"
                         options={eventoOptions}
-                        selectValue={eventoSelect}
+                        value={eventoSelect}
                         onChange={setEventoSelect}
                         valueKey="id_evento"
+                        labelBgColor="bg-base-200"
                     />
                 </div>
             </div>

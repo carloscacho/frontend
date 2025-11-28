@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Input from "../utils/Input";
 import Select from "../utils/Select";
 import MultiSelect from "../utils/MultiSelect";
+import SingleSelect from "../utils/SingleSelect";
 import Button from "../utils/Button";
 import { getAllRecords } from "@/utils/crud";
 import { useEventFilter } from "@/context/EventFilterContext";
@@ -117,35 +118,24 @@ export default function Atividades({ onClickSalvar, onClickCancelar, initialData
                 type="text"
             />
             <div className="flex gap-2">
-                <Input
-                    label="Limite:"
-                    value={limite}
-                    onChange={setLimite}
-                    placeholder="Limite de vagas"
-                    type="number"
-                />
-                <div className="relative w-full my-3 py-0.5">
-                    <select
-                        className="input input-bordered w-full bg-transparent text-base text-gray-900 focus:border-primary focus:outline-none appearance-none"
-                        value={sala?.id_sala || ""}
-                        onChange={(e) => {
-                            const selected = salasOptions.find(opt => opt.id_sala == Number(e.target.value))
-                            setSala(selected || {})
-                        }}
-                    >
-                        <option value="" disabled hidden></option>
-                        {salasOptions.map((opt) => (
-                            <option key={opt.id_sala} value={opt.id_sala}>
-                                {opt.nome}
-                            </option>
-                        ))}
-                    </select>
-                    <label
-                        className={`absolute left-3 top-2 text-gray-500 duration-300 transform origin-left pointer-events-none
-                            ${sala ? '-translate-y-5 scale-75 text-primary font-bold bg-white px-2 z-10' : 'translate-y-0 scale-100'}`}
-                    >
-                        Local:
-                    </label>
+                <div className="w-32">
+                    <Input
+                        label="Limite:"
+                        value={limite}
+                        onChange={setLimite}
+                        placeholder="Limite de vagas"
+                        type="number"
+                    />
+                </div>
+                <div className="flex-1 min-w-0">
+                    <SingleSelect
+                        label="Local"
+                        options={salasOptions}
+                        value={sala}
+                        onChange={setSala}
+                        valueKey="id_sala"
+                        labelKey="nome"
+                    />
                 </div>
             </div>
 
