@@ -40,7 +40,7 @@ export default function SingleSelect({ options, value, onChange, label, valueKey
     const hasValue = value || searchTerm || isOpen;
 
     return (
-        <div className="relative w-full my-3 py-0.5" ref={wrapperRef}>
+        <div className="relative w-3/4 md:w-full my-3 py-0.5" ref={wrapperRef}>
             <div
                 className={`flex items-center gap-2 px-3 py-2 border rounded-lg bg-transparent min-h-[3rem] relative cursor-text transition-all duration-200
                     ${isOpen ? 'border-primary ring-1 ring-primary' : 'border-gray-300'}`}

@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react"
 
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
 import { filterItems, isEmpty } from "@/utils/filter"
+import { sortItems } from "@/utils/sort"
+import SortControl from "@/app/_components/utils/SortControl"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
 import PageContainer from "@/app/_components/displays/PageContainer"
@@ -19,6 +21,7 @@ export default function Page() {
   const [palestrante, setPalestrantes] = useState([])
   const [palestranteF, setPalestrantesF] = useState([])
   const [novaPalestrante, setNovaPalestrante] = useState("")
+  const [sortOrder, setSortOrder] = useState('id-desc')
   const [editingPalestrante, setEditingPalestrante] = useState(null)
   const [idToDelete, setIdToDelete] = useState(null)
 
@@ -45,7 +48,7 @@ export default function Page() {
 
   const handleSave = async (data) => {
     try {
-      if (editingPalestrante) {
+      if (editingPalestrante && editingPalestrante.id_palestrante) {
         await updateRecord('/palestrante', editingPalestrante.id_palestrante, data);
         mostrarAlerta("success", "Palestrante atualizado com sucesso!");
       } else {
@@ -96,13 +99,14 @@ export default function Page() {
   useEffect(() => {
     setPalestrantesF(palestrante)
     const results = filterItems(palestrante, novaPalestrante)
-    setPalestrantesF(results)
-  }, [novaPalestrante])
+    const sorted = sortItems(results, sortOrder)
+    setPalestrantesF(sorted)
+  }, [novaPalestrante, sortOrder, palestrante])
 
   return (
     <PageContainer>
       <Hero title="Cadastro de palestrante" />
-      <div className="my-3 mx-2 flex justify-between">
+      <div className="my-3 mx-2 flex justify-between items-center gap-2">
 
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
@@ -110,13 +114,13 @@ export default function Page() {
           value={novaPalestrante}
           onChange={setNovaPalestrante}
           onClick={() => {
-            setEditingPalestrante(null);
+            setEditingPalestrante(novaPalestrante ? { nome: novaPalestrante } : null);
             refMdPalestrantes.current.showModal();
           }}
-          btnLabel='pesquisar'
           hideButton={!isAdmin}
-        />
-
+        >
+          <SortControl value={sortOrder} onChange={setSortOrder} />
+        </TextInputWithButton>
       </div>
       <div>
         <ListItens
@@ -131,7 +135,9 @@ export default function Page() {
         />
       </div>
       <Modal refModal={refMdPalestrantes}>
-        <h3 className="font-bold text-2xl ml-2">Cadastrar Novos Palestrantes</h3>
+        <h3 className="font-bold text-2xl ml-2">
+          {editingPalestrante && editingPalestrante.id_palestrante ? "Editar Palestrante" : "Cadastrar Novos Palestrantes"}
+        </h3>
         <Palestrantes
           onClickCancelar={() => {
             refMdPalestrantes.current.close()

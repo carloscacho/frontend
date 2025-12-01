@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
 import { getAllRecords, createRecord, deleteRecord, updateRecord } from "@/utils/crud"
 import { filterItems } from "@/utils/filter"
+import { sortItems } from "@/utils/sort"
+import SortControl from "@/app/_components/utils/SortControl"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
 import PageContainer from "@/app/_components/displays/PageContainer"
@@ -19,6 +21,7 @@ export default function Page() {
   const [evento, setEventos] = useState([])
   const [eventoF, setEventosF] = useState([])
   const [novaEvento, setNovaEvento] = useState("")
+  const [sortOrder, setSortOrder] = useState('id-desc')
   const [editingEvent, setEditingEvent] = useState(null)
   const [itemToDelete, setItemToDelete] = useState(null)
 
@@ -42,7 +45,7 @@ export default function Page() {
 
   const handleSave = async (data) => {
     try {
-      if (editingEvent) {
+      if (editingEvent && editingEvent.id_evento) {
         await updateRecord('/evento', editingEvent.id_evento, data);
         mostrarAlerta("success", "Evento atualizado com sucesso!");
       } else {
@@ -94,13 +97,14 @@ export default function Page() {
   useEffect(() => {
     setEventosF(evento)
     const results = filterItems(evento, novaEvento)
-    setEventosF(results)
-  }, [novaEvento])
+    const sorted = sortItems(results, sortOrder)
+    setEventosF(sorted)
+  }, [novaEvento, sortOrder, evento])
 
   return (
     <PageContainer>
       <Hero title="Cadastro de evento" />
-      <div className="my-3 mx-2">
+      <div className="my-3 mx-2 flex justify-between items-center gap-2">
 
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
@@ -108,12 +112,13 @@ export default function Page() {
           value={novaEvento}
           onChange={setNovaEvento}
           onClick={() => {
-            setEditingEvent(null);
+            setEditingEvent(novaEvento ? { nome: novaEvento } : null);
             refMdEventos.current.showModal();
           }}
-          btnLabel='pesquisar'
           hideButton={!isAdmin}
-        />
+        >
+          <SortControl value={sortOrder} onChange={setSortOrder} />
+        </TextInputWithButton>
       </div>
       <div>
         <ListItens info="lista de evento cadastradas"
@@ -128,7 +133,7 @@ export default function Page() {
       </div>
       <Modal refModal={refMdEventos}>
         <h3 className="font-bold text-2xl ml-2">
-          Cadastrar Novos Eventos
+          {editingEvent && editingEvent.id_evento ? "Editar Evento" : "Cadastrar Novos Eventos"}
         </h3>
         <Eventos
           onClickCancelar={() => {

@@ -20,6 +20,8 @@ export default function Atividades({ onClickSalvar, onClickCancelar, initialData
 
     const [salasOptions, setSalasOptions] = useState([]);
     const [palestrantesOptions, setPalestrantesOptions] = useState([]);
+    const [atividadesOptions, setAtividadesOptions] = useState([]);
+    const [atividadeVinculada, setAtividadeVinculada] = useState(null);
 
     const { eventoSelect } = useEventFilter();
 
@@ -30,6 +32,8 @@ export default function Atividades({ onClickSalvar, onClickCancelar, initialData
                 setSalasOptions(salas);
                 const palestrantesList = await getAllRecords('/palestrante');
                 setPalestrantesOptions(palestrantesList);
+                const atividadesList = await getAllRecords('/atividade');
+                setAtividadesOptions(atividadesList);
             } catch (error) {
                 console.error("Error fetching options:", error);
             }
@@ -49,6 +53,13 @@ export default function Atividades({ onClickSalvar, onClickCancelar, initialData
                 // If we only have ID, we might need to find it in options, but options might not be loaded yet.
                 // Ideally initialData should have the object or we wait for options.
                 // For now, let's assume we might need to handle this.
+            }
+
+            if (initialData.fk_atividade_vinculada) {
+                // Find the activity in options if loaded, or just set ID if SingleSelect supports it (it usually expects object)
+                // We need to find the object in atividadesOptions
+                const linked = atividadesOptions.find(a => a.id_atividade === initialData.fk_atividade_vinculada);
+                setAtividadeVinculada(linked || null);
             }
             // Handle palestrantes and data_atividade if present
             if (initialData.palestrante_atividade) {
@@ -71,6 +82,7 @@ export default function Atividades({ onClickSalvar, onClickCancelar, initialData
             setData("");
             setHora("");
             setDuracao("");
+            setAtividadeVinculada(null);
         }
     }, [initialData]);
 
@@ -82,6 +94,7 @@ export default function Atividades({ onClickSalvar, onClickCancelar, initialData
             limite: parseInt(limite),
             fk_sala: sala ? sala.id_sala : null,
             fk_evento: eventoSelect?.id_evento,
+            fk_atividade_vinculada: atividadeVinculada ? atividadeVinculada.id_atividade : null,
             palestrantes,
             data_atividade: {
                 data,
@@ -172,6 +185,18 @@ export default function Atividades({ onClickSalvar, onClickCancelar, initialData
                     type="time"
                 />
             </div>
+
+            <SingleSelect
+                label="Atividade Vinculada (Opcional)"
+                options={atividadesOptions.filter(a =>
+                    (!initialData || a.id_atividade !== initialData.id_atividade) &&
+                    (eventoSelect?.id_evento ? a.fk_evento === eventoSelect.id_evento : true)
+                )}
+                value={atividadeVinculada}
+                onChange={setAtividadeVinculada}
+                valueKey="id_atividade"
+                labelKey="nome"
+            />
 
             <div className="btns w-full flex justify-end mt-4">
                 <Button onClick={handleSubmit} label={initialData ? "Atualizar" : "Salvar"} color="success" mode="active" />

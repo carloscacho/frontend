@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (usuario) {
-      router.push('/admin/salas')
+      router.push('/admin/home')
       console.log("Entrei aqui")
     }
   }, [usuario])

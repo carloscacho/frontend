@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
 import { getAllRecords, deleteRecord, updateRecord } from "@/utils/crud"
 import { filterItems, formatCPF } from "@/utils/filter"
+import { sortItems } from "@/utils/sort"
+import SortControl from "@/app/_components/utils/SortControl"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
 import PageContainer from "@/app/_components/displays/PageContainer"
@@ -19,6 +21,7 @@ export default function Page() {
   const [usuarioList, setUsuarioList] = useState([])
   const [usuarioF, setUsuariosF] = useState([])
   const [novaUsuario, setNovaUsuario] = useState("")
+  const [sortOrder, setSortOrder] = useState('id-desc')
 
   const { usuario, resetForm } = useAuth()
   const isAdmin = usuario?.tipo === 1
@@ -57,8 +60,9 @@ export default function Page() {
   useEffect(() => {
     setUsuariosF(usuarioList)
     const results = filterItems(usuarioList, novaUsuario)
-    setUsuariosF(results)
-  }, [novaUsuario, usuarioList])
+    const sorted = sortItems(results, sortOrder)
+    setUsuariosF(sorted)
+  }, [novaUsuario, sortOrder, usuarioList])
 
   const handleDelete = (id) => {
     setIdToDelete(id);
@@ -107,7 +111,7 @@ export default function Page() {
   return (
     <PageContainer>
       <Hero title="Cadastro de usuario" />
-      <div className="my-3 mx-2">
+      <div className="my-3 mx-2 flex justify-between items-center gap-2">
 
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
@@ -120,7 +124,9 @@ export default function Page() {
           }}
           btnLabel='pesquisar'
           hideButton={!isAdmin}
-        />
+        >
+          <SortControl value={sortOrder} onChange={setSortOrder} />
+        </TextInputWithButton>
       </div>
       <div>
         <ListItens info="lista de usuario cadastradas"

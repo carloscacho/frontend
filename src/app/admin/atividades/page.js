@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
 import { getAllRecords, createRecord, updateRecord, deleteRecord } from "@/utils/crud"
 import { filterItems, isEmpty } from "@/utils/filter"
+import { sortItems } from "@/utils/sort"
+import SortControl from "@/app/_components/utils/SortControl"
 import ListItens from "@/app/_components/displays/ListItens"
 import Hero from "@/app/_components/displays/Hero"
 import PageContainer from "@/app/_components/displays/PageContainer"
@@ -19,6 +21,7 @@ export default function Page() {
   const [atividade, setAtividades] = useState([])
   const [atividadeF, setAtividadesF] = useState([])
   const [novaAtividade, setNovaAtividade] = useState("")
+  const [sortOrder, setSortOrder] = useState('id-desc')
   const [editingAtividade, setEditingAtividade] = useState(null)
   const [itemToDelete, setItemToDelete] = useState(null)
 
@@ -45,7 +48,7 @@ export default function Page() {
 
   const handleSave = async (data) => {
     try {
-      if (editingAtividade) {
+      if (editingAtividade && editingAtividade.id_atividade) {
         await updateRecord('/atividade', editingAtividade.id_atividade, data);
         mostrarAlerta("success", "Atividade atualizada com sucesso!");
       } else {
@@ -94,13 +97,14 @@ export default function Page() {
   useEffect(() => {
     setAtividadesF(atividade)
     const results = filterItems(atividade, novaAtividade)
-    setAtividadesF(results)
-  }, [novaAtividade])
+    const sorted = sortItems(results, sortOrder)
+    setAtividadesF(sorted)
+  }, [novaAtividade, sortOrder, atividade])
 
   return (
     <PageContainer>
       <Hero title="Cadastro de atividade" />
-      <div className="my-3 mx-2 flex justify-between">
+      <div className="my-3 mx-2 flex justify-between items-center gap-2">
 
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
@@ -108,12 +112,13 @@ export default function Page() {
           value={novaAtividade}
           onChange={setNovaAtividade}
           onClick={() => {
-            setEditingAtividade(null);
+            setEditingAtividade(novaAtividade ? { nome: novaAtividade } : null);
             refMdAtividades.current.showModal();
           }}
-          btnLabel='pesquisar'
           hideButton={!isAdmin}
-        />
+        >
+          <SortControl value={sortOrder} onChange={setSortOrder} />
+        </TextInputWithButton>
 
       </div>
       <div>
@@ -129,7 +134,7 @@ export default function Page() {
       </div>
       <Modal refModal={refMdAtividades}>
         <h3 className="font-bold text-2xl ml-2">
-          {editingAtividade ? "Editar Atividade" : "Cadastrar Novas Atividades"}
+          {editingAtividade && editingAtividade.id_atividade ? "Editar Atividade" : "Cadastrar Novas Atividades"}
         </h3>
         <Atividades
           onClickCancelar={() => {

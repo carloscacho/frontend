@@ -14,12 +14,7 @@ export default function TextInputWithButton(props) {
           />
         </label>
       </div>
-      <div className="flex gap-2 w-full sm:w-auto justify-end">
-        <button
-          className={`btn btn-info flex-1 sm:flex-none`}
-        >
-          {props.btnLabel || 'Pesquisar'}
-        </button>
+      <div className="flex gap-2 w-full sm:w-auto justify-end items-center">
         {!props.hideButton && (
           <button
             onClick={props.onClick}
@@ -28,6 +23,7 @@ export default function TextInputWithButton(props) {
             Cadastrar
           </button>
         )}
+        {props.children}
       </div>
     </div>
   )

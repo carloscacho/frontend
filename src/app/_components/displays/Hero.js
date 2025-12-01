@@ -5,7 +5,7 @@ export default function Hero({ title }) {
     <div className="hero w-full bg-base-200 pt-5 pb-5">
       <div className="hero-content w-full flex-col">
         <div className="text-center lg:text-left">
-          <h1 className="text-2xl md:text-5xl text-base-500 font-bold">{title}</h1>
+          <h1 className="text-3xl md:text-5xl text-base-500 font-bold">{title}</h1>
         </div>
       </div>
     </div>
