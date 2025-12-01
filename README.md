@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Eventos IFMS - Frontend
 
-## Getting Started
+Interface web para o sistema de gerenciamento de eventos do Instituto Federal de Mato Grosso do Sul (IFMS). Desenvolvido com [Next.js](https://nextjs.org/), este projeto oferece um painel administrativo completo para gestão de eventos, atividades, palestrantes e usuários.
 
-First, run the development server:
+## 🚀 Tecnologias Utilizadas
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **[Next.js](https://nextjs.org/)**: Framework React para produção.
+- **[React](https://reactjs.org/)**: Biblioteca para construção de interfaces de usuário.
+- **[Tailwind CSS](https://tailwindcss.com/)**: Framework CSS utilitário para estilização rápida e responsiva.
+- **[Axios](https://axios-http.com/)**: Cliente HTTP para comunicação com a API.
+- **[React Icons](https://react-icons.github.io/react-icons/)**: Biblioteca de ícones.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Funcionalidades
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- **Autenticação e Autorização**: Login de usuários e controle de acesso baseado em níveis (Admin, Comum, Auxiliar).
+- **Gestão de Eventos**: Cadastro, edição e exclusão de eventos.
+- **Gestão de Atividades**: Controle detalhado de atividades, incluindo horários, locais e palestrantes vinculados.
+- **Gestão de Palestrantes**: Cadastro de palestrantes e associação com eventos e atividades.
+- **Gestão de Salas e Turnos**: Administração de recursos físicos e temporais.
+- **Gestão de Usuários**: Controle de usuários do sistema e atribuição de cargos.
+- **Feedback Visual**: Sistema de alertas e modais para confirmação de ações e feedback de erros.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📦 Instalação e Execução
 
-## Learn More
+1.  **Clone o repositório** (se ainda não o fez):
+    ```bash
+    git clone <url-do-repositorio>
+    cd eventosIFMS/frontend
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+2.  **Instale as dependências**:
+    ```bash
+    npm install
+    # ou
+    yarn install
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3.  **Execute o servidor de desenvolvimento**:
+    ```bash
+    npm run dev
+    # ou
+    yarn dev
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4.  **Acesse a aplicação**:
+    Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 
-## Deploy on Vercel
+## 📂 Estrutura de Pastas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `src/app`: Páginas e rotas da aplicação (App Router).
+- `src/app/_components`: Componentes reutilizáveis (Botões, Inputs, Modais, etc.).
+- `src/context`: Contextos do React (Auth, Alert, Modal, etc.).
+- `src/utils`: Funções utilitárias e configurações (CRUD, formatação de datas).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🤝 Contribuição
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.

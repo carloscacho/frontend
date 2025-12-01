@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (usuario) {
-      router.push('/admin/salas')
+      router.push('/admin/home')
       console.log("Entrei aqui")
     }
   }, [usuario])
@@ -97,6 +97,13 @@ export function AuthProvider({ children }) {
     setUsuario(null);
   };
 
+  const resetForm = () => {
+    setNome('');
+    setEmail('');
+    setCpf('');
+    setSenha('');
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -113,7 +120,8 @@ export function AuthProvider({ children }) {
         logout,
         singupOpen,
         setSingupOpen,
-        cadastrar
+        cadastrar,
+        resetForm
       }}>
       {children}
     </AuthContext.Provider>

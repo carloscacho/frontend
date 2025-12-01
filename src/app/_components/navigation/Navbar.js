@@ -2,27 +2,30 @@
 import { useDrawer } from "@/context/DrawerContext";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { PiUserCircleDashedDuotone, PiUserCircleCheckDuotone, PiSunDuotone, PiMoonDuotone } from "react-icons/pi";
 import { useEventFilter } from "@/context/EventFilterContext";
-import Select from "@/app/_components/utils/Select";
+import SingleSelect from "@/app/_components/utils/SingleSelect";
+import Image from "next/image";
+import logoIFEventos from "../../../assets/logoIFEventosnbg.png";
 
 
 export default function Navbar() {
     const { trocarDrawer } = useDrawer()
     const { logout, usuario } = useAuth()
     const router = useRouter()
-    const [theme, setTheme] = useState("lemonade");
+    const pathname = usePathname()
+    const [theme, setTheme] = useState("cmyk");
     const { eventoOptions, eventoSelect, setEventoSelect } = useEventFilter();
 
     useEffect(() => {
-        const storedTheme = localStorage.getItem("theme") || "lemonade";
+        const storedTheme = localStorage.getItem("theme") || "cmyk";
         setTheme(storedTheme);
         document.querySelector("html").setAttribute("data-theme", storedTheme);
     }, []);
 
     function toggleTheme() {
-        const newTheme = theme === "lemonade" ? "dim" : "lemonade";
+        const newTheme = theme === "cmyk" ? "forest" : "cmyk";
         setTheme(newTheme);
         localStorage.setItem("theme", newTheme);
         document.querySelector("html").setAttribute("data-theme", newTheme);
@@ -31,7 +34,7 @@ export default function Navbar() {
     function _handleLogout() {
         if (usuario)
             logout()
-        router.push("/")
+        router.push("/admin")
     }
 
     return (
@@ -42,20 +45,26 @@ export default function Navbar() {
                 </button>
             </div>
             <div className="flex-1 flex items-center gap-4">
-                <a className="btn btn-ghost text-xl"><h3 className="text-3xl">IFMS Eventos <span className="text-sm">v: 2.0</span></h3></a>
+                <a className="btn btn-ghost text-xl flex items-center gap-2">
+                    <Image src={logoIFEventos} alt="IFMS Eventos" height={40} className="h-10 w-auto" />
+                    <h3 className="text-3xl hidden md:block">IFMS Eventos <span className="text-sm">v: 2.0</span></h3>
+                </a>
                 <div className="w-64">
-                    <Select
-                        label="Selecione um evento"
-                        options={eventoOptions}
-                        selectValue={eventoSelect}
-                        onChange={setEventoSelect}
-                        valueKey="id_evento"
-                    />
+                    {pathname !== "/admin" && (
+                        <SingleSelect
+                            label="Evento"
+                            options={eventoOptions}
+                            value={eventoSelect}
+                            onChange={setEventoSelect}
+                            valueKey="id_evento"
+                            labelBgColor="bg-base-200"
+                        />
+                    )}
                 </div>
             </div>
             <div className="flex-none gap-2">
                 <button onClick={toggleTheme} className="btn btn-ghost btn-circle">
-                    {theme === "lemonade" ? (
+                    {theme === "cmyk" ? (
                         <PiSunDuotone size={24} />
                     ) : (
                         <PiMoonDuotone size={24} />

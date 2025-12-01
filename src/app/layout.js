@@ -19,11 +19,6 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="lemonade">
-      <head>
-        <title>IFMS Eventos</title>
-        <link rel="icon" href="./favicon.ico" />
-
-      </head>
       <body className="bg-ifms">
         <DrawerProvider>
           <EventFilterProvider>

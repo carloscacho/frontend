@@ -17,6 +17,11 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
             setAno(initialData.ano)
             setDataInicio(initialData.inicio ? initialData.inicio.split('T')[0] : "")
             setDataFim(initialData.final ? initialData.final.split('T')[0] : "")
+        } else {
+            setNome("")
+            setAno(new Date().getFullYear())
+            setDataInicio(new Date().toISOString().split('T')[0])
+            setDataFim(new Date().toISOString().split('T')[0])
         }
     }, [initialData])
 
