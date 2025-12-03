@@ -2,8 +2,6 @@
 import { useState, useEffect } from "react"
 import { getAllRecords } from "@/utils/crud"
 import Card from "@/app/_components/displays/Card"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import Hero from "@/app/_components/displays/Hero"
 import { dateFormateBr } from "@/utils/dateUtils"
 
 import { useRouter } from "next/navigation"
@@ -56,24 +54,31 @@ export default function AdminHome() {
     }
 
     return (
-        <PageContainer>
-            <Hero title="Eventos Cadastrados" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 overflow-y-auto h-[calc(100vh-200px)] bg-base-200">
-                {eventos.map((evento) => (
-                    <Card key={evento.id_evento} figure={<EventImage evento={evento} />}>
-                        <h2 className="card-title">{evento.nome}</h2>
-                        <p>{evento.descricao}</p>
-                        <div className="text-sm text-gray-500 mt-2">
-                            <p>Início: {dateFormateBr(evento.inicio)}</p>
-                            <p>Fim: {dateFormateBr(evento.final)}</p>
-                        </div>
-                        <div className="card-actions justify-end mt-4">
-                            <button onClick={() => handleVisit(evento)} className="btn btn-primary">Visitar</button>
-                            <button onClick={() => handleEdit(evento)} className="btn btn-secondary">Editar</button>
-                        </div>
-                    </Card>
-                ))}
+        <div className="w-full h-[calc(100vh-4rem)] flex flex-col">
+            {/* Sticky Header */}
+            <div className="sticky top-24 z-20 bg-base-200 border-b border-base-300 px-6 py-4">
+                <h1 className="text-3xl font-bold">Eventos Cadastrados</h1>
             </div>
-        </PageContainer>
+
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto bg-base-200 p-6 ">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+                    {eventos.map((evento) => (
+                        <Card key={evento.id_evento} figure={<EventImage evento={evento} />}>
+                            <h2 className="card-title">{evento.nome}</h2>
+                            <p>{evento.descricao}</p>
+                            <div className="text-sm text-gray-500 mt-2">
+                                <p>Início: {dateFormateBr(evento.inicio)}</p>
+                                <p>Fim: {dateFormateBr(evento.final)}</p>
+                            </div>
+                            <div className="card-actions justify-end mt-4">
+                                <button onClick={() => handleVisit(evento)} className="btn btn-primary">Visitar</button>
+                                <button onClick={() => handleEdit(evento)} className="btn btn-secondary">Editar</button>
+                            </div>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+        </div>
     )
 }

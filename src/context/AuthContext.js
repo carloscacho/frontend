@@ -32,12 +32,6 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (usuario) {
-      router.push('/admin/home')
-      console.log("Entrei aqui")
-    }
-  }, [usuario])
 
   const login = async () => {
     // 2. MELHORIA: Usar variável de ambiente para a URL da API
@@ -66,6 +60,7 @@ export function AuthProvider({ children }) {
     console.log('[AuthContext] Token saved to cookie');
     console.log('[AuthContext] Verifying token in cookie:', Cookies.get('token') ? 'Found' : 'NOT FOUND');
     setUsuario(user);
+    router.push('/admin/home');
   };
 
   const cadastrar = async () => {

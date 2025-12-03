@@ -29,7 +29,7 @@ const Drawer = ({ children }) => {
     if (pathname === "/admin") {
         return (
             <div className="drawer drawer-open fixed mt-16 overflow-visible">
-                <div className="drawer-content flex flex-col items-center justify-center relative z-0">
+                <div className="drawer-content relative z-0 w-full h-full">
                     {children}
                 </div>
             </div>
@@ -37,10 +37,9 @@ const Drawer = ({ children }) => {
     }
 
     return (
-        <div className="drawer drawer-open fixed mt-16 overflow-visible">
-
+        <div className="drawer drawer-open fixed mt-16 overflow-visible w-full h-full">
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-            <div className="drawer-content flex flex-col items-center justify-center relative z-0">
+            <div className="drawer-content relative z-0 w-full h-full">
                 {children}
             </div>
             <div className={`drawer-side absolute z-30 ${!drawer ? "overflow-visible" : ""}`}>
@@ -48,7 +47,7 @@ const Drawer = ({ children }) => {
 
                 </label>
 
-                <ul className={`menu bg-base-200 text-base-content min-h-full pt-8 p-4 transition-all duration-300 ${drawer ? "w-80" : "w-20 overflow-visible"}`}>
+                <ul className={`menu bg-base-200 text-base-content min-h-full pt-8 p-4 transition-all duration-300 ${drawer ? "w-60" : "w-20 overflow-visible"}`}>
                     {menuItems.map((item, index) => (
                         <li key={index} className="mb-2">
                             <Link

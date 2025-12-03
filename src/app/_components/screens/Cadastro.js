@@ -30,6 +30,7 @@ export default function Cadastro() {
 
   return (
     <div className='flex justify-center center-content pt-20'>
+      <div className="lg:w-1/4 w-2/3">
       <Card>
         <span className="badge badge-lg badge-error">Somente Administradores</span>
         <div className="flex justify-between">
@@ -85,6 +86,7 @@ export default function Cadastro() {
           <button onClick={() => setSingupOpen(false)} className="btn btn-error btn-block">Voltar</button>
         </div>
       </Card>
+      </div>
     </div>
   );
 }

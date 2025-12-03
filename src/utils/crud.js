@@ -5,7 +5,7 @@ export async function getAllRecords(path) {
     const res = await API.get(path)
     return res.data
   } catch (error) {
-    console.log("Erro Ao carregar os dados " + error.response.statusText)
+    console.log("Erro Ao carregar os dados " + error.response?.statusText)
     return;
   }
 }
@@ -15,14 +15,25 @@ export async function getRecordById(path, id) {
     const res = await API(`${path}/${id}`)
     return res.data
   } catch (error) {
-    console.log("Erro Ao carregar os dados " + error.response.statusText)
+    console.log("Erro Ao carregar os dados " + error.response?.statusText)
+    return;
+  }
+}
+
+export async function getRecordBySlug(path, slug) {
+  try {
+    const res = await API(`${path}/slug/${slug}`)
+    return res.data
+  } catch (error) {
+    console.log("Erro Ao carregar os dados " + error.response?.statusText)
     return;
   }
 }
 
 export async function createRecord(path, data) {
   try {
-    const res = await API.post(path, data)
+    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+    const res = await API.post(path, data, config)
     console.log(res.data)
     return res.data
   } catch (error) {
@@ -43,7 +54,8 @@ export async function deleteRecord(path, id) {
 
 export async function updateRecord(path, id, data) {
   try {
-    const res = await API.put(`${path}/${id}`, data)
+    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+    const res = await API.put(`${path}/${id}`, data, config)
     return res.data
   } catch (error) {
     console.log("Erro ao atualizar registro " + error.response?.statusText)
