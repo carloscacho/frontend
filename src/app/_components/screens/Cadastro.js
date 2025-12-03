@@ -11,7 +11,7 @@ export default function Cadastro() {
     nome, setNome, cpf, setCpf, singupOpen, setSingupOpen, cadastrar, } = useAuth()
   const [confSenha, setConfSenha] = useState('')
 
-  const {mostrarAlerta} = useAlerta()
+  const { mostrarAlerta } = useAlerta()
 
   const preCadastro = () => {
     if (senha.length < 6) {
@@ -31,61 +31,61 @@ export default function Cadastro() {
   return (
     <div className='flex justify-center center-content pt-20'>
       <div className="lg:w-1/4 w-2/3">
-      <Card>
-        <span className="badge badge-lg badge-error">Somente Administradores</span>
-        <div className="flex justify-between">
-          <h2 className="text-4xl font-bold">Cadastro</h2>
-        </div>
+        <Card>
 
-        <div>
+          <div className="flex justify-between">
+            <h2 className="text-4xl font-bold">Cadastro</h2>
+          </div>
 
-          <Input
-            label="Nome"
-            value={nome}
-            onChange={setNome}
-            type="text"
-            placeholder="Digite seu nome"
-          />
-          <Input
-            label="Email"
-            value={email}
-            onChange={setEmail}
-            type="email"
-            placeholder="Digite seu email"
-          />
+          <div>
 
-          <Input
-            label="CPF"
-            value={cpf}
-            onChange={setCpf}
-            type="text"
-            placeholder="Digite seu CPF"
-          />
+            <Input
+              label="Nome"
+              value={nome}
+              onChange={setNome}
+              type="text"
+              placeholder="Digite seu nome"
+            />
+            <Input
+              label="Email"
+              value={email}
+              onChange={setEmail}
+              type="email"
+              placeholder="Digite seu email"
+            />
 
-          <Input
-            label="Senha"
-            value={senha}
-            onChange={setSenha}
-            type="password"
-            placeholder="Digite sua senha"
-          />
-          <Input
-            label="Conf Senha"
-            value={confSenha}
-            onChange={setConfSenha}
-            type="password"
-            placeholder="Digite sua confirmação da senha"
-          />
-        </div>
+            <Input
+              label="CPF"
+              value={cpf}
+              onChange={setCpf}
+              type="text"
+              placeholder="Digite seu CPF"
+            />
+
+            <Input
+              label="Senha"
+              value={senha}
+              onChange={setSenha}
+              type="password"
+              placeholder="Digite sua senha"
+            />
+            <Input
+              label="Conf Senha"
+              value={confSenha}
+              onChange={setConfSenha}
+              type="password"
+              placeholder="Digite sua confirmação da senha"
+            />
+          </div>
 
 
-        <div className="mt-6">
-          <button onClick={() => preCadastro()} className="btn btn-primary btn-block">Criar</button>
-        </div>
-        <div className="mt-6">
-          <button onClick={() => setSingupOpen(false)} className="btn btn-error btn-block">Voltar</button>
-        </div>
-      </Card>
+          <div className="mt-6">
+            <button onClick={() => preCadastro()} className="btn btn-primary btn-block">Criar</button>
+          </div>
+          <div className="mt-6">
+            <button onClick={() => setSingupOpen(false)} className="btn btn-error btn-block">Voltar</button>
+          </div>
+        </Card>
       </div>
     </div>
   );

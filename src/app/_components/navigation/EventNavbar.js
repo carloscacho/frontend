@@ -1,13 +1,18 @@
 'use client'
-import React, { useEffect, useState, useRef } from "react";
-import Link from "next/link"
+import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
 import { PiSunDuotone, PiMoonDuotone } from "react-icons/pi";
+import { useAuth } from "@/context/AuthContext";
+import { useAlerta } from "@/context/AlertContext";
+import { usePathname } from "next/navigation";
 
 export default function EventNavbar({ evento }) {
     const [theme, setTheme] = useState("cmyk");
     const [isSticky, setIsSticky] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const sentinelRef = useRef(null);
+    const { usuario, logout } = useAuth();
+    const { mostrarAlerta } = useAlerta();
 
     useEffect(() => {
         const storedTheme = localStorage.getItem("theme") || "cmyk";
@@ -66,7 +71,7 @@ export default function EventNavbar({ evento }) {
                             <ul className="menu menu-horizontal px-1 text-lg">
                                 <li><Link href={`/${evento.slug}`}>Apresentação</Link></li>
                                 <li><Link href={`/${evento.slug}/programacao`}>Programação</Link></li>
-                                <li><Link href={`/${evento.slug}/inscricao`}>Inscreva-se</Link></li>
+                                {usuario && <li><Link href={`/${evento.slug}/minha-area`}>Minha Área</Link></li>}
                             </ul>
                         </div>
                         <div className="navbar-end gap-2">
@@ -77,7 +82,13 @@ export default function EventNavbar({ evento }) {
                                     <PiMoonDuotone size={24} />
                                 )}
                             </button>
-                            <Link href="/login" className="btn btn-primary text-xl">Login</Link>
+                            {usuario ? (
+                                <button onClick={logout} className="btn btn-error text-xl">
+                                    Sair
+                                </button>
+                            ) : (
+                                <Link href={`/${evento.slug}/login`} className="btn btn-primary text-xl">Entrar</Link>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -97,8 +108,16 @@ export default function EventNavbar({ evento }) {
                         <ul className="menu text-xl font-bold space-y-2">
                             <li><Link href={`/${evento.slug}`} onClick={() => setIsDrawerOpen(false)}>Apresentação</Link></li>
                             <li><Link href={`/${evento.slug}/programacao`} onClick={() => setIsDrawerOpen(false)}>Programação</Link></li>
-                            <li><Link href={`/${evento.slug}/inscricao`} onClick={() => setIsDrawerOpen(false)}>Inscreva-se</Link></li>
-                            <li><Link href="/login" onClick={() => setIsDrawerOpen(false)}>Login</Link></li>
+                            {usuario && <li><Link href={`/${evento.slug}/minha-area`} onClick={() => setIsDrawerOpen(false)}>Minha Área</Link></li>}
+                            {usuario ? (
+                                <>
+                                    <li className="menu-title">Olá, {usuario.nome}</li>
+                                    {usuario.tipo === 1 && <li><Link href="/admin/home">Painel Admin</Link></li>}
+                                    <li><button onClick={() => { logout(); setIsDrawerOpen(false); }} className="btn btn-error">Sair</button></li>
+                                </>
+                            ) : (
+                                <li><Link href={`/${evento.slug}/login`} onClick={() => setIsDrawerOpen(false)}>Entrar</Link></li>
+                            )}
                         </ul>
                     </div>
                 </div>

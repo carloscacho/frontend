@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
   }, []);
 
 
-  const login = async () => {
+  const login = async (redirectPath = null) => {
     // 2. MELHORIA: Usar variável de ambiente para a URL da API
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
     console.log("Fazendo login...");
@@ -60,7 +60,13 @@ export function AuthProvider({ children }) {
     console.log('[AuthContext] Token saved to cookie');
     console.log('[AuthContext] Verifying token in cookie:', Cookies.get('token') ? 'Found' : 'NOT FOUND');
     setUsuario(user);
-    router.push('/admin/home');
+
+    if (redirectPath) {
+      router.push(redirectPath);
+    } else if (user.tipo === 1) {
+      router.push('/admin/home');
+    }
+    // If not admin and no redirectPath, stay on current page or let component handle it
   };
 
   const cadastrar = async () => {

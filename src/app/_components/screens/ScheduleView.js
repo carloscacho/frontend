@@ -63,45 +63,56 @@ export default function ScheduleView({ atividades, evento }) {
 
             {/* Activities List */}
             <div className="space-y-6">
-                {filteredAtividades.map(atividade => (
-                    <div key={atividade.id_atividade} className="card bg-base-100 shadow-xl border border-base-200">
-                        {/* Card Header */}
-                        <div className="bg-info text-info-content p-4">
-                            <h2 className="card-title text-xl font-bold uppercase justify-center text-center">
-                                {atividade.nome}
-                            </h2>
-                        </div>
+                {filteredAtividades.map(atividade => {
+                    // Calculate total registered participants across all sessions
+                    const totalRegistered = atividade.data_atividade?.reduce((acc, curr) => acc + (curr._count?.data_atividade_participante || 0), 0) || 0;
+                    const vacancies = (atividade.limite || 0) - totalRegistered;
+                    const speakers = atividade.palestrante_atividade?.map(pa => pa.palestrante) || [];
+                    const hasManySpeakers = speakers.length > 5;
 
-                        {/* Card Body */}
-                        <div className="card-body p-6">
-                            <p className="mb-4 text-justify">{atividade.descricao}</p>
+                    return (
+                        <div key={atividade.id_atividade} className="card bg-base-100 shadow-xl border border-base-200">
+                            {/* Card Header */}
+                            <div
+                                className="text-white p-4"
+                                style={{ backgroundColor: evento.cor_secundaria || '#3ABFF8' }} // Fallback to info color if not set
+                            >
+                                <h2 className="card-title text-xl font-bold uppercase justify-center text-center">
+                                    {atividade.nome}
+                                </h2>
+                            </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    {atividade.data_atividade?.map((da, index) => (
-                                        <div key={index} className="mb-2">
-                                            <p><strong>Data:</strong> {formatDateFull(da.data)} - {formatTime(da.hora)} às {da.duracao ? formatTime(da.duracao) : '...'}</p>
-                                        </div>
-                                    ))}
-                                    <p><strong>Local:</strong> {atividade.sala?.nome || 'A definir'}</p>
-                                    <p><strong>Vagas:</strong> {atividade.max_participantes || 0}</p>
-                                    <p><strong>Alunos em lista de Espera:</strong> 0</p> {/* Placeholder as per image */}
-                                </div>
+                            {/* Card Body */}
+                            <div className="card-body p-6">
+                                <p className="mb-4 text-justify">{atividade.descricao}</p>
 
-                                <div>
-                                    <p className="font-bold mb-1">Ministrado por:</p>
-                                    <ul className="list-none">
-                                        {atividade.palestrante_atividade?.map(pa => (
-                                            <li key={pa.palestrante.id_palestrante} className="mb-1">
-                                                {pa.palestrante.nome}
-                                            </li>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        {atividade.data_atividade?.map((da, index) => (
+                                            <div key={index} className="mb-2">
+                                                <p><strong>Data:</strong> {formatDateFull(da.data)} - {formatTime(da.hora)} às {da.duracao ? formatTime(da.duracao) : '...'}</p>
+                                            </div>
                                         ))}
-                                    </ul>
+                                        <p><strong>Local:</strong> {atividade.sala?.nome || 'A definir'}</p>
+                                        <p><strong>Vagas:</strong> {vacancies > 0 ? vacancies : 0}</p>
+                                        <p><strong>Alunos em lista de Espera:</strong> {vacancies < 0 ? Math.abs(vacancies) : 0}</p>
+                                    </div>
+
+                                    <div>
+                                        <p className="font-bold mb-1">Ministrado por:</p>
+                                        <ul className={`list-none ${hasManySpeakers ? 'grid grid-cols-2 gap-x-4' : ''}`}>
+                                            {speakers.map(palestrante => (
+                                                <li key={palestrante.id_palestrante} className="mb-1">
+                                                    {palestrante.nome}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
 
                 {filteredAtividades.length === 0 && (
                     <div className="text-center py-10 text-gray-500">
