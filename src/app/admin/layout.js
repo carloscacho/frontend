@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Drawer from "@/app/_components/navigation/Drawer";
 import Navbar from "@/app/_components/navigation/Navbar";
 import Alert from "@/app/_components/feedback/Alert";
@@ -9,8 +9,14 @@ import Alert from "@/app/_components/feedback/Alert";
 export default function AdminLayout({ children }) {
     const { usuario } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
+
+    const isLoginPage = pathname?.includes('/admin/login');
 
     useEffect(() => {
+        // Skip check if on login page
+        if (isLoginPage) return;
+
         // Check if user is logged in and is admin
         if (usuario) {
             if (usuario.tipo !== 1) {
@@ -21,7 +27,14 @@ export default function AdminLayout({ children }) {
             // Not logged in, redirect to admin login
             router.push('/admin/login');
         }
-    }, [usuario, router]);
+    }, [usuario, router, isLoginPage]);
+
+    // Render login page immediately without sidebar/navbar if desired, 
+    // or just render children. 
+    // Usually login page has its own layout or doesn't need the admin drawer.
+    if (isLoginPage) {
+        return <>{children}</>;
+    }
 
     // Don't render admin content if not authorized
     if (!usuario || usuario.tipo !== 1) {

@@ -83,11 +83,11 @@ export default function EventNavbar({ evento }) {
                                 )}
                             </button>
                             {usuario ? (
-                                <button onClick={logout} className="btn btn-error text-xl">
-                                    Sair
-                                </button>
+                                <Link href={`/${evento.slug}/minha-area`} className="btn btn-ghost text-lg normal-case">
+                                    Olá, {usuario.nome.split(' ')[0]} {usuario.nome.split(' ').pop()}
+                                </Link>
                             ) : (
-                                <Link href={`/${evento.slug}/login`} className="btn btn-primary text-xl">Entrar</Link>
+                                <Link href={`/${evento.slug}/login`} className="btn btn-outline btn-primary text-xl">Entrar</Link>
                             )}
                         </div>
                     </div>

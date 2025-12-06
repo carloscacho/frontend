@@ -1,9 +1,12 @@
 'use client'
+import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext'
 import Card from '../displays/Card'
 
 export default function Login({ redirectPath }) {
   const { email, setEmail, senha, setSenha, login, setSingupOpen } = useAuth()
+  const [error, setError] = useState('')
+
   return (
     <div className='flex justify-center center-content pt-20'>
       <div className="lg:w-1/4 w-2/3">
@@ -12,6 +15,14 @@ export default function Login({ redirectPath }) {
           <div className="flex justify-between">
             <h2 className="text-4xl font-bold">Login</h2>
           </div>
+
+          {error && (
+            <div className="alert alert-error mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>{error}</span>
+            </div>
+          )}
+
           <div className="mt-6">
             <div>
               <label className="label">
@@ -31,7 +42,14 @@ export default function Login({ redirectPath }) {
             </div>
           </div>
           <div className="mt-6">
-            <button onClick={() => login(redirectPath)} className="btn btn-primary btn-block">Entrar</button>
+            <button onClick={async () => {
+              setError('');
+              try {
+                await login(redirectPath);
+              } catch (error) {
+                setError(error.message || 'Erro ao fazer login');
+              }
+            }} className="btn btn-primary btn-block">Entrar</button>
           </div>
           <div className="mt-6">
             <button onClick={() => setSingupOpen(true)} className="btn btn-secondary btn-block">Cadastrar</button>

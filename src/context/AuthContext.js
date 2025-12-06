@@ -98,6 +98,66 @@ export function AuthProvider({ children }) {
     setUsuario(null);
   };
 
+  const updateProfile = async (data) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
+    const token = Cookies.get('token');
+
+    const res = await fetch(`${apiUrl}/usuario/perfil`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      const errorMessage = errorData.message || 'Erro ao atualizar informações';
+      mostrarAlerta('error', errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    const updatedUser = await res.json();
+    // Update cookie with new user data
+    Cookies.set('usuario', JSON.stringify({
+      ...usuario,
+      ...data
+    }), { expires: 7 });
+
+    setUsuario({
+      ...usuario,
+      ...data
+    });
+
+    mostrarAlerta('success', 'Informações atualizadas com sucesso!');
+    return updatedUser;
+  };
+
+  const changePassword = async (data) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
+    const token = Cookies.get('token');
+
+    const res = await fetch(`${apiUrl}/usuario/alterar-senha`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      const errorMessage = errorData.message || 'Erro ao alterar senha';
+      mostrarAlerta('error', errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    mostrarAlerta('success', 'Senha alterada com sucesso!');
+    return true;
+  };
+
   const resetForm = () => {
     setNome('');
     setEmail('');
@@ -122,7 +182,9 @@ export function AuthProvider({ children }) {
         singupOpen,
         setSingupOpen,
         cadastrar,
-        resetForm
+        resetForm,
+        updateProfile,
+        changePassword
       }}>
       {children}
     </AuthContext.Provider>
