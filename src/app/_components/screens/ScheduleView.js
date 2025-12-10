@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
+import { formatDateToISO, dateFormateBr, calculateEndTime } from '@/utils/dateUtils';
 import Cookies from 'js-cookie';
 import { useAlerta } from '@/context/AlertContext';
 
@@ -19,7 +20,7 @@ export default function ScheduleView({ atividades, evento }) {
                 atividade.data_atividade.forEach(da => {
                     const date = new Date(da.data);
                     // Format as DD/MM
-                    const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                    const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
                     allDates.add(formattedDate);
                 });
             }
@@ -35,7 +36,7 @@ export default function ScheduleView({ atividades, evento }) {
         return atividades.filter(atividade => {
             return atividade.data_atividade?.some(da => {
                 const date = new Date(da.data);
-                const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
                 return formattedDate === selectedDate;
             });
         });
@@ -44,13 +45,13 @@ export default function ScheduleView({ atividades, evento }) {
     function formatTime(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
-        return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
     }
 
     function formatDateFull(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
-        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
     }
 
     const [registrations, setRegistrations] = useState([]);
@@ -354,7 +355,7 @@ export default function ScheduleView({ atividades, evento }) {
                                     <div>
                                         {atividade.data_atividade?.map((da, index) => (
                                             <div key={index} className="mb-2">
-                                                <p><strong>Data:</strong> {formatDateFull(da.data)} - {formatTime(da.hora)} às {da.duracao ? formatTime(da.duracao) : '...'}</p>
+                                                <p><strong>Data:</strong> {formatDateFull(da.data)} - {formatTime(da.hora)} às {calculateEndTime(da.data, da.hora, da.duracao)}</p>
                                             </div>
                                         ))}
                                         <p><strong>Local:</strong> {atividade.sala?.nome || 'A definir'}</p>

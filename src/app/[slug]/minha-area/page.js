@@ -292,9 +292,9 @@ export default function MinhaAreaPage() {
                     <ul className="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical">
                         {myActivities.map((activity, index) => {
                             const date = new Date(activity.data_atividade.data);
-                            const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                            const startTime = new Date(activity.data_atividade.hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                            const endTimeString = activity.data_atividade.duracao ? new Date(activity.data_atividade.duracao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                            const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+                            const startTime = new Date(activity.data_atividade.hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
+                            const endTimeString = calculateEndTime(activity.data_atividade.data, activity.data_atividade.hora, activity.data_atividade.duracao);
 
                             // Calculate status
                             const now = new Date();
