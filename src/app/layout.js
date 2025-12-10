@@ -6,6 +6,7 @@ import { AlertProvider } from "@/context/AlertContext";
 import { DrawerProvider } from "@/context/DrawerContext";
 import { EventFilterProvider } from "@/context/EventFilterContext";
 import { ModalProvider } from "@/context/ModalContext";
+import AdminNavigationWrapper from "./_components/navigation/AdminNavigationWrapper";
 
 
 export const metadata = {
@@ -22,7 +23,9 @@ export default function RootLayout({ children }) {
             <ModalProvider>
               <AlertProvider>
                 <AuthProvider>
-                  {children}
+                  <AdminNavigationWrapper>
+                    {children}
+                  </AdminNavigationWrapper>
                 </AuthProvider>
               </AlertProvider>
             </ModalProvider>

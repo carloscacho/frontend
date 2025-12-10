@@ -2,9 +2,6 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import Drawer from "@/app/_components/navigation/Drawer";
-import Navbar from "@/app/_components/navigation/Navbar";
-import Alert from "@/app/_components/feedback/Alert";
 
 export default function AdminLayout({ children }) {
     const { usuario } = useAuth();
@@ -37,6 +34,7 @@ export default function AdminLayout({ children }) {
     }
 
     // Don't render admin content if not authorized
+    // Note: The visibility of Navbar/Drawer is now handled by AdminNavigationWrapper in root layout
     if (!usuario || usuario.tipo !== 1) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -47,11 +45,7 @@ export default function AdminLayout({ children }) {
 
     return (
         <>
-            <Navbar />
-            <Drawer>
-                <Alert />
-                {children}
-            </Drawer>
+            {children}
         </>
     );
 }

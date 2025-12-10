@@ -1,4 +1,5 @@
 'use client'
+import Cookies from 'js-cookie';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import Login from '@/app/_components/screens/Login';
@@ -73,7 +74,7 @@ export default function RegistrationView({ evento }) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${Cookies.get('userToken')}`
                 },
                 body: JSON.stringify({
                     fk_evento: evento.id_evento,

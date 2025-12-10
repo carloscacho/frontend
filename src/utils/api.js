@@ -10,7 +10,7 @@ const API = axios.create({
 })
 
 API.interceptors.request.use((config) => {
-    const token = Cookies.get('token');
+    const token = Cookies.get('userToken');
     console.log('[API] Making request to:', config.url);
     console.log('[API] Token present:', !!token);
     if (token) {
@@ -33,8 +33,8 @@ API.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             console.error('[API] 401 Unauthorized - redirecting to login');
             if (typeof window !== 'undefined') {
-                document.cookie = 'token=; Max-Age=0; path=/';
-                document.cookie = 'usuario=; Max-Age=0; path=/';
+                Cookies.remove('userToken');
+                Cookies.remove('usuarioData');
                 window.location.href = '/';
             }
         }

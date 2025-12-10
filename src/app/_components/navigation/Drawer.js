@@ -37,12 +37,12 @@ const Drawer = ({ children }) => {
     }
 
     return (
-        <div className="drawer drawer-open fixed mt-16 overflow-visible w-full h-full">
+        <div className="drawer drawer-open fixed mt-16 overflow-visible w-full h-[calc(100vh-4rem)]">
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-            <div className="drawer-content relative z-0 w-full h-full">
+            <div className="drawer-content relative z-0 w-full h-full overflow-y-auto">
                 {children}
             </div>
-            <div className={`drawer-side absolute z-30 ${!drawer ? "overflow-visible" : ""}`}>
+            <div className={`drawer-side absolute z-30 h-full ${!drawer ? "overflow-visible" : ""}`}>
                 <label htmlFor="my-drawer-2" aria-label="close sidebar" className="drawer-overlay">
 
                 </label>

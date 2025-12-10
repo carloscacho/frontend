@@ -66,7 +66,7 @@ export default function ScheduleView({ atividades, evento }) {
         try {
             const participanteId = usuario.participante[0].id_participante;
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
-            const token = Cookies.get('token');
+            const token = Cookies.get('userToken');
 
             const res = await fetch(`${apiUrl}/data-atividade-participante/participante/${participanteId}`, {
                 headers: {
@@ -140,7 +140,7 @@ export default function ScheduleView({ atividades, evento }) {
             return;
         }
 
-        const token = Cookies.get('token');
+        const token = Cookies.get('userToken');
         if (!token) {
             mostrarAlerta('error', 'Você precisa estar logado.');
             return;
@@ -173,7 +173,7 @@ export default function ScheduleView({ atividades, evento }) {
                     const newUsuario = { ...usuario, participante: [newParticipante, ...currentParticipantes] };
 
                     setUsuario(newUsuario);
-                    Cookies.set('usuario', JSON.stringify(newUsuario), { expires: 7 });
+                    Cookies.set('usuarioData', JSON.stringify(newUsuario), { expires: 7 });
                     console.log('Participante created and user context updated:', participanteId);
                 } else {
                     const errData = await resPart.json();

@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import QRCode from 'react-qr-code';
 import { useAlerta } from '@/context/AlertContext';
+import Cookies from 'js-cookie';
 import Modal from '../../_components/displays/Modal';
 
 export default function MinhaAreaPage() {
@@ -54,53 +55,57 @@ export default function MinhaAreaPage() {
             ra: usuario.ra || ''
         });
 
-        const fetchEvento = async () => {
+        const fetchData = async () => {
+            let currentEvento = null;
+
+            // 1. Fetch Event
             try {
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
                 const res = await fetch(`${apiUrl}/evento/slug/${slug}`);
                 if (res.ok) {
-                    const data = await res.json();
-                    setEvento(data);
+                    currentEvento = await res.json();
+                    setEvento(currentEvento);
                 }
             } catch (error) {
                 console.error('Error fetching event:', error);
             } finally {
                 setLoading(false);
             }
-        };
 
-        const fetchActivities = async () => {
-            if (!usuario.participante?.[0]?.id_participante) return;
+            // 2. Fetch and Filter Activities (only if event found and user has participant ID)
+            if (currentEvento && usuario.participante?.[0]?.id_participante) {
+                try {
+                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
+                    // Fetch all activities for the participant
+                    const res = await fetch(`${apiUrl}/data-atividade-participante/participante/${usuario.participante[0].id_participante}`);
 
-            try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
-                const token = localStorage.getItem('token') || ''; // Assuming token might be in local storage or cookies
-                // Note: The original code used Cookies.get('token') in ScheduleView. Let's try to be consistent if possible, 
-                // but here I don't see Cookies imported. I'll stick to fetch without auth for now if public, 
-                // or assume public read. Wait, the endpoint is likely protected.
-                // Let's assume public for now or that the user has the cookie.
+                    if (res.ok) {
+                        const data = await res.json();
 
-                const res = await fetch(`${apiUrl}/data-atividade-participante/participante/${usuario.participante[0].id_participante}`);
+                        // Filter activities by the current event ID
+                        const filteredData = data.filter(item =>
+                            item.data_atividade?.atividade?.fk_evento === currentEvento.id_evento
+                        );
 
-                if (res.ok) {
-                    const data = await res.json();
-                    // Sort by date and time
-                    const sorted = data.sort((a, b) => {
-                        const dateA = new Date(`${a.data_atividade.data.split('T')[0]}T${a.data_atividade.hora.split('T')[1]}`);
-                        const dateB = new Date(`${b.data_atividade.data.split('T')[0]}T${b.data_atividade.hora.split('T')[1]}`);
-                        return dateA - dateB;
-                    });
-                    setMyActivities(sorted);
+                        // Sort by date and time
+                        const sorted = filteredData.sort((a, b) => {
+                            const dateA = new Date(`${a.data_atividade.data.split('T')[0]}T${a.data_atividade.hora.split('T')[1]}`);
+                            const dateB = new Date(`${b.data_atividade.data.split('T')[0]}T${b.data_atividade.hora.split('T')[1]}`);
+                            return dateA - dateB;
+                        });
+                        setMyActivities(sorted);
+                    }
+                } catch (error) {
+                    console.error('Error fetching activities:', error);
+                } finally {
+                    setLoadingActivities(false);
                 }
-            } catch (error) {
-                console.error('Error fetching activities:', error);
-            } finally {
+            } else {
                 setLoadingActivities(false);
             }
         };
 
-        fetchEvento();
-        fetchActivities();
+        fetchData();
     }, [usuario, slug, router]);
 
     const handleUpdateInfo = async () => {
