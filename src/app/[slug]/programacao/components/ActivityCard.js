@@ -1,6 +1,9 @@
+import { useRouter } from 'next/navigation';
 import { formatDateToISO, calculateEndTime } from '@/utils/dateUtils';
 
 export default function ActivityCard({ atividade, evento, isRegistered, onParticipar, conflictError, usuario }) {
+    const router = useRouter();
+
     // Calculate total registered participants across all sessions
     const totalRegistered = atividade.data_atividade?.reduce((acc, curr) => acc + (curr._count?.data_atividade_participante || 0), 0) || 0;
     const vacancies = (atividade.limite || 0) - totalRegistered;
@@ -20,6 +23,7 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
     }
 
     const registered = isRegistered(atividade);
+    const isAdminOrAux = usuario && (usuario.tipo === 1 || usuario.tipo === 3);
 
     return (
         <div
@@ -39,7 +43,8 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
                         {atividade.nome}
                     </h2>
                     {usuario && (
-                        <div className="card-actions col-span-2 justify-end flex flex-col items-end">
+                        <div className="card-actions col-span-2 justify-end flex flex-col items-end gap-2">
+
                             {conflictError && (
                                 <span className="text-error text-xs font-bold mb-1 text-right bg-white px-2 py-1 rounded">
                                     {conflictError}
@@ -58,6 +63,14 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
 
             {/* Card Body */}
             <div className="card-body p-6">
+                {isAdminOrAux && (
+                    <button
+                        className="btn btn-info hover:text-white border-none"
+                        onClick={() => router.push(`/${evento.slug}/programacao/${atividade.id_atividade}/participantes`)}
+                    >
+                        Ver Inscritos
+                    </button>
+                )}
                 <p className="mb-4 text-justify">{atividade.descricao}</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

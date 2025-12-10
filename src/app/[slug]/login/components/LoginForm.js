@@ -4,13 +4,15 @@ import { useAuth } from '@/context/AuthContext';
 import Card from '@/app/_components/displays/Card';
 
 export default function LoginForm({ redirectPath }) {
-    const { email, setEmail, senha, setSenha, login, setSingupOpen } = useAuth();
+    const { login, setSingupOpen } = useAuth();
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
     const [error, setError] = useState('');
 
     const handleLogin = async () => {
         setError('');
         try {
-            await login(redirectPath);
+            await login(email, senha, redirectPath);
         } catch (error) {
             setError(error.message || 'Erro ao fazer login');
         }
@@ -60,3 +62,4 @@ export default function LoginForm({ redirectPath }) {
         </div>
     );
 }
+

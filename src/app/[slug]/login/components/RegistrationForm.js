@@ -5,15 +5,12 @@ import Card from "@/app/_components/displays/Card";
 import Input from "@/app/_components/utils/Input";
 
 export default function RegistrationForm() {
-    const {
-        email, setEmail,
-        senha, setSenha,
-        nome, setNome,
-        cpf, setCpf,
-        setSingupOpen,
-        cadastrar
-    } = useAuth();
+    const { setSingupOpen, cadastrar } = useAuth();
 
+    const [nome, setNome] = useState('');
+    const [email, setEmail] = useState('');
+    const [cpf, setCpf] = useState('');
+    const [senha, setSenha] = useState('');
     const [confSenha, setConfSenha] = useState('');
     const [error, setError] = useState('');
 
@@ -37,7 +34,7 @@ export default function RegistrationForm() {
         }
 
         try {
-            await cadastrar();
+            await cadastrar({ nome, email, cpf, senha });
             // Success might handle redirect or state change in context/component using this
         } catch (error) {
             setError(error.message || 'Erro ao realizar cadastro');
@@ -108,3 +105,4 @@ export default function RegistrationForm() {
         </div>
     );
 }
+

@@ -4,15 +4,16 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext'
 import Card from "@/app/_components/displays/Card";
 import Input from "@/app/_components/utils/Input";
-import { useAlerta } from "@/context/AlertContext"
 
 export default function Cadastro() {
-  const { email, setEmail, senha, setSenha, login,
-    nome, setNome, cpf, setCpf, singupOpen, setSingupOpen, cadastrar, } = useAuth()
+  const { cadastrar, setSingupOpen } = useAuth()
+
+  const [nome, setNome] = useState('')
+  const [email, setEmail] = useState('')
+  const [cpf, setCpf] = useState('')
+  const [senha, setSenha] = useState('')
   const [confSenha, setConfSenha] = useState('')
   const [error, setError] = useState('')
-
-  const { mostrarAlerta } = useAlerta()
 
   const preCadastro = async () => {
     setError('')
@@ -27,7 +28,7 @@ export default function Cadastro() {
     }
     else {
       try {
-        await cadastrar()
+        await cadastrar({ nome, email, cpf, senha })
       } catch (error) {
         setError(error.message || 'Erro ao realizar cadastro')
       }
@@ -103,3 +104,4 @@ export default function Cadastro() {
     </div>
   );
 }
+

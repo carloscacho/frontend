@@ -9,7 +9,7 @@ import Input from "@/app/_components/utils/Input";
 import { useRouter } from 'next/navigation';
 
 export default function RegistrationView({ evento }) {
-    const { user, singupOpen, setSingupOpen, setCpf: setAuthCpf } = useAuth();
+    const { usuario, singupOpen, setSingupOpen } = useAuth();
     const { mostrarAlerta } = useAlerta();
     const router = useRouter();
 
@@ -20,10 +20,10 @@ export default function RegistrationView({ evento }) {
 
     // Auto-subscribe when user becomes available (after login/signup)
     useEffect(() => {
-        if (user && !processingSubscription) {
+        if (usuario && !processingSubscription) {
             handleSubscribe();
         }
-    }, [user]);
+    }, [usuario]);
 
     const handleCheckCpf = async () => {
         if (cpfInput.length < 11) {
@@ -42,8 +42,7 @@ export default function RegistrationView({ evento }) {
 
             const data = await res.json();
 
-            // Pre-fill CPF in AuthContext
-            setAuthCpf(cpfInput);
+            // CPF was entered, proceed with auth flow
 
             if (data.status === 'warning') {
                 // CPF exists -> Go to Login
@@ -65,7 +64,7 @@ export default function RegistrationView({ evento }) {
     };
 
     const handleSubscribe = async () => {
-        if (!user) return;
+        if (!usuario) return;
         setProcessingSubscription(true);
 
         try {
@@ -78,7 +77,7 @@ export default function RegistrationView({ evento }) {
                 },
                 body: JSON.stringify({
                     fk_evento: evento.id_evento,
-                    fk_participante: user.participante?.[0]?.id_participante || user.id_usuario // Fallback if structure differs
+                    fk_participante: usuario.participante?.[0]?.id_participante || usuario.id_usuario // Fallback if structure differs
                 })
             });
 
@@ -107,7 +106,7 @@ export default function RegistrationView({ evento }) {
         }
     };
 
-    if (step === 'check_cpf' && !user) {
+    if (step === 'check_cpf' && !usuario) {
         return (
             <div className="max-w-md mx-auto py-8 px-4">
                 <h1 className="text-3xl font-bold text-center mb-8 uppercase text-primary">Inscrição - {evento.nome}</h1>
@@ -143,7 +142,7 @@ export default function RegistrationView({ evento }) {
         <div className="max-w-5xl mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold text-center mb-8 uppercase text-primary">Inscrição - {evento.nome}</h1>
 
-            {user && processingSubscription ? (
+            {usuario && processingSubscription ? (
                 <div className="flex flex-col items-center justify-center py-12">
                     <span className="loading loading-spinner loading-lg text-primary"></span>
                     <p className="mt-4 text-lg">Processando sua inscrição...</p>

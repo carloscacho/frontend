@@ -4,8 +4,19 @@ import { useAuth } from '@/context/AuthContext'
 import Card from '../displays/Card'
 
 export default function Login({ redirectPath }) {
-  const { email, setEmail, senha, setSenha, login, setSingupOpen } = useAuth()
+  const { login, setSingupOpen } = useAuth()
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
   const [error, setError] = useState('')
+
+  const handleLogin = async () => {
+    setError('');
+    try {
+      await login(email, senha, redirectPath);
+    } catch (error) {
+      setError(error.message || 'Erro ao fazer login');
+    }
+  }
 
   return (
     <div className='flex justify-center center-content pt-20'>
@@ -42,14 +53,7 @@ export default function Login({ redirectPath }) {
             </div>
           </div>
           <div className="mt-6">
-            <button onClick={async () => {
-              setError('');
-              try {
-                await login(redirectPath);
-              } catch (error) {
-                setError(error.message || 'Erro ao fazer login');
-              }
-            }} className="btn btn-primary btn-block">Entrar</button>
+            <button onClick={handleLogin} className="btn btn-primary btn-block">Entrar</button>
           </div>
           <div className="mt-6">
             <button onClick={() => setSingupOpen(true)} className="btn btn-secondary btn-block">Cadastrar</button>
@@ -59,3 +63,4 @@ export default function Login({ redirectPath }) {
     </div>
   );
 }
+

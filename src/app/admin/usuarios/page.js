@@ -23,7 +23,7 @@ export default function Page() {
   const [novaUsuario, setNovaUsuario] = useState("")
   const [sortOrder, setSortOrder] = useState('id-desc')
 
-  const { usuario, resetForm } = useAuth()
+  const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
   const { mostrarAlerta } = useAlerta()
 
@@ -119,7 +119,6 @@ export default function Page() {
           value={novaUsuario}
           onChange={setNovaUsuario}
           onClick={() => {
-            resetForm();
             refMdUsuarios.current.showModal();
           }}
           btnLabel='pesquisar'

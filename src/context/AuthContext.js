@@ -8,18 +8,12 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
-  const [email, setEmail] = useState('')
-  const [senha, setSenha] = useState('')
-
-  const [nome, setNome] = useState('')
-  const [cpf, setCpf] = useState('')
-
-  const [singupOpen, setSingupOpen] = useState(false)
+  const [singupOpen, setSingupOpen] = useState(false);
 
   const router = useRouter();
-  const { mostrarAlerta } = useAlerta()
+  const { mostrarAlerta } = useAlerta();
 
-
+  // Load user from cookie on mount
   useEffect(() => {
     const userCookie = Cookies.get('usuarioData');
 
@@ -36,8 +30,13 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-
-  const login = async (redirectPath = null) => {
+  /**
+   * Login with email and password
+   * @param {string} email 
+   * @param {string} senha 
+   * @param {string|null} redirectPath 
+   */
+  const login = async (email, senha, redirectPath = null) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
     console.log("Fazendo login...");
     const res = await fetch(`${apiUrl}/auth/login`, {
@@ -68,13 +67,17 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const cadastrar = async () => {
+  /**
+   * Register a new user
+   * @param {Object} userData - { nome, cpf, email, senha }
+   */
+  const cadastrar = async (userData) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
     console.log("Fazendo cadastro...");
     const res = await fetch(`${apiUrl}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, cpf, email, senha }),
+      body: JSON.stringify(userData),
     });
 
     const data = await res.json();
@@ -154,31 +157,16 @@ export function AuthProvider({ children }) {
     return true;
   };
 
-  const resetForm = () => {
-    setNome('');
-    setEmail('');
-    setCpf('');
-    setSenha('');
-  };
-
   return (
     <AuthContext.Provider
       value={{
-        email,
-        senha,
-        nome,
-        setNome,
-        cpf,
-        setCpf,
-        setEmail,
-        setSenha,
         usuario,
+        setUsuario,
         login,
         logout,
         singupOpen,
         setSingupOpen,
         cadastrar,
-        resetForm,
         updateProfile,
         changePassword
       }}>
@@ -190,3 +178,4 @@ export function AuthProvider({ children }) {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
+
