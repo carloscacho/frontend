@@ -1,4 +1,4 @@
-import ScheduleView from "@/app/_components/screens/ScheduleView";
+import ScheduleView from "./components/ScheduleView";
 
 async function getEvento(slug) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
