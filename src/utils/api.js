@@ -10,7 +10,8 @@ const API = axios.create({
 })
 
 API.interceptors.request.use((config) => {
-    const token = Cookies.get('userToken');
+    const userCookies = Cookies.get('usuarioData');
+    const {token} = JSON.parse(userCookies);
     console.log('[API] Making request to:', config.url);
     console.log('[API] Token present:', !!token);
     if (token) {

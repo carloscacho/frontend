@@ -4,8 +4,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
 
 export const registrationService = {
     async fetchParticipantActivities(participantId) {
-        const token = Cookies.get('userToken');
-        if (!token) throw new Error('Not authenticated');
+        const userCookies = Cookies.get('usuarioData');
+        const { token } = JSON.parse(userCookies);
+        // Return empty array for non-authenticated users instead of throwing
+        if (!token) return [];
 
         const res = await fetch(`${API_URL}/data-atividade-participante/participante/${participantId}`, {
             headers: {
@@ -18,7 +20,8 @@ export const registrationService = {
     },
 
     async ensureParticipant(usuario) {
-        const token = Cookies.get('userToken');
+        const userCookies = Cookies.get('usuarioData');
+        const { token } = JSON.parse(userCookies);
         if (!token) throw new Error('Not authenticated');
 
         const resPart = await fetch(`${API_URL}/participante`, {
@@ -39,7 +42,8 @@ export const registrationService = {
     },
 
     async linkParticipantToEvent(eventId, participantId) {
-        const token = Cookies.get('userToken');
+        const userCookies = Cookies.get('usuarioData');
+        const { token } = JSON.parse(userCookies);
         if (!token) throw new Error('Not authenticated');
 
         await fetch(`${API_URL}/evento-participante`, {
@@ -56,7 +60,8 @@ export const registrationService = {
     },
 
     async manageActivityRegistration(action, session, participantId) {
-        const token = Cookies.get('userToken');
+        const userCookies = Cookies.get('usuarioData');
+        const { token } = JSON.parse(userCookies);
 
         let url = `${API_URL}/data-atividade-participante`;
         let options = {

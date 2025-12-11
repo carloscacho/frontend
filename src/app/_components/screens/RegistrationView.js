@@ -67,13 +67,15 @@ export default function RegistrationView({ evento }) {
         if (!usuario) return;
         setProcessingSubscription(true);
 
+        const userCookies = Cookies.get('usuarioData');
+        const { token } = JSON.parse(userCookies);
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
             const res = await fetch(`${apiUrl}/evento-participante`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${Cookies.get('userToken')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     fk_evento: evento.id_evento,

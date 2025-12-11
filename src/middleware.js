@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
-  const token = request.cookies.get('userToken')?.value;
+  const userCookies = request.cookies.get('usuarioData')?.value;
+  if(!userCookies) return NextResponse.next();
+  const {token} = JSON.parse(userCookies);
   const { pathname } = request.nextUrl;
 
   // Se já estiver logado e tentar acessar login ou raiz do admin, redireciona para home

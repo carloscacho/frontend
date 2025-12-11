@@ -47,7 +47,8 @@ export function useEventLogin(slug) {
                     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
 
                     // Ensure we have the latest token
-                    const token = Cookies.get('userToken');
+                    const userCookies =  Cookies.get('usuarioData');
+                    const {token} = JSON.parse(userCookies);
 
                     let participanteId = usuario.participante?.[0]?.id_participante;
 
@@ -61,7 +62,7 @@ export function useEventLogin(slug) {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
+                                'Authorization': `Bearer ${userCookies.token}`
                             },
                             body: JSON.stringify({ fk_usuario: usuario.id_usuario })
                         });

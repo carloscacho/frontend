@@ -49,7 +49,8 @@ export default function ParticipantsPage() {
 
     const handlePresence = async (dataAtividadeId, participanteId, status) => {
         try {
-            const token = Cookies.get('userToken');
+            const userCookies = Cookies.get('usuarioData');
+            const {token} = JSON.parse(userCookies);
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
 
             const res = await fetch(`${apiUrl}/data-atividade-participante/${dataAtividadeId}/${participanteId}`, {
@@ -132,8 +133,8 @@ export default function ParticipantsPage() {
                                     <thead>
                                         <tr>
                                             <th>Nome</th>
-                                            <th>Email</th>
-                                            <th>Instituição</th>
+                                            <th className="hidden md:table-cell">Email</th>
+                                            <th className="hidden md:table-cell">Instituição</th>
                                             <th>Status</th>
                                             <th>Ações</th>
                                         </tr>
@@ -142,8 +143,8 @@ export default function ParticipantsPage() {
                                         {session.data_atividade_participante?.map((inscricao) => (
                                             <tr key={`${inscricao.fk_data_atividade}-${inscricao.fk_participante}`}>
                                                 <td>{inscricao.participante.usuario.nome}</td>
-                                                <td>{inscricao.participante.usuario.email}</td>
-                                                <td>{inscricao.participante.usuario.instituicao}</td>
+                                                <td className="hidden md:table-cell">{inscricao.participante.usuario.email}</td>
+                                                <td className="hidden md:table-cell">{inscricao.participante.usuario.instituicao}</td>
                                                 <td>
                                                     {inscricao.presenca === 1 && <span className="badge badge-success">Presente</span>}
                                                     {inscricao.presenca === 0 && <span className="badge badge-error">Faltou</span>}
