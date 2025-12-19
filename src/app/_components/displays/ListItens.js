@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PiCheck, PiX, PiPencilSimple, PiTrash, PiUserGear } from "react-icons/pi";
+import { PiCheck, PiX, PiPencilSimple, PiTrash, PiUserGear, PiUploadSimple } from "react-icons/pi";
 
 export default function ListItens(props) {
   const [editingId, setEditingId] = useState(null);
@@ -46,12 +46,33 @@ export default function ListItens(props) {
                   autoFocus
                 />
               ) : (
-                <div className="font-medium text-lg">{item.nome}</div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-lg">{item.nome}</span>
+                  {item.isIncomplete && (
+                    <span
+                      className="badge badge-warning badge-sm gap-1"
+                      title={`Falta: ${item.missingItems}`}
+                    >
+                      ⚠ Pendente
+                    </span>
+                  )}
+                </div>
               )}
               {item.description && <div className="text-xs uppercase font-semibold opacity-60">{item.description}</div>}
             </div>
 
             <div className="flex gap-2">
+              {props.importFunction && (
+                <button
+                  className="btn btn-square btn-sm btn-ghost md:btn-outline md:btn-info md:w-auto md:px-5"
+                  onClick={() => props.importFunction(item)}
+                  title="Importar CSV"
+                >
+                  <PiUploadSimple size={20} />
+                  <span className="hidden md:inline">Importar CSV</span>
+                </button>
+              )}
+
               {(props.editFunction || props.onEdit) && (
                 editingId === item.id ? (
                   <>

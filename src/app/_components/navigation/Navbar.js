@@ -15,17 +15,17 @@ export default function Navbar() {
     const { logout, usuario } = useAuth()
     const router = useRouter()
     const pathname = usePathname()
-    const [theme, setTheme] = useState("cmyk");
+    const [theme, setTheme] = useState("emerald");
     const { eventoOptions, eventoSelect, setEventoSelect } = useEventFilter();
 
     useEffect(() => {
-        const storedTheme = localStorage.getItem("theme") || "cmyk";
+        const storedTheme = localStorage.getItem("theme") || "emerald";
         setTheme(storedTheme);
         document.querySelector("html").setAttribute("data-theme", storedTheme);
     }, []);
 
     function toggleTheme() {
-        const newTheme = theme === "cmyk" ? "forest" : "cmyk";
+        const newTheme = theme === "emerald" ? "forest" : "emerald";
         setTheme(newTheme);
         localStorage.setItem("theme", newTheme);
         document.querySelector("html").setAttribute("data-theme", newTheme);
@@ -64,7 +64,7 @@ export default function Navbar() {
             </div>
             <div className="flex-none gap-2">
                 <button onClick={toggleTheme} className="btn btn-ghost btn-circle">
-                    {theme === "cmyk" ? (
+                    {theme === "emerald" ? (
                         <PiSunDuotone size={24} />
                     ) : (
                         <PiMoonDuotone size={24} />

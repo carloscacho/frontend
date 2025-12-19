@@ -116,7 +116,7 @@ export function useSchedule(atividades, evento) {
                 participanteId = partData.id_participante;
                 const newUsuario = { ...usuario, participante: [partData, ...(usuario.participante || [])] };
                 setUsuario(newUsuario);
-                Cookies.set('usuarioData', JSON.stringify(newUsuario), { expires: 7 });
+                Cookies.set('usuarioData', JSON.stringify(newUsuario), { expires: 5 });
             }
 
             if (evento && evento.id_evento) {

@@ -1,5 +1,5 @@
 'use client'
-import { useRef } from "react"
+import { useRef, useState } from "react"
 
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
 import SortControl from "@/app/_components/utils/SortControl"
@@ -8,10 +8,12 @@ import Hero from "@/app/_components/displays/Hero"
 import PageContainer from "@/app/_components/displays/PageContainer"
 import Modal from "@/app/_components/displays/Modal"
 import Eventos from "@/app/_components/Modais/Eventos"
+import CsvImportModal from "@/app/_components/Modais/CsvImportModal"
 import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
 import { dateFormateBr } from "@/utils/dateUtils"
 import { useAuth } from "@/context/AuthContext"
 import { useAdminCrud } from "@/hooks/useAdminCrud"
+import API from "@/utils/api"
 
 // Normalizer function to transform data for display
 const normalizeEventos = (lista) => {
@@ -28,6 +30,9 @@ export default function Page() {
 
   const refMdEventos = useRef(null)
   const refMdConfirmation = useRef(null)
+  const refMdCsvImport = useRef(null)
+
+  const [selectedEventForImport, setSelectedEventForImport] = useState(null)
 
   const {
     normalizedList,
@@ -72,6 +77,25 @@ export default function Page() {
     refMdConfirmation.current.close()
   }
 
+  // CSV Import handlers
+  const handleOpenCsvImport = (evento) => {
+    setSelectedEventForImport(evento)
+    refMdCsvImport.current.showModal()
+  }
+
+  const handleCsvImport = async (atividades) => {
+    try {
+      const response = await API.post('/atividade/batch', { atividades })
+      return response.data
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Erro ao importar atividades')
+    }
+  }
+
+  const handleCloseCsvImport = () => {
+    setSelectedEventForImport(null)
+  }
+
   return (
     <PageContainer>
       <Hero title="Cadastro de evento" />
@@ -99,6 +123,7 @@ export default function Page() {
             openEdit(item)
             refMdEventos.current.showModal()
           } : null}
+          importFunction={isAdmin ? handleOpenCsvImport : null}
         />
       </div>
       <Modal refModal={refMdEventos}>
@@ -114,6 +139,13 @@ export default function Page() {
           initialData={editingItem}
         />
       </Modal>
+
+      <CsvImportModal
+        refModal={refMdCsvImport}
+        evento={selectedEventForImport}
+        onImport={handleCsvImport}
+        onClose={handleCloseCsvImport}
+      />
 
       <ConfirmDialog
         refModal={refMdConfirmation}
