@@ -1,5 +1,6 @@
 'use client'
-import { useRef } from "react"
+import { useRef, useState } from "react"
+import { PiUploadSimple } from "react-icons/pi"
 
 import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
 import SortControl from "@/app/_components/utils/SortControl"
@@ -8,10 +9,12 @@ import Hero from "@/app/_components/displays/Hero"
 import PageContainer from "@/app/_components/displays/PageContainer"
 import Modal from "@/app/_components/displays/Modal"
 import Palestrantes from "@/app/_components/Modais/Palestrantes"
+import CsvPalestrantesModal from "@/app/_components/Modais/CsvPalestrantesModal"
 import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
 import { useEventFilter } from "@/context/EventFilterContext"
 import { useAuth } from "@/context/AuthContext"
 import { useAdminCrud } from "@/hooks/useAdminCrud"
+import API from "@/utils/api"
 
 // Normalizer function to transform data for display
 const normalizePalestrantes = (lista) => {
@@ -32,6 +35,7 @@ export default function Page() {
 
   const refMdPalestrantes = useRef(null)
   const refMdConfirmation = useRef(null)
+  const refMdCsvImport = useRef(null)
 
   const {
     normalizedList,
@@ -47,14 +51,15 @@ export default function Page() {
     openEdit,
     openCreate,
     closeEdit,
-    isEditing
+    isEditing,
+    refreshList
   } = useAdminCrud({
     endpoint: '/palestrante',
     entityName: 'Palestrante',
     idField: 'id_palestrante',
     normalizer: normalizePalestrantes,
     filterEndpoint: '/palestrante/full',
-    eventFilter: eventoSelect
+    eventFilter: eventoSelect // eventoSelect is already the full object with id_evento
   })
 
   const onSave = async (data) => {
@@ -74,6 +79,24 @@ export default function Page() {
     refMdConfirmation.current.close()
   }
 
+  // CSV Import handlers
+  const handleCsvImport = async (palestrantes) => {
+    if (!eventoSelect) {
+      throw new Error('Selecione um evento primeiro')
+    }
+    try {
+      const response = await API.post('/palestrante/batch', {
+        palestrantes,
+        fk_evento: eventoSelect.id_evento
+      })
+      // Refresh list after import
+      refreshList?.()
+      return response.data
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Erro ao importar palestrantes')
+    }
+  }
+
   return (
     <PageContainer>
       <Hero title="Cadastro de palestrante" />
@@ -91,6 +114,18 @@ export default function Page() {
         >
           <SortControl value={sortOrder} onChange={setSortOrder} />
         </TextInputWithButton>
+
+        {/* CSV Import Button */}
+        {isAdmin && eventoSelect && (
+          <button
+            className="btn btn-info btn-outline gap-2"
+            onClick={() => refMdCsvImport.current.showModal()}
+            title="Importar palestrantes via CSV"
+          >
+            <PiUploadSimple size={20} />
+            <span className="hidden md:inline">Importar CSV</span>
+          </button>
+        )}
       </div>
       <div>
         <ListItens
@@ -116,6 +151,13 @@ export default function Page() {
           initialData={editingItem}
         />
       </Modal>
+
+      <CsvPalestrantesModal
+        refModal={refMdCsvImport}
+        evento={eventoSelect ? { id: eventoSelect.id_evento, nome: eventoSelect.nome } : null}
+        onImport={handleCsvImport}
+        onClose={() => { }}
+      />
 
       <ConfirmDialog
         refModal={refMdConfirmation}
