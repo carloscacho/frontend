@@ -1,8 +1,9 @@
 import QRCode from 'react-qr-code';
+import { printUserProfile } from '@/utils/printUtils';
 
 export default function UserProfile({ usuario, participanteId, onUpdateClick, onPasswordClick, onLogout }) {
     const handlePrint = () => {
-        window.print();
+        printUserProfile({ usuario, participanteId });
     };
 
     return (
@@ -13,7 +14,7 @@ export default function UserProfile({ usuario, participanteId, onUpdateClick, on
                     <div className="flex flex-col items-center justify-center">
                         <h2 className="text-2xl font-bold mb-4">Participante</h2>
                         {participanteId && (
-                            <div className="bg-white p-6 rounded-lg">
+                            <div className="bg-white p-6 rounded-lg qr-print-source">
                                 <QRCode title={participanteId.toString()} value={participanteId.toString()} size={200} />
                             </div>
                         )}
@@ -63,7 +64,7 @@ export default function UserProfile({ usuario, participanteId, onUpdateClick, on
 
                 {/* Action Buttons */}
                 <div className="divider"></div>
-                <div className="flex flex-wrap gap-4 justify-center mt-4 no-print">
+                <div className="flex flex-wrap gap-4 justify-center mt-4">
                     <button
                         onClick={onUpdateClick}
                         className="btn btn-warning"
@@ -85,7 +86,7 @@ export default function UserProfile({ usuario, participanteId, onUpdateClick, on
                 </div>
 
                 {/* Important Notice */}
-                <div className="alert alert-info mt-6 no-print">
+                <div className="alert alert-info mt-6">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
@@ -94,24 +95,6 @@ export default function UserProfile({ usuario, participanteId, onUpdateClick, on
                     </span>
                 </div>
             </div>
-            <style jsx global>{`
-                @media print {
-                    body * {
-                        visibility: hidden;
-                    }
-                    .card, .card * {
-                        visibility: visible;
-                    }
-                    .card {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                    }
-                    .no-print {
-                        display: none !important;
-                    }
-                }
-            `}</style>
         </div>
     );
 }

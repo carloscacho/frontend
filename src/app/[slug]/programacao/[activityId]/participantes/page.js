@@ -1,10 +1,13 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Cookies from 'js-cookie';
 import { useAlerta } from '@/context/AlertContext';
 import { calculateEndTime } from '@/utils/dateUtils';
+import { printAttendanceList, printActivityReport } from '@/utils/printUtils';
+import { PiPrinter, PiFileText, PiUserPlus } from 'react-icons/pi';
+import InscricaoParticipanteModal from '@/app/_components/Modais/InscricaoParticipanteModal';
 
 export default function ParticipantsPage() {
     const params = useParams();
@@ -15,6 +18,7 @@ export default function ParticipantsPage() {
 
     const [atividade, setAtividade] = useState(null);
     const [loading, setLoading] = useState(true);
+    const inscricaoModalRef = useRef(null);
 
     useEffect(() => {
         // Simple role check redirect
@@ -50,7 +54,7 @@ export default function ParticipantsPage() {
     const handlePresence = async (dataAtividadeId, participanteId, status) => {
         try {
             const userCookies = Cookies.get('usuarioData');
-            const {token} = JSON.parse(userCookies);
+            const { token } = JSON.parse(userCookies);
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
 
             const res = await fetch(`${apiUrl}/data-atividade-participante/${dataAtividadeId}/${participanteId}`, {
@@ -68,7 +72,6 @@ export default function ParticipantsPage() {
 
             if (res.ok) {
                 mostrarAlerta('success', 'Presença atualizada com sucesso');
-                // Optimistic update or refetch
                 fetchAtividade();
             } else {
                 mostrarAlerta('error', 'Erro ao atualizar presença');
@@ -77,6 +80,37 @@ export default function ParticipantsPage() {
             console.error('Error updating presence:', error);
             mostrarAlerta('error', 'Erro de conexão');
         }
+    };
+
+    // Collect all unique participants across all sessions
+    const getAllParticipants = () => {
+        if (!atividade?.data_atividade) return [];
+        const map = new Map();
+        atividade.data_atividade.forEach(session => {
+            session.data_atividade_participante?.forEach(inscricao => {
+                const p = inscricao.participante;
+                if (!map.has(p.id_participante)) {
+                    map.set(p.id_participante, {
+                        nome: p.usuario.nome,
+                        email: p.usuario.email,
+                        instituicao: p.usuario.instituicao || '',
+                    });
+                }
+            });
+        });
+        return Array.from(map.values()).sort((a, b) => a.nome.localeCompare(b.nome));
+    };
+
+    const handlePrintAttendanceList = () => {
+        printAttendanceList({
+            title: atividade?.nome || 'Atividade',
+            subtitle: atividade?.sala?.nome,
+            participants: getAllParticipants(),
+        });
+    };
+
+    const handlePrintReport = () => {
+        printActivityReport({ atividade, calculateEndTime });
     };
 
     if (loading) {
@@ -93,12 +127,41 @@ export default function ParticipantsPage() {
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-8">
-            <button
-                onClick={() => router.back()}
-                className="btn btn-outline mb-6"
-            >
-                ← Voltar
-            </button>
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+                <button
+                    onClick={() => router.back()}
+                    className="btn btn-outline"
+                >
+                    ← Voltar
+                </button>
+
+                <div className="flex-1"></div>
+
+                <button
+                    onClick={handlePrintAttendanceList}
+                    className="btn btn-secondary btn-sm gap-2 print:hidden"
+                    title="Imprimir Lista de Presença (PDF)"
+                >
+                    <PiPrinter size={18} />
+                    Lista de Presença
+                </button>
+                <button
+                    onClick={handlePrintReport}
+                    className="btn btn-info btn-sm gap-2 print:hidden"
+                    title="Imprimir Relatório"
+                >
+                    <PiFileText size={18} />
+                    Relatório
+                </button>
+                <button
+                    onClick={() => inscricaoModalRef.current?.showModal()}
+                    className="btn btn-primary btn-sm gap-2 print:hidden"
+                    title="Inscrever Participante"
+                >
+                    <PiUserPlus size={18} />
+                    Inscrever
+                </button>
+            </div>
 
             <div className="card bg-base-100 shadow-xl border border-base-200 mb-8">
                 <div className="card-body">
@@ -136,7 +199,7 @@ export default function ParticipantsPage() {
                                             <th className="hidden md:table-cell">Email</th>
                                             <th className="hidden md:table-cell">Instituição</th>
                                             <th>Status</th>
-                                            <th>Ações</th>
+                                            <th className="print:hidden">Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -150,7 +213,7 @@ export default function ParticipantsPage() {
                                                     {inscricao.presenca === 0 && <span className="badge badge-error">Faltou</span>}
                                                     {inscricao.presenca === null && <span className="badge badge-ghost">Pendente</span>}
                                                 </td>
-                                                <td className="flex gap-2">
+                                                <td className="flex gap-2 print:hidden">
                                                     <button
                                                         className={`btn btn-sm ${inscricao.presenca === 1 ? 'btn-success' : 'btn-outline btn-success'}`}
                                                         onClick={() => handlePresence(inscricao.fk_data_atividade, inscricao.fk_participante, 1)}
@@ -180,6 +243,16 @@ export default function ParticipantsPage() {
                     </div>
                 );
             })}
+
+            {/* Enrollment Modal */}
+            <InscricaoParticipanteModal
+                refModal={inscricaoModalRef}
+                activityId={activityId}
+                onSuccess={() => {
+                    mostrarAlerta('success', 'Participantes inscritos com sucesso');
+                    fetchAtividade();
+                }}
+            />
         </div>
     );
 }
