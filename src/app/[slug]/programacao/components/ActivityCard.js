@@ -76,16 +76,35 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
                 atividade={atividade}
                 corPrimaria={corPrimaria}
                 corPrimariaDark={corPrimariaDark}
-                corSecundaria={corSecundaria}
                 registered={registered}
                 usuario={usuario}
                 conflictError={conflictError}
-                buttonConfig={buttonConfig}
-                onParticipar={onParticipar}
             />
 
             {/* Card Body */}
-            <div className={`card-body p-6 ${usuario ? 'pt-10' : ''}`}>
+            <div className="card-body p-6">
+                {/* Action Button */}
+                {usuario && (
+                    <div className="flex justify-end -mt-11 z-10 mb-2">
+                        <button
+                            className={`btn btn-sm md:btn-md rounded-full shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl px-3 md:px-5 gap-1 md:gap-2 ${buttonConfig.className}`}
+                            style={!buttonConfig.disabled && !registered ? {
+                                backgroundColor: corSecundaria,
+                                borderColor: corSecundaria,
+                                color: '#fff',
+                                boxShadow: `0 4px 14px ${corSecundaria}40`
+                            } : registered ? {
+                                boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)'
+                            } : undefined}
+                            onClick={() => onParticipar(atividade)}
+                            disabled={buttonConfig.disabled}
+                        >
+                            {buttonConfig.icon}
+                            <span className="hidden md:inline">{buttonConfig.text}</span>
+                            <span className="md:hidden">{buttonConfig.mobileText}</span>
+                        </button>
+                    </div>
+                )}
                 {/* Admin Button */}
                 {isAdminOrAux && (
                     <button
