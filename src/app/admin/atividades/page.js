@@ -1,148 +1,98 @@
 'use client'
-import { useState, useEffect, useRef } from "react"
+import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords, createRecord, updateRecord, deleteRecord } from "@/utils/crud"
-import { filterItems, isEmpty } from "@/utils/filter"
-import { sortItems } from "@/utils/sort"
-import SortControl from "@/app/_components/utils/SortControl"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import { useModal } from "@/context/ModalContext"
-import Modal from "@/app/_components/displays/Modal"
-import Atividades from "@/app/_components/Modais/Atividades"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { useEventFilter } from "@/context/EventFilterContext"
-import { useAuth } from "@/context/AuthContext"
-import { useAlerta } from "@/context/AlertContext"
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import SortControl from "@/shared/components/utils/SortControl"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import Modal from "@/shared/components/displays/Modal"
+import AtividadesModal from "@/modules/atividades/components/AtividadesModal"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useAuth } from "@/shared/contexts/AuthContext"
+import { useAtividades } from "@/modules/atividades/hooks/useAtividades"
 
 export default function Page() {
-  const [atividade, setAtividades] = useState([])
-  const [atividadeF, setAtividadesF] = useState([])
-  const [novaAtividade, setNovaAtividade] = useState("")
-  const [sortOrder, setSortOrder] = useState('id-desc')
-  const [editingAtividade, setEditingAtividade] = useState(null)
-  const [itemToDelete, setItemToDelete] = useState(null)
-
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
-  const { mostrarAlerta } = useAlerta()
-
-  const { eventoSelect } = useEventFilter()
 
   const refMdAtividades = useRef(null)
   const refMdConfirmation = useRef(null)
-  const { refMd } = useModal()
 
-  useEffect(() => {
-    getAllatividade()
-  }, [eventoSelect])
+  const {
+    normalizedList,
+    searchTerm,
+    setSearchTerm,
+    sortOrder,
+    setSortOrder,
+    handleSave,
+    handleDelete,
+    confirmDelete,
+    cancelDelete,
+    editingItem,
+    openEdit,
+    openCreate,
+    closeEdit,
+    isEditing
+  } = useAtividades()
 
-  async function getAllatividade() {
-    const url = isEmpty(eventoSelect) ? "/atividade/full" : "/atividade/full/" + eventoSelect.id_evento
-    const atividadeApi = await getAllRecords(url)
-    setAtividades(atividadeApi)
-    setAtividadesF(atividadeApi)
-  }
-
-  const handleSave = async (data) => {
-    try {
-      if (editingAtividade && editingAtividade.id_atividade) {
-        await updateRecord('/atividade', editingAtividade.id_atividade, data);
-        mostrarAlerta("success", "Atividade atualizada com sucesso!");
-      } else {
-        await createRecord('/atividade', data);
-        mostrarAlerta("success", "Atividade criada com sucesso!");
-      }
-      await getAllatividade();
-      refMdAtividades.current.close();
-      setEditingAtividade(null);
-    } catch (error) {
-      console.error("Error saving atividade:", error);
-      mostrarAlerta("error", "Erro ao salvar atividade.");
+  const onSave = async (data) => {
+    const success = await handleSave(data)
+    if (success) {
+      refMdAtividades.current.close()
     }
   }
 
-  const handleDelete = (id) => {
-    setItemToDelete(id);
-    refMdConfirmation.current.showModal();
+  const onDelete = (id) => {
+    handleDelete(id)
+    refMdConfirmation.current.showModal()
   }
 
-  const confirmDelete = async () => {
-    if (!itemToDelete) return;
-    try {
-      await deleteRecord('/atividade', itemToDelete);
-      mostrarAlerta("success", "Atividade deletada com sucesso!");
-      await getAllatividade();
-    } catch (error) {
-      console.error("Error deleting atividade:", error);
-      const msg = error.response?.data?.message || "Erro ao deletar atividade.";
-      mostrarAlerta("error", msg);
-    } finally {
-      refMdConfirmation.current.close();
-      setItemToDelete(null);
-    }
+  const onConfirmDelete = async () => {
+    await confirmDelete()
+    refMdConfirmation.current.close()
   }
-
-  function normalizarLista(lista) {
-    return lista.map(item => (
-      {
-        id: item.id_atividade,
-        nome: item.nome,
-        description: `${item.descricao || ''} - Local: ${item.sala?.nome || 'N/A'}`
-      }))
-  }
-
-  useEffect(() => {
-    setAtividadesF(atividade)
-    const results = filterItems(atividade, novaAtividade)
-    const sorted = sortItems(results, sortOrder)
-    setAtividadesF(sorted)
-  }, [novaAtividade, sortOrder, atividade])
 
   return (
     <PageContainer>
       <Hero title="Cadastro de atividade" />
       <div className="my-3 mx-2 flex justify-between items-center gap-2">
-
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
           type='text'
-          value={novaAtividade}
-          onChange={setNovaAtividade}
+          value={searchTerm}
+          onChange={setSearchTerm}
           onClick={() => {
-            setEditingAtividade(novaAtividade ? { nome: novaAtividade } : null);
-            refMdAtividades.current.showModal();
+            openCreate(searchTerm ? { nome: searchTerm } : null)
+            refMdAtividades.current.showModal()
           }}
           hideButton={!isAdmin}
         >
           <SortControl value={sortOrder} onChange={setSortOrder} />
         </TextInputWithButton>
-
       </div>
       <div>
-        <ListItens info="lista de atividade cadastradas"
-          list={normalizarLista(atividadeF)}
-          deleteFunction={isAdmin ? handleDelete : null}
+        <ListItens
+          info="lista de atividade cadastradas"
+          list={normalizedList}
+          deleteFunction={isAdmin ? onDelete : null}
           editFunction={isAdmin ? (item) => {
-            const fullAtividade = atividade.find(a => a.id_atividade === item.id)
-            setEditingAtividade(fullAtividade)
+            openEdit(item)
             refMdAtividades.current.showModal()
           } : null}
         />
       </div>
       <Modal refModal={refMdAtividades}>
         <h3 className="font-bold text-2xl ml-2">
-          {editingAtividade && editingAtividade.id_atividade ? "Editar Atividade" : "Cadastrar Novas Atividades"}
+          {isEditing ? "Editar Atividade" : "Cadastrar Novas Atividades"}
         </h3>
-        <Atividades
+        <AtividadesModal
           onClickCancelar={() => {
             refMdAtividades.current.close()
-            setEditingAtividade(null)
+            closeEdit()
           }}
-          onClickSalvar={handleSave}
-          initialData={editingAtividade}
+          onClickSalvar={onSave}
+          initialData={editingItem}
         />
       </Modal>
 
@@ -150,10 +100,10 @@ export default function Page() {
         refModal={refMdConfirmation}
         title="Deletar Atividade"
         message="Tem certeza que deseja deletar esta atividade?"
-        onConfirm={confirmDelete}
+        onConfirm={onConfirmDelete}
         onCancel={() => {
           refMdConfirmation.current.close()
-          setItemToDelete(null)
+          cancelDelete()
         }}
       />
     </PageContainer>

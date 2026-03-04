@@ -1,0 +1,5 @@
+nome,descricao,limite,data,hora,duracao,observacao
+Palestra de Abertura,Bem-vindos ao evento STG 2025,100,2025-01-15,08:00,10:00,
+Workshop de React,Introdução ao React e Next.js,30,2025-01-15,14:00,17:00,Trazer notebook
+Mesa Redonda,Discussão sobre tecnologia,50,2025-01-16,09:00,11:00,
+Encerramento,Cerimônia de encerramento,,2025-01-16,16:00,18:00,

@@ -1,117 +1,83 @@
 'use client'
-import { useState, useEffect, useRef } from "react"
-import { useAlerta } from "@/context/AlertContext"
+import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords, createRecord, deleteRecord, updateRecord } from "@/utils/crud"
-import { filterItems } from "@/utils/filter"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { useAuth } from "@/context/AuthContext"
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useAuth } from "@/shared/contexts/AuthContext"
+import { useSalas } from "@/modules/salas/hooks/useSalas"
 
 export default function Page() {
-  const [salas, setSalas] = useState([])
-  const [salasF, setSalasF] = useState([])
-  const [novaSala, setNovaSala] = useState("")
-  const { mostrarAlerta } = useAlerta()
-  const [idToDelete, setIdToDelete] = useState(null)
-  const deleteModalRef = useRef(null)
-
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
+  const deleteModalRef = useRef(null)
 
-  useEffect(() => {
-    async function getAllSalas() {
-      const salasApi = await getAllRecords('/sala')
-      setSalas(salasApi)
-      setSalasF(salasApi)
-    }
-    getAllSalas()
-  }, [])
+  const {
+    normalizedList,
+    searchTerm,
+    setSearchTerm,
+    handleSave,
+    handleUpdate,
+    handleDelete,
+    confirmDelete,
+    cancelDelete
+  } = useSalas()
 
-  function normalizarLista(lista) {
-    return lista.map(item => ({ id: item.id_sala, nome: item.nome }))
-  }
-
-  async function handleCadastrar() {
-    if (!novaSala) return;
-    try {
-      await createRecord('/sala', { nome: novaSala });
-      setNovaSala("");
-      const salasApi = await getAllRecords('/sala');
-      setSalas(salasApi);
-      setSalasF(salasApi);
-      mostrarAlerta("success", "Sala cadastrada com sucesso!");
-    } catch (error) {
-      mostrarAlerta("error", "Erro ao cadastrar sala.");
+  const handleCadastrar = async () => {
+    if (!searchTerm) return
+    const success = await handleSave({ nome: searchTerm })
+    if (success) {
+      setSearchTerm("")
     }
   }
 
-  function openDeleteModal(id) {
-    setIdToDelete(id);
-    deleteModalRef.current.showModal();
+  const onDelete = (id) => {
+    handleDelete(id)
+    deleteModalRef.current.showModal()
   }
 
-  async function confirmDelete() {
-    if (!idToDelete) return;
-    try {
-      await deleteRecord('/sala', idToDelete);
-      const salasApi = await getAllRecords('/sala');
-      setSalas(salasApi);
-      setSalasF(salasApi);
-      mostrarAlerta("success", "Sala deletada com sucesso!");
-    } catch (error) {
-      const msg = error.response?.data?.message || "Erro ao deletar sala.";
-      mostrarAlerta("error", msg);
-    } finally {
-      deleteModalRef.current.close();
-    }
+  const onConfirmDelete = async () => {
+    await confirmDelete()
+    deleteModalRef.current.close()
   }
 
-  async function handleEdit(id, data) {
-    try {
-      await updateRecord('/sala', id, data);
-      const salasApi = await getAllRecords('/sala');
-      setSalas(salasApi);
-      setSalasF(salasApi);
-      mostrarAlerta("success", "Sala atualizada com sucesso!");
-    } catch (error) {
-      mostrarAlerta("error", "Erro ao atualizar sala.");
-    }
+  const handleEdit = async (id, data) => {
+    await handleUpdate(id, data)
   }
-
-  useEffect(() => {
-    setSalasF(salas)
-    const results = filterItems(salas, novaSala)
-    setSalasF(results)
-  }, [novaSala])
 
   return (
     <PageContainer>
       <Hero title="Cadastro de Salas" />
       <div className="my-3 mx-2">
-
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
           type='text'
-          value={novaSala}
-          onChange={setNovaSala}
+          value={searchTerm}
+          onChange={setSearchTerm}
           onClick={handleCadastrar}
           btnLabel='pesquisar'
           hideButton={!isAdmin}
         />
       </div>
       <div>
-        <ListItens info="lista de Salas cadastradas" list={normalizarLista(salasF)} deleteFunction={isAdmin ? openDeleteModal : null} onEdit={isAdmin ? handleEdit : null} />
+        <ListItens
+          info="lista de Salas cadastradas"
+          list={normalizedList}
+          deleteFunction={isAdmin ? onDelete : null}
+          onEdit={isAdmin ? handleEdit : null}
+        />
       </div>
       <ConfirmDialog
         refModal={deleteModalRef}
         title="Excluir Sala"
         message="Tem certeza que deseja excluir esta sala? Esta ação não pode ser desfeita."
-        onConfirm={confirmDelete}
-        onCancel={() => deleteModalRef.current.close()}
+        onConfirm={onConfirmDelete}
+        onCancel={() => {
+          deleteModalRef.current.close()
+          cancelDelete()
+        }}
       />
     </PageContainer>
   )

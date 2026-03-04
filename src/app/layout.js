@@ -1,14 +1,12 @@
 
 import "./globals.css";
-import { AuthProvider } from '@/context/AuthContext';
-import { AlertProvider } from "@/context/AlertContext";
-import Alert from "@/app/_components/feedback/Alert";
-import Drawer from "@/app/_components/navigation/Drawer";
+import { AuthProvider } from '@/shared/contexts/AuthContext';
+import { AlertProvider } from "@/shared/contexts/AlertContext";
 
-import { DrawerProvider } from "@/context/DrawerContext";
-import { EventFilterProvider } from "@/context/EventFilterContext";
-import Navbar from "@/app/_components/navigation/Navbar";
-import { ModalProvider } from "@/context/ModalContext";
+import { DrawerProvider } from "@/shared/contexts/DrawerContext";
+import { EventFilterProvider } from "@/shared/contexts/EventFilterContext";
+import { ModalProvider } from "@/shared/contexts/ModalContext";
+import AdminNavigationWrapper from "@/shared/components/navigation/AdminNavigationWrapper";
 
 
 export const metadata = {
@@ -25,11 +23,9 @@ export default function RootLayout({ children }) {
             <ModalProvider>
               <AlertProvider>
                 <AuthProvider>
-                  <Navbar />
-                  <Drawer>
-                    <Alert />
+                  <AdminNavigationWrapper>
                     {children}
-                  </Drawer>
+                  </AdminNavigationWrapper>
                 </AuthProvider>
               </AlertProvider>
             </ModalProvider>

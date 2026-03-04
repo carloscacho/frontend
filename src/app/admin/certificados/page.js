@@ -1,54 +1,23 @@
 'use client'
-import { useState, useEffect, useRef } from "react"
+import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords } from "@/utils/crud"
-import { filterItems } from "@/utils/filter"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import { useModal } from "@/context/ModalContext"
-import Modal from "@/app/_components/displays/Modal"
-import { dateFormateBr } from "@/utils/dateUtils"
-import { useAuth } from "@/context/AuthContext"
-// import Certificados from "@/components/Modais/Certificados"
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import Modal from "@/shared/components/displays/Modal"
+import { useCertificadosAdmin } from "@/modules/certificados/hooks/useCertificadosAdmin"
 
 export default function Page() {
-  const [certificado, setCertificados] = useState([])
-  const [certificadoF, setCertificadosF] = useState([])
-  const [novaCertificado, setNovaCertificado] = useState("")
-
-  const { usuario } = useAuth()
-  const isAdmin = usuario?.tipo === 1
+  const {
+    isAdmin,
+    certificadoF,
+    novaCertificado,
+    setNovaCertificado,
+    normalizarLista,
+  } = useCertificadosAdmin()
 
   const refMdCertificados = useRef(null)
-  const { refMd } = useModal()
-
-  useEffect(() => {
-    async function getAllcertificado() {
-      const certificadoApi = await getAllRecords('/evento')
-      setCertificados(certificadoApi)
-      setCertificadosF(certificadoApi)
-    }
-    getAllcertificado()
-  }, [])
-
-  function normalizarLista(lista) {
-    return lista.map(item => (
-      {
-        id: item.id_turno,
-        nome: item.nome,
-        description: `${item.ano} - 
-        ${dateFormateBr(item.inicio)} - 
-        ${dateFormateBr(item.final)}`
-      }))
-  }
-
-  useEffect(() => {
-    setCertificadosF(certificado)
-    const results = filterItems(certificado, novaCertificado)
-    setCertificadosF(results)
-  }, [novaCertificado])
 
   return (
     <PageContainer>

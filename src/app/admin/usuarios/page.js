@@ -1,112 +1,55 @@
 'use client'
-import { useState, useEffect, useRef } from "react"
+import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords, deleteRecord, updateRecord } from "@/utils/crud"
-import { filterItems, formatCPF } from "@/utils/filter"
-import { sortItems } from "@/utils/sort"
-import SortControl from "@/app/_components/utils/SortControl"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import { useModal } from "@/context/ModalContext"
-import Modal from "@/app/_components/displays/Modal"
-import Usuarios from "@/app/_components/Modais/Usuarios"
-import RoleChangeModal from "@/app/_components/Modais/RoleChangeModal"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { useAuth } from "@/context/AuthContext"
-import { useAlerta } from "@/context/AlertContext"
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import SortControl from "@/shared/components/utils/SortControl"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import Modal from "@/shared/components/displays/Modal"
+import UsuariosModal from "@/modules/usuarios/components/UsuariosModal"
+import RoleChangeModal from "@/modules/usuarios/components/RoleChangeModal"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useUsuarios } from "@/modules/usuarios/hooks/useUsuarios"
 
 export default function Page() {
-  const [usuarioList, setUsuarioList] = useState([])
-  const [usuarioF, setUsuariosF] = useState([])
-  const [novaUsuario, setNovaUsuario] = useState("")
-  const [sortOrder, setSortOrder] = useState('id-desc')
-
-  const { usuario, resetForm } = useAuth()
-  const isAdmin = usuario?.tipo === 1
-  const { mostrarAlerta } = useAlerta()
-
-  const tipos = ["admin", "comum", "auxiliar"]
+  const {
+    isAdmin,
+    usuarioF,
+    novaUsuario,
+    setNovaUsuario,
+    sortOrder,
+    setSortOrder,
+    normalizarLista,
+    idToDelete,
+    setIdToDelete,
+    confirmDelete,
+    userToChangeRole,
+    setUserToChangeRole,
+    handleRoleClick,
+    saveRoleChange,
+  } = useUsuarios()
 
   const refMdUsuarios = useRef(null)
   const refMdRole = useRef(null)
   const refMdConfirmation = useRef(null)
-  const { refMd } = useModal()
-  const [idToDelete, setIdToDelete] = useState(null)
-  const [userToChangeRole, setUserToChangeRole] = useState(null)
 
-  useEffect(() => {
-    getAllusuario()
-  }, [])
+  const onConfirmDelete = () => {
+    confirmDelete(() => refMdConfirmation.current.close());
+  };
 
-  async function getAllusuario() {
-    const usuarioApi = await getAllRecords('/usuario')
-    setUsuarioList(usuarioApi)
-    setUsuariosF(usuarioApi)
-  }
+  const onRoleSave = (id, roleName) => {
+    saveRoleChange(id, roleName, () => refMdRole.current.close());
+  };
 
-  function normalizarLista(lista) {
-    return lista.map(item => (
-      {
-        id: item.id_usuario,
-        nome: item.nome,
-        description: `${item.email} - 
-        ${formatCPF(item.cpf)} - 
-        ${tipos[item.tipo - 1]}`
-      }))
-  }
-
-  useEffect(() => {
-    setUsuariosF(usuarioList)
-    const results = filterItems(usuarioList, novaUsuario)
-    const sorted = sortItems(results, sortOrder)
-    setUsuariosF(sorted)
-  }, [novaUsuario, sortOrder, usuarioList])
-
-  const handleDelete = (id) => {
+  const clickDelete = (id) => {
     setIdToDelete(id);
     refMdConfirmation.current.showModal();
-  }
+  };
 
-  const confirmDelete = async () => {
-    if (!idToDelete) return;
-    try {
-      await deleteRecord('/usuario', idToDelete);
-      mostrarAlerta("success", "Usuário deletado com sucesso!");
-      await getAllusuario();
-    } catch (error) {
-      console.error("Error deleting usuario:", error);
-      const msg = error.response?.data?.message || "Erro ao deletar usuário.";
-      mostrarAlerta("error", msg);
-    } finally {
-      refMdConfirmation.current.close();
-      setIdToDelete(null);
-    }
-  }
-
-  const handleRoleClick = (item) => {
-    if (usuario?.tipo !== 1) {
-      mostrarAlerta("error", "Apenas administradores podem alterar cargos.");
-      return;
-    }
-    const fullUser = usuarioList.find(u => u.id_usuario === item.id);
-    setUserToChangeRole(fullUser);
-    refMdRole.current.showModal();
-  }
-
-  const saveRoleChange = async (id, newRole) => {
-    try {
-      await updateRecord('/usuario', id, { tipo: newRole });
-      mostrarAlerta("success", "Cargo atualizado com sucesso!");
-      await getAllusuario();
-      refMdRole.current.close();
-      setUserToChangeRole(null);
-    } catch (error) {
-      console.error("Error updating role:", error);
-      mostrarAlerta("error", "Erro ao atualizar cargo.");
-    }
-  }
+  const clickRole = (item) => {
+    handleRoleClick(item, () => refMdRole.current.showModal());
+  };
 
   return (
     <PageContainer>
@@ -119,7 +62,6 @@ export default function Page() {
           value={novaUsuario}
           onChange={setNovaUsuario}
           onClick={() => {
-            resetForm();
             refMdUsuarios.current.showModal();
           }}
           btnLabel='pesquisar'
@@ -131,8 +73,8 @@ export default function Page() {
       <div>
         <ListItens info="lista de usuario cadastradas"
           list={normalizarLista(usuarioF)}
-          deleteFunction={isAdmin ? handleDelete : null}
-          roleFunction={isAdmin ? handleRoleClick : null}
+          deleteFunction={isAdmin ? clickDelete : null}
+          roleFunction={isAdmin ? clickRole : null}
         />
       </div>
       <Modal refModal={refMdUsuarios}
@@ -140,13 +82,13 @@ export default function Page() {
         <h3 className="font-bold text-2xl ml-2">
           Cadastrar Novos Usuarios
         </h3>
-        <Usuarios />
+        <UsuariosModal />
       </Modal>
 
       <Modal refModal={refMdRole}>
         <RoleChangeModal
           user={userToChangeRole}
-          onSave={saveRoleChange}
+          onSave={onRoleSave}
           onCancel={() => {
             refMdRole.current.close();
             setUserToChangeRole(null);
@@ -158,7 +100,7 @@ export default function Page() {
         refModal={refMdConfirmation}
         title="Deletar Usuário"
         message="Tem certeza que deseja deletar este usuário?"
-        onConfirm={confirmDelete}
+        onConfirm={onConfirmDelete}
         onCancel={() => {
           refMdConfirmation.current.close()
           setIdToDelete(null)

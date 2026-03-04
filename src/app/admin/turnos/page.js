@@ -1,117 +1,83 @@
 'use client'
-import { useState, useEffect, useRef } from "react"
-import { useAlerta } from "@/context/AlertContext"
+import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords, createRecord, deleteRecord, updateRecord } from "@/utils/crud"
-import { filterItems } from "@/utils/filter"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { useAuth } from "@/context/AuthContext"
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useAuth } from "@/shared/contexts/AuthContext"
+import { useTurnos } from "@/modules/turnos/hooks/useTurnos"
 
 export default function Page() {
-  const [turnos, setTurnos] = useState([])
-  const [turnosF, setTurnosF] = useState([])
-  const [novaTurno, setNovaTurno] = useState("")
-  const { mostrarAlerta } = useAlerta()
-  const [idToDelete, setIdToDelete] = useState(null)
-  const deleteModalRef = useRef(null)
-
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
+  const deleteModalRef = useRef(null)
 
-  useEffect(() => {
-    async function getAllturnos() {
-      const turnosApi = await getAllRecords('/turno')
-      setTurnos(turnosApi)
-      setTurnosF(turnosApi)
-    }
-    getAllturnos()
-  }, [])
+  const {
+    normalizedList,
+    searchTerm,
+    setSearchTerm,
+    handleSave,
+    handleUpdate,
+    handleDelete,
+    confirmDelete,
+    cancelDelete
+  } = useTurnos()
 
-  function normalizarLista(lista) {
-    return lista.map(item => ({ id: item.id_turno, nome: item.nome }))
-  }
-
-  async function handleCadastrar() {
-    if (!novaTurno) return;
-    try {
-      await createRecord('/turno', { nome: novaTurno });
-      setNovaTurno("");
-      const turnosApi = await getAllRecords('/turno');
-      setTurnos(turnosApi);
-      setTurnosF(turnosApi);
-      mostrarAlerta("success", "Turno cadastrado com sucesso!");
-    } catch (error) {
-      mostrarAlerta("error", "Erro ao cadastrar turno.");
+  const handleCadastrar = async () => {
+    if (!searchTerm) return
+    const success = await handleSave({ nome: searchTerm })
+    if (success) {
+      setSearchTerm("")
     }
   }
 
-  function openDeleteModal(id) {
-    setIdToDelete(id);
-    deleteModalRef.current.showModal();
+  const onDelete = (id) => {
+    handleDelete(id)
+    deleteModalRef.current.showModal()
   }
 
-  async function confirmDelete() {
-    if (!idToDelete) return;
-    try {
-      await deleteRecord('/turno', idToDelete);
-      const turnosApi = await getAllRecords('/turno');
-      setTurnos(turnosApi);
-      setTurnosF(turnosApi);
-      mostrarAlerta("success", "Turno deletado com sucesso!");
-    } catch (error) {
-      const msg = error.response?.data?.message || "Erro ao deletar turno.";
-      mostrarAlerta("error", msg);
-    } finally {
-      deleteModalRef.current.close();
-    }
+  const onConfirmDelete = async () => {
+    await confirmDelete()
+    deleteModalRef.current.close()
   }
 
-  async function handleEdit(id, data) {
-    try {
-      await updateRecord('/turno', id, data);
-      const turnosApi = await getAllRecords('/turno');
-      setTurnos(turnosApi);
-      setTurnosF(turnosApi);
-      mostrarAlerta("success", "Turno atualizado com sucesso!");
-    } catch (error) {
-      mostrarAlerta("error", "Erro ao atualizar turno.");
-    }
+  const handleEdit = async (id, data) => {
+    await handleUpdate(id, data)
   }
-
-  useEffect(() => {
-    setTurnosF(turnos)
-    const results = filterItems(turnos, novaTurno)
-    setTurnosF(results)
-  }, [novaTurno])
 
   return (
     <PageContainer>
       <Hero title="Cadastro de turnos" />
       <div className="my-3 mx-2">
-
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
           type='text'
-          value={novaTurno}
-          onChange={setNovaTurno}
+          value={searchTerm}
+          onChange={setSearchTerm}
           onClick={handleCadastrar}
           btnLabel='pesquisar'
           hideButton={!isAdmin}
         />
       </div>
       <div>
-        <ListItens info="lista de turnos cadastradas" list={normalizarLista(turnosF)} deleteFunction={isAdmin ? openDeleteModal : null} onEdit={isAdmin ? handleEdit : null} />
+        <ListItens
+          info="lista de turnos cadastradas"
+          list={normalizedList}
+          deleteFunction={isAdmin ? onDelete : null}
+          onEdit={isAdmin ? handleEdit : null}
+        />
       </div>
       <ConfirmDialog
         refModal={deleteModalRef}
         title="Excluir Turno"
         message="Tem certeza que deseja excluir este turno? Esta ação não pode ser desfeita."
-        onConfirm={confirmDelete}
-        onCancel={() => deleteModalRef.current.close()}
+        onConfirm={onConfirmDelete}
+        onCancel={() => {
+          deleteModalRef.current.close()
+          cancelDelete()
+        }}
       />
     </PageContainer>
   )

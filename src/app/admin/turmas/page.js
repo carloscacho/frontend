@@ -1,117 +1,83 @@
 'use client'
-import { useState, useEffect, useRef } from "react"
-import { useAlerta } from "@/context/AlertContext"
+import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import { getAllRecords, createRecord, deleteRecord, updateRecord } from "@/utils/crud"
-import { filterItems } from "@/utils/filter"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { useAuth } from "@/context/AuthContext"
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useAuth } from "@/shared/contexts/AuthContext"
+import { useTurmas } from "@/modules/turmas/hooks/useTurmas"
 
 export default function Page() {
-  const [turmas, setTurmas] = useState([])
-  const [turmasF, setTurmasF] = useState([])
-  const [novaTurma, setNovaTurma] = useState("")
-  const { mostrarAlerta } = useAlerta()
-  const [idToDelete, setIdToDelete] = useState(null)
-  const deleteModalRef = useRef(null)
-
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
+  const deleteModalRef = useRef(null)
 
-  useEffect(() => {
-    async function getAllTurmas() {
-      const turmasApi = await getAllRecords('/turma')
-      setTurmas(turmasApi)
-      setTurmasF(turmasApi)
-    }
-    getAllTurmas()
-  }, [])
+  const {
+    normalizedList,
+    searchTerm,
+    setSearchTerm,
+    handleSave,
+    handleUpdate,
+    handleDelete,
+    confirmDelete,
+    cancelDelete
+  } = useTurmas()
 
-  function normalizarLista(lista) {
-    return lista.map(item => ({ id: item.id_turma, nome: item.nome }))
-  }
-
-  async function handleCadastrar() {
-    if (!novaTurma) return;
-    try {
-      await createRecord('/turma', { nome: novaTurma });
-      setNovaTurma("");
-      const turmasApi = await getAllRecords('/turma');
-      setTurmas(turmasApi);
-      setTurmasF(turmasApi);
-      mostrarAlerta("success", "Turma cadastrada com sucesso!");
-    } catch (error) {
-      mostrarAlerta("error", "Erro ao cadastrar turma.");
+  const handleCadastrar = async () => {
+    if (!searchTerm) return
+    const success = await handleSave({ nome: searchTerm })
+    if (success) {
+      setSearchTerm("")
     }
   }
 
-  function openDeleteModal(id) {
-    setIdToDelete(id);
-    deleteModalRef.current.showModal();
+  const onDelete = (id) => {
+    handleDelete(id)
+    deleteModalRef.current.showModal()
   }
 
-  async function confirmDelete() {
-    if (!idToDelete) return;
-    try {
-      await deleteRecord('/turma', idToDelete);
-      const turmasApi = await getAllRecords('/turma');
-      setTurmas(turmasApi);
-      setTurmasF(turmasApi);
-      mostrarAlerta("success", "Turma deletada com sucesso!");
-    } catch (error) {
-      const msg = error.response?.data?.message || "Erro ao deletar turma.";
-      mostrarAlerta("error", msg);
-    } finally {
-      deleteModalRef.current.close();
-    }
+  const onConfirmDelete = async () => {
+    await confirmDelete()
+    deleteModalRef.current.close()
   }
 
-  async function handleEdit(id, data) {
-    try {
-      await updateRecord('/turma', id, data);
-      const turmasApi = await getAllRecords('/turma');
-      setTurmas(turmasApi);
-      setTurmasF(turmasApi);
-      mostrarAlerta("success", "Turma atualizada com sucesso!");
-    } catch (error) {
-      mostrarAlerta("error", "Erro ao atualizar turma.");
-    }
+  const handleEdit = async (id, data) => {
+    await handleUpdate(id, data)
   }
-
-  useEffect(() => {
-    setTurmasF(turmas)
-    const results = filterItems(turmas, novaTurma)
-    setTurmasF(results)
-  }, [novaTurma])
 
   return (
     <PageContainer>
       <Hero title="Cadastro de Turmas" />
       <div className="my-3 mx-2">
-
         <TextInputWithButton
           placeholder="Digite para pesquisar ou cadastrar"
           type='text'
-          value={novaTurma}
-          onChange={setNovaTurma}
+          value={searchTerm}
+          onChange={setSearchTerm}
           onClick={handleCadastrar}
           btnLabel='pesquisar'
           hideButton={!isAdmin}
         />
       </div>
       <div>
-        <ListItens info="lista de turmas cadastradas" list={normalizarLista(turmasF)} deleteFunction={isAdmin ? openDeleteModal : null} onEdit={isAdmin ? handleEdit : null} />
+        <ListItens
+          info="lista de turmas cadastradas"
+          list={normalizedList}
+          deleteFunction={isAdmin ? onDelete : null}
+          onEdit={isAdmin ? handleEdit : null}
+        />
       </div>
       <ConfirmDialog
         refModal={deleteModalRef}
         title="Excluir Turma"
         message="Tem certeza que deseja excluir esta turma? Esta ação não pode ser desfeita."
-        onConfirm={confirmDelete}
-        onCancel={() => deleteModalRef.current.close()}
+        onConfirm={onConfirmDelete}
+        onCancel={() => {
+          deleteModalRef.current.close()
+          cancelDelete()
+        }}
       />
     </PageContainer>
   )
