@@ -1,4 +1,4 @@
-import Modal from '../../../_components/displays/Modal';
+import Modal from '@/shared/components/displays/Modal';
 
 export default function ChangePasswordModal({ refModal, passwordForm, setPasswordForm, handleChangePassword, onClose }) {
     return (

@@ -1,13 +1,13 @@
 'use client'
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import Cookies from 'js-cookie';
-import { useAlerta } from '@/context/AlertContext';
-import { calculateEndTime } from '@/utils/dateUtils';
-import { printAttendanceList, printActivityReport } from '@/utils/printUtils';
+import { useAlerta } from '@/shared/contexts/AlertContext';
+import { calculateEndTime } from '@/shared/utils/dateUtils';
+import { printAttendanceList, printActivityReport } from '@/shared/utils/printUtils';
 import { PiPrinter, PiFileText, PiUserPlus } from 'react-icons/pi';
-import InscricaoParticipanteModal from '@/app/_components/Modais/InscricaoParticipanteModal';
+import InscricaoParticipanteModal from '@/modules/inscricoes/components/InscricaoParticipanteModal';
 
 export default function ParticipantsPage() {
     const params = useParams();

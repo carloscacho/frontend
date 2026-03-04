@@ -1,54 +1,20 @@
 'use client'
 import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import SortControl from "@/app/_components/utils/SortControl"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import Modal from "@/app/_components/displays/Modal"
-import Atividades from "@/app/_components/Modais/Atividades"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { useEventFilter } from "@/context/EventFilterContext"
-import { useAuth } from "@/context/AuthContext"
-import { useAdminCrud } from "@/hooks/useAdminCrud"
-
-// Normalizer function to transform data for display
-const normalizeAtividades = (lista) => {
-  const mapped = lista.map(item => {
-    // Check if activity is incomplete (missing speakers or location)
-    const hasPalestrantes = item.palestrante_atividade && item.palestrante_atividade.length > 0;
-    const hasSala = item.sala && item.sala.nome;
-    const isIncomplete = !hasPalestrantes || !hasSala;
-
-    // Build missing items list
-    const missingItems = [];
-    if (!hasPalestrantes) missingItems.push('palestrantes');
-    if (!hasSala) missingItems.push('local');
-
-    return {
-      id: item.id_atividade,
-      nome: item.nome,
-      description: `${item.descricao || ''} - Local: ${item.sala?.nome || 'N/A'}`,
-      isIncomplete,
-      missingItems: missingItems.join(', ')
-    };
-  });
-
-  // Sort: incomplete activities first, then by ID ascending
-  return mapped.sort((a, b) => {
-    // First, sort by incomplete status (incomplete first)
-    if (a.isIncomplete && !b.isIncomplete) return -1;
-    if (!a.isIncomplete && b.isIncomplete) return 1;
-    // Then by ID ascending
-    return a.id - b.id;
-  });
-}
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import SortControl from "@/shared/components/utils/SortControl"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import Modal from "@/shared/components/displays/Modal"
+import AtividadesModal from "@/modules/atividades/components/AtividadesModal"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useAuth } from "@/shared/contexts/AuthContext"
+import { useAtividades } from "@/modules/atividades/hooks/useAtividades"
 
 export default function Page() {
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
-  const { eventoSelect } = useEventFilter()
 
   const refMdAtividades = useRef(null)
   const refMdConfirmation = useRef(null)
@@ -68,14 +34,7 @@ export default function Page() {
     openCreate,
     closeEdit,
     isEditing
-  } = useAdminCrud({
-    endpoint: '/atividade',
-    entityName: 'Atividade',
-    idField: 'id_atividade',
-    normalizer: normalizeAtividades,
-    filterEndpoint: '/atividade/full',
-    eventFilter: eventoSelect
-  })
+  } = useAtividades()
 
   const onSave = async (data) => {
     const success = await handleSave(data)
@@ -127,7 +86,7 @@ export default function Page() {
         <h3 className="font-bold text-2xl ml-2">
           {isEditing ? "Editar Atividade" : "Cadastrar Novas Atividades"}
         </h3>
-        <Atividades
+        <AtividadesModal
           onClickCancelar={() => {
             refMdAtividades.current.close()
             closeEdit()

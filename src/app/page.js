@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from "react"
-import { getAllRecords } from "@/utils/crud"
-import { dateFormateBr } from "@/utils/dateUtils"
+import { eventoService } from "@/modules/eventos/services/evento.service"
+import { dateFormateBr } from "@/shared/utils/dateUtils"
 import Link from "next/link"
 
 export default function Home() {
@@ -9,7 +9,7 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchEventos() {
-      const data = await getAllRecords('/evento')
+      const data = await eventoService.getAll()
       setEventos(data.reverse())
     }
     fetchEventos()

@@ -1,5 +1,5 @@
 import QRCode from 'react-qr-code';
-import { printUserProfile } from '@/utils/printUtils';
+import { printUserProfile } from '@/shared/utils/printUtils';
 
 export default function UserProfile({ usuario, participanteId, onUpdateClick, onPasswordClick, onLogout }) {
     const handlePrint = () => {

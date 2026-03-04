@@ -1,6 +1,6 @@
-import EventNavbar from "@/app/_components/navigation/EventNavbar"
-import EventBanner from "@/app/_components/EventBanner"
-import { NavigationLoadingProvider } from "@/context/NavigationLoadingContext"
+import EventNavbar from "@/shared/components/navigation/EventNavbar"
+import EventBanner from "@/shared/components/displays/EventBanner"
+import { NavigationLoadingProvider } from "@/shared/contexts/NavigationLoadingContext"
 import logoIFMS from "@/assets/logoifmspp.png"
 
 async function getEvento(slug) {

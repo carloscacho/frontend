@@ -1,18 +1,13 @@
 'use client'
 import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { useAuth } from "@/context/AuthContext"
-import { useAdminCrud } from "@/hooks/useAdminCrud"
-
-// Normalizer function
-const normalizeSalas = (lista) => {
-  return lista.map(item => ({ id: item.id_sala, nome: item.nome }))
-}
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useAuth } from "@/shared/contexts/AuthContext"
+import { useSalas } from "@/modules/salas/hooks/useSalas"
 
 export default function Page() {
   const { usuario } = useAuth()
@@ -28,12 +23,7 @@ export default function Page() {
     handleDelete,
     confirmDelete,
     cancelDelete
-  } = useAdminCrud({
-    endpoint: '/sala',
-    entityName: 'Sala',
-    idField: 'id_sala',
-    normalizer: normalizeSalas
-  })
+  } = useSalas()
 
   const handleCadastrar = async () => {
     if (!searchTerm) return

@@ -1,9 +1,9 @@
 'use client'
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from '@/context/AuthContext'
-import Login from "@/app/_components/screens/Login";
-import Cadastro from "@/app/_components/screens/Cadastro";
+import { useAuth } from '@/shared/contexts/AuthContext'
+import Login from "@/shared/components/screens/Login";
+import Cadastro from "@/shared/components/screens/Cadastro";
 
 export default function AdminPage() {
     const { singupOpen, usuario } = useAuth()

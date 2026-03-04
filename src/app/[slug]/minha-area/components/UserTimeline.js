@@ -1,4 +1,4 @@
-import { calculateEndTime } from '@/utils/dateUtils';
+import { calculateEndTime } from '@/shared/utils/dateUtils';
 
 export default function UserTimeline({ loadingActivities, myActivities }) {
     return (

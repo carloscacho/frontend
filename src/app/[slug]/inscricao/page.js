@@ -1,4 +1,4 @@
-import RegistrationView from "@/app/_components/screens/RegistrationView";
+import RegistrationView from "@/shared/components/screens/RegistrationView";
 
 async function getEvento(slug) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';

@@ -1,7 +1,7 @@
 'use client'
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
-import { useEventLogin } from '@/hooks/useEventLogin';
+import { useEventLogin } from '@/modules/eventos/hooks/useEventLogin';
 import EventHeader from './components/EventHeader';
 import LoginForm from './components/LoginForm';
 import RegistrationForm from './components/RegistrationForm';

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 
 export default function AdminLayout({ children }) {

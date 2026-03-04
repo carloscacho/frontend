@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useSchedule } from '@/hooks/useSchedule';
+import { useSchedule } from '@/modules/atividades/hooks/useSchedule';
 import DateTabs from './DateTabs';
 import ActivityCard from './ActivityCard';
 

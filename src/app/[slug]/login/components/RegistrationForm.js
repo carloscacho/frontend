@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import Card from "@/app/_components/displays/Card";
-import Input from "@/app/_components/utils/Input";
+import { useAuth } from '@/shared/contexts/AuthContext';
+import Card from "@/shared/components/displays/Card";
+import Input from "@/shared/components/utils/Input";
 
 export default function RegistrationForm() {
     const { setSingupOpen, cadastrar } = useAuth();

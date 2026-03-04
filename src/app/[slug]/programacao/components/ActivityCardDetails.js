@@ -3,7 +3,7 @@ import {
     PiMapPinDuotone,
     PiUsersDuotone
 } from 'react-icons/pi';
-import { calculateEndTime } from '@/utils/dateUtils';
+import { calculateEndTime } from '@/shared/utils/dateUtils';
 import { formatTime, formatDateFull } from './activityCardUtils';
 
 export default function ActivityCardDetails({

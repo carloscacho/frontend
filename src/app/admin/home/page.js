@@ -1,11 +1,11 @@
 'use client'
 import { useState, useEffect } from "react"
-import { getAllRecords } from "@/utils/crud"
-import Card from "@/app/_components/displays/Card"
-import { dateFormateBr } from "@/utils/dateUtils"
+import { eventoService } from "@/modules/eventos/services/evento.service"
+import Card from "@/shared/components/displays/Card"
+import { dateFormateBr } from "@/shared/utils/dateUtils"
 
 import { useRouter } from "next/navigation"
-import { useEventFilter } from "@/context/EventFilterContext"
+import { useEventFilter } from "@/shared/contexts/EventFilterContext"
 
 export default function AdminHome() {
     const [eventos, setEventos] = useState([])
@@ -14,7 +14,7 @@ export default function AdminHome() {
 
     useEffect(() => {
         async function fetchEventos() {
-            const data = await getAllRecords('/evento')
+            const data = await eventoService.getAll()
             setEventos(data.reverse())
         }
         fetchEventos()

@@ -2,36 +2,21 @@
 import { useRef, useState } from "react"
 import { PiUploadSimple } from "react-icons/pi"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import SortControl from "@/app/_components/utils/SortControl"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import Modal from "@/app/_components/displays/Modal"
-import Palestrantes from "@/app/_components/Modais/Palestrantes"
-import CsvPalestrantesModal from "@/app/_components/Modais/CsvPalestrantesModal"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { useEventFilter } from "@/context/EventFilterContext"
-import { useAuth } from "@/context/AuthContext"
-import { useAdminCrud } from "@/hooks/useAdminCrud"
-import API from "@/utils/api"
-
-// Normalizer function to transform data for display
-const normalizePalestrantes = (lista) => {
-  return lista.map(item => {
-    const eventos = item.palestrante_evento?.map(pe => pe.evento.nome).join(", ") || "Nenhum evento";
-    return {
-      id: item.id_palestrante,
-      nome: item.nome,
-      description: `${item.email} - Eventos: ${eventos}`
-    }
-  })
-}
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import SortControl from "@/shared/components/utils/SortControl"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import Modal from "@/shared/components/displays/Modal"
+import PalestrantesModal from "@/modules/palestrantes/components/PalestrantesModal"
+import CsvPalestrantesModal from "@/modules/palestrantes/components/CsvPalestrantesModal"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useAuth } from "@/shared/contexts/AuthContext"
+import { usePalestrantes } from "@/modules/palestrantes/hooks/usePalestrantes"
 
 export default function Page() {
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
-  const { eventoSelect } = useEventFilter()
 
   const refMdPalestrantes = useRef(null)
   const refMdConfirmation = useRef(null)
@@ -52,15 +37,9 @@ export default function Page() {
     openCreate,
     closeEdit,
     isEditing,
-    refreshList
-  } = useAdminCrud({
-    endpoint: '/palestrante',
-    entityName: 'Palestrante',
-    idField: 'id_palestrante',
-    normalizer: normalizePalestrantes,
-    filterEndpoint: '/palestrante/full',
-    eventFilter: eventoSelect // eventoSelect is already the full object with id_evento
-  })
+    eventoSelect,
+    importCsv
+  } = usePalestrantes()
 
   const onSave = async (data) => {
     const success = await handleSave(data)
@@ -77,24 +56,6 @@ export default function Page() {
   const onConfirmDelete = async () => {
     await confirmDelete()
     refMdConfirmation.current.close()
-  }
-
-  // CSV Import handlers
-  const handleCsvImport = async (palestrantes) => {
-    if (!eventoSelect) {
-      throw new Error('Selecione um evento primeiro')
-    }
-    try {
-      const response = await API.post('/palestrante/batch', {
-        palestrantes,
-        fk_evento: eventoSelect.id_evento
-      })
-      // Refresh list after import
-      refreshList?.()
-      return response.data
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Erro ao importar palestrantes')
-    }
   }
 
   return (
@@ -142,7 +103,7 @@ export default function Page() {
         <h3 className="font-bold text-2xl ml-2">
           {isEditing ? "Editar Palestrante" : "Cadastrar Novos Palestrantes"}
         </h3>
-        <Palestrantes
+        <PalestrantesModal
           onClickCancelar={() => {
             refMdPalestrantes.current.close()
             closeEdit()
@@ -155,7 +116,7 @@ export default function Page() {
       <CsvPalestrantesModal
         refModal={refMdCsvImport}
         evento={eventoSelect ? { id: eventoSelect.id_evento, nome: eventoSelect.nome } : null}
-        onImport={handleCsvImport}
+        onImport={importCsv}
         onClose={() => { }}
       />
 

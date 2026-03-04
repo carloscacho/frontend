@@ -1,12 +1,12 @@
 'use client'
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import QRCode from 'react-qr-code';
-import { useAlerta } from '@/context/AlertContext';
+import { useAlerta } from '@/shared/contexts/AlertContext';
 import Cookies from 'js-cookie';
-import Modal from '../../_components/displays/Modal';
-import { useMinhaArea } from '@/hooks/useMinhaArea';
+import Modal from '@/shared/components/displays/Modal';
+import { useMinhaArea } from '@/modules/usuarios/hooks/useMinhaArea';
 
 // Components
 import UserProfile from './components/UserProfile';

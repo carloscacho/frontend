@@ -1,28 +1,17 @@
 'use client'
-import { useRef, useState } from "react"
+import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import SortControl from "@/app/_components/utils/SortControl"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import Modal from "@/app/_components/displays/Modal"
-import Eventos from "@/app/_components/Modais/Eventos"
-import CsvImportModal from "@/app/_components/Modais/CsvImportModal"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { dateFormateBr } from "@/utils/dateUtils"
-import { useAuth } from "@/context/AuthContext"
-import { useAdminCrud } from "@/hooks/useAdminCrud"
-import API from "@/utils/api"
-
-// Normalizer function to transform data for display
-const normalizeEventos = (lista) => {
-  return lista.map(item => ({
-    id: item.id_evento,
-    nome: item.nome,
-    description: `${item.ano} - ${dateFormateBr(item.inicio)} - ${dateFormateBr(item.final)}`
-  }))
-}
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import SortControl from "@/shared/components/utils/SortControl"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import Modal from "@/shared/components/displays/Modal"
+import EventosModal from "@/modules/eventos/components/EventosModal"
+import CsvImportModal from "@/modules/eventos/components/CsvImportModal"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useAuth } from "@/shared/contexts/AuthContext"
+import { useEventos } from "@/modules/eventos/hooks/useEventos"
 
 export default function Page() {
   const { usuario } = useAuth()
@@ -31,8 +20,6 @@ export default function Page() {
   const refMdEventos = useRef(null)
   const refMdConfirmation = useRef(null)
   const refMdCsvImport = useRef(null)
-
-  const [selectedEventForImport, setSelectedEventForImport] = useState(null)
 
   const {
     normalizedList,
@@ -49,13 +36,11 @@ export default function Page() {
     openCreate,
     closeEdit,
     itemToDelete,
-    isEditing
-  } = useAdminCrud({
-    endpoint: '/evento',
-    entityName: 'Evento',
-    idField: 'id_evento',
-    normalizer: normalizeEventos
-  })
+    isEditing,
+    selectedEventForImport,
+    setSelectedEventForImport,
+    importCsvAtividades
+  } = useEventos()
 
   // Wrapper for save that closes modal
   const onSave = async (data) => {
@@ -81,15 +66,6 @@ export default function Page() {
   const handleOpenCsvImport = (evento) => {
     setSelectedEventForImport(evento)
     refMdCsvImport.current.showModal()
-  }
-
-  const handleCsvImport = async (atividades) => {
-    try {
-      const response = await API.post('/atividade/batch', { atividades })
-      return response.data
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Erro ao importar atividades')
-    }
   }
 
   const handleCloseCsvImport = () => {
@@ -130,7 +106,7 @@ export default function Page() {
         <h3 className="font-bold text-2xl ml-2">
           {isEditing ? "Editar Evento" : "Cadastrar Novos Eventos"}
         </h3>
-        <Eventos
+        <EventosModal
           onClickCancelar={() => {
             refMdEventos.current.close()
             closeEdit()
@@ -143,7 +119,7 @@ export default function Page() {
       <CsvImportModal
         refModal={refMdCsvImport}
         evento={selectedEventForImport}
-        onImport={handleCsvImport}
+        onImport={importCsvAtividades}
         onClose={handleCloseCsvImport}
       />
 

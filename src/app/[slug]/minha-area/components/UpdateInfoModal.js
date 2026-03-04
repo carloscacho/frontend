@@ -1,4 +1,4 @@
-import Modal from '../../../_components/displays/Modal';
+import Modal from '@/shared/components/displays/Modal';
 
 export default function UpdateInfoModal({ refModal, updateForm, setUpdateForm, handleUpdateInfo }) {
     return (

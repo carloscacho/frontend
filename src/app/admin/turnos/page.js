@@ -1,18 +1,13 @@
 'use client'
 import { useRef } from "react"
 
-import TextInputWithButton from "@/app/_components/utils/TextInputWithButton"
-import ListItens from "@/app/_components/displays/ListItens"
-import Hero from "@/app/_components/displays/Hero"
-import PageContainer from "@/app/_components/displays/PageContainer"
-import ConfirmDialog from "@/app/_components/displays/ConfirmDialog"
-import { useAuth } from "@/context/AuthContext"
-import { useAdminCrud } from "@/hooks/useAdminCrud"
-
-// Normalizer function
-const normalizeTurnos = (lista) => {
-  return lista.map(item => ({ id: item.id_turno, nome: item.nome }))
-}
+import TextInputWithButton from "@/shared/components/utils/TextInputWithButton"
+import ListItens from "@/shared/components/displays/ListItens"
+import Hero from "@/shared/components/displays/Hero"
+import PageContainer from "@/shared/components/displays/PageContainer"
+import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import { useAuth } from "@/shared/contexts/AuthContext"
+import { useTurnos } from "@/modules/turnos/hooks/useTurnos"
 
 export default function Page() {
   const { usuario } = useAuth()
@@ -28,12 +23,7 @@ export default function Page() {
     handleDelete,
     confirmDelete,
     cancelDelete
-  } = useAdminCrud({
-    endpoint: '/turno',
-    entityName: 'Turno',
-    idField: 'id_turno',
-    normalizer: normalizeTurnos
-  })
+  } = useTurnos()
 
   const handleCadastrar = async () => {
     if (!searchTerm) return

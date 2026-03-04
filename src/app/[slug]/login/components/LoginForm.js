@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import Card from '@/app/_components/displays/Card';
+import { useAuth } from '@/shared/contexts/AuthContext';
+import Card from '@/shared/components/displays/Card';
 
 export default function LoginForm({ redirectPath }) {
     const { login, setSingupOpen } = useAuth();
