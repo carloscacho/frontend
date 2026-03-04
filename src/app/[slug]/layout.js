@@ -3,22 +3,17 @@ import EventBanner from "@/shared/components/displays/EventBanner"
 import { NavigationLoadingProvider } from "@/shared/contexts/NavigationLoadingContext"
 import logoIFMS from "@/assets/logoifmspp.png"
 
-async function getEvento(slug) {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
-    const res = await fetch(`${apiUrl}/evento/slug/${slug}`, {
-        next: { revalidate: 3600 }
-    });
-
-    if (!res.ok) {
-        return null;
-    }
-
-    return res.json();
-}
+import { eventoService } from "@/modules/eventos/services/evento.service";
 
 export default async function EventLayout({ children, params }) {
     const { slug } = await params
-    const evento = await getEvento(slug)
+
+    let evento = null;
+    try {
+        evento = await eventoService.getBySlug(slug);
+    } catch (e) {
+        console.error("Error fetching evento:", e);
+    }
 
     if (!evento) return <div className="flex justify-center items-center h-screen">Evento não encontrado</div>
 

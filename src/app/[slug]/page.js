@@ -1,9 +1,8 @@
+import { eventoService } from "@/modules/eventos/services/evento.service";
 
 export async function generateStaticParams() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
     try {
-        const res = await fetch(`${apiUrl}/evento`);
-        const eventos = await res.json();
+        const eventos = await eventoService.getAll();
         return eventos.map((evento) => ({
             slug: evento.slug,
         }));
@@ -13,22 +12,15 @@ export async function generateStaticParams() {
     }
 }
 
-async function getEvento(slug) {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
-    const res = await fetch(`${apiUrl}/evento/slug/${slug}`, {
-        next: { revalidate: 3600 } // Revalidate every hour
-    });
-
-    if (!res.ok) {
-        return null;
-    }
-
-    return res.json();
-}
-
 export default async function EventPage({ params }) {
     const { slug } = await params;
-    const evento = await getEvento(slug);
+
+    let evento = null;
+    try {
+        evento = await eventoService.getBySlug(slug);
+    } catch (error) {
+        console.error("Error fetching evento:", error);
+    }
 
     if (!evento) return <div className="flex justify-center items-center h-48">Evento não encontrado</div>
 

@@ -9,10 +9,10 @@ import Modal from '@/shared/components/displays/Modal';
 import { useMinhaArea } from '@/modules/usuarios/hooks/useMinhaArea';
 
 // Components
-import UserProfile from './components/UserProfile';
-import UserTimeline from './components/UserTimeline';
-import UpdateInfoModal from './components/UpdateInfoModal';
-import ChangePasswordModal from './components/ChangePasswordModal';
+import UserProfile from '@/modules/usuarios/components/UserProfile';
+import UserTimeline from '@/modules/usuarios/components/UserTimeline';
+import UpdateInfoModal from '@/modules/usuarios/components/UpdateInfoModal';
+import ChangePasswordModal from '@/modules/usuarios/components/ChangePasswordModal';
 
 export default function MinhaAreaPage() {
     const { usuario, updateProfile, changePassword, logout } = useAuth();

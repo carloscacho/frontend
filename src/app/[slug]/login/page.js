@@ -2,9 +2,9 @@
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
 import { useEventLogin } from '@/modules/eventos/hooks/useEventLogin';
-import EventHeader from './components/EventHeader';
-import LoginForm from './components/LoginForm';
-import RegistrationForm from './components/RegistrationForm';
+import EventHeader from '@/modules/eventos/components/EventHeader';
+import LoginForm from '@/modules/eventos/components/LoginForm';
+import RegistrationForm from '@/modules/eventos/components/RegistrationForm';
 
 export default function EventLoginPage() {
     const { singupOpen } = useAuth();
