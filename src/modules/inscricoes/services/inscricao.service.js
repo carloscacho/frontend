@@ -41,6 +41,15 @@ export const inscricaoService = {
         }
     },
 
+    async updatePresence(dataAtividadeId, participanteId, status) {
+        const res = await API.put(`/data-atividade-participante/${dataAtividadeId}/${participanteId}`, {
+            fk_data_atividade: dataAtividadeId,
+            fk_participante: participanteId,
+            presenca: status
+        });
+        return res.data;
+    },
+
     async batchEnrollParticipants(activityId, emails) {
         const res = await API.post(`/atividade/${activityId}/inscrever-participantes`, { emails });
         return res.data;

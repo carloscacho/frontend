@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
+import LoadingSpinner from '@/shared/components/displays/LoadingSpinner';
 
 export default function AdminLayout({ children }) {
     const { usuario } = useAuth();
@@ -37,9 +38,7 @@ export default function AdminLayout({ children }) {
     // Note: The visibility of Navbar/Drawer is now handled by AdminNavigationWrapper in root layout
     if (!usuario || usuario.tipo !== 1) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <span className="loading loading-spinner loading-lg"></span>
-            </div>
+            <LoadingSpinner fullScreen={true} />
         );
     }
 

@@ -5,6 +5,8 @@ import { useEventLogin } from '@/modules/eventos/hooks/useEventLogin';
 import EventHeader from '@/modules/eventos/components/EventHeader';
 import LoginForm from '@/modules/eventos/components/LoginForm';
 import RegistrationForm from '@/modules/eventos/components/RegistrationForm';
+import LoadingSpinner from '@/shared/components/displays/LoadingSpinner';
+import Button from '@/shared/components/utils/Button';
 
 export default function EventLoginPage() {
     const { singupOpen } = useAuth();
@@ -15,11 +17,7 @@ export default function EventLoginPage() {
     const { evento, loading, subscribing } = useEventLogin(slug);
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-base-200">
-                <span className="loading loading-spinner loading-lg"></span>
-            </div>
-        );
+        return <LoadingSpinner fullScreen={true} />;
     }
 
     if (!evento) {
@@ -27,23 +25,16 @@ export default function EventLoginPage() {
             <div className="min-h-screen flex items-center justify-center bg-base-200">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold mb-4">Evento não encontrado</h1>
-                    <button onClick={() => router.push('/')} className="btn btn-primary">
+                    <Button onClick={() => router.push('/')} mode="" color="primary" className="m-0">
                         Voltar para Home
-                    </button>
+                    </Button>
                 </div>
             </div>
         );
     }
 
     if (subscribing) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-base-200">
-                <div className="text-center">
-                    <span className="loading loading-spinner loading-lg text-primary"></span>
-                    <p className="mt-4 text-lg">Processando sua inscrição...</p>
-                </div>
-            </div>
-        );
+        return <LoadingSpinner fullScreen={true} message="Processando sua inscrição..." />;
     }
 
     return (

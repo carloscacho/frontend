@@ -1,4 +1,5 @@
 import { calculateEndTime } from '@/shared/utils/dateUtils';
+import LoadingSpinner from '@/shared/components/displays/LoadingSpinner';
 
 export default function UserTimeline({ loadingActivities, myActivities }) {
     return (
@@ -6,8 +7,8 @@ export default function UserTimeline({ loadingActivities, myActivities }) {
             <h2 className="text-2xl font-bold text-center mb-6 uppercase text-primary">Minha Timeline</h2>
 
             {loadingActivities ? (
-                <div className="flex justify-center">
-                    <span className="loading loading-spinner loading-md"></span>
+                <div className="py-4">
+                    <LoadingSpinner size="md" />
                 </div>
             ) : myActivities.length === 0 ? (
                 <div className="text-center text-gray-500">

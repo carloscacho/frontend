@@ -2,12 +2,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/shared/contexts/AuthContext';
-import Cookies from 'js-cookie';
 import { useAlerta } from '@/shared/contexts/AlertContext';
 import { calculateEndTime } from '@/shared/utils/dateUtils';
 import { printAttendanceList, printActivityReport } from '@/shared/utils/printUtils';
 import { PiPrinter, PiFileText, PiUserPlus } from 'react-icons/pi';
 import InscricaoParticipanteModal from '@/modules/inscricoes/components/InscricaoParticipanteModal';
+import { atividadeService } from '@/modules/atividades/services/atividade.service';
+import { inscricaoService } from '@/modules/inscricoes/services/inscricao.service';
+import LoadingSpinner from '@/shared/components/displays/LoadingSpinner';
+import Button from '@/shared/components/utils/Button';
 
 export default function ParticipantsPage() {
     const params = useParams();
@@ -29,17 +32,11 @@ export default function ParticipantsPage() {
 
     const fetchAtividade = async () => {
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
-            const res = await fetch(`${apiUrl}/atividade/${activityId}/participantes`);
-            if (res.ok) {
-                const data = await res.json();
-                setAtividade(data);
-            } else {
-                mostrarAlerta('error', 'Erro ao carregar atividade');
-            }
+            const data = await atividadeService.getWithParticipants(activityId);
+            setAtividade(data);
         } catch (error) {
             console.error('Error fetching activity:', error);
-            mostrarAlerta('error', 'Erro de conexão');
+            mostrarAlerta('error', 'Erro ao carregar atividade');
         } finally {
             setLoading(false);
         }
@@ -53,32 +50,12 @@ export default function ParticipantsPage() {
 
     const handlePresence = async (dataAtividadeId, participanteId, status) => {
         try {
-            const userCookies = Cookies.get('usuarioData');
-            const { token } = JSON.parse(userCookies);
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
-
-            const res = await fetch(`${apiUrl}/data-atividade-participante/${dataAtividadeId}/${participanteId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    fk_data_atividade: dataAtividadeId,
-                    fk_participante: participanteId,
-                    presenca: status
-                })
-            });
-
-            if (res.ok) {
-                mostrarAlerta('success', 'Presença atualizada com sucesso');
-                fetchAtividade();
-            } else {
-                mostrarAlerta('error', 'Erro ao atualizar presença');
-            }
+            await inscricaoService.updatePresence(dataAtividadeId, participanteId, status);
+            mostrarAlerta('success', 'Presença atualizada com sucesso');
+            fetchAtividade();
         } catch (error) {
             console.error('Error updating presence:', error);
-            mostrarAlerta('error', 'Erro de conexão');
+            mostrarAlerta('error', 'Erro ao atualizar presença');
         }
     };
 
@@ -114,11 +91,7 @@ export default function ParticipantsPage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <span className="loading loading-spinner loading-lg"></span>
-            </div>
-        );
+        return <LoadingSpinner fullScreen={true} />;
     }
 
     if (!atividade) {
@@ -128,39 +101,47 @@ export default function ParticipantsPage() {
     return (
         <div className="max-w-6xl mx-auto px-4 py-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">
-                <button
+                <Button
                     onClick={() => router.back()}
-                    className="btn btn-outline"
+                    mode="outline"
+                    color="neutral"
+                    className="m-0"
                 >
                     ← Voltar
-                </button>
+                </Button>
 
                 <div className="flex-1"></div>
 
-                <button
+                <Button
                     onClick={handlePrintAttendanceList}
-                    className="btn btn-secondary btn-sm gap-2 print:hidden"
+                    color="secondary"
+                    mode=""
+                    className="btn-sm gap-2 print:hidden m-0"
                     title="Imprimir Lista de Presença (PDF)"
                 >
                     <PiPrinter size={18} />
                     Lista de Presença
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={handlePrintReport}
-                    className="btn btn-info btn-sm gap-2 print:hidden"
+                    color="info"
+                    mode=""
+                    className="btn-sm gap-2 print:hidden m-0"
                     title="Imprimir Relatório"
                 >
                     <PiFileText size={18} />
                     Relatório
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={() => inscricaoModalRef.current?.showModal()}
-                    className="btn btn-primary btn-sm gap-2 print:hidden"
+                    color="primary"
+                    mode=""
+                    className="btn-sm gap-2 print:hidden m-0"
                     title="Inscrever Participante"
                 >
                     <PiUserPlus size={18} />
                     Inscrever
-                </button>
+                </Button>
             </div>
 
             <div className="card bg-base-100 shadow-xl border border-base-200 mb-8">
@@ -214,20 +195,22 @@ export default function ParticipantsPage() {
                                                     {inscricao.presenca === null && <span className="badge badge-ghost">Pendente</span>}
                                                 </td>
                                                 <td className="flex gap-2 print:hidden">
-                                                    <button
-                                                        className={`btn btn-sm ${inscricao.presenca === 1 ? 'btn-success' : 'btn-outline btn-success'}`}
+                                                    <Button
+                                                        mode="" color=""
+                                                        className={`btn-sm m-0 ${inscricao.presenca === 1 ? 'btn-success' : 'btn-outline btn-success'}`}
                                                         onClick={() => handlePresence(inscricao.fk_data_atividade, inscricao.fk_participante, 1)}
                                                         title="Marcar Presente"
                                                     >
                                                         P
-                                                    </button>
-                                                    <button
-                                                        className={`btn btn-sm ${inscricao.presenca === 0 ? 'btn-error' : 'btn-outline btn-error'}`}
+                                                    </Button>
+                                                    <Button
+                                                        mode="" color=""
+                                                        className={`btn-sm m-0 ${inscricao.presenca === 0 ? 'btn-error' : 'btn-outline btn-error'}`}
                                                         onClick={() => handlePresence(inscricao.fk_data_atividade, inscricao.fk_participante, 0)}
                                                         title="Marcar Falta"
                                                     >
                                                         F
-                                                    </button>
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         ))}

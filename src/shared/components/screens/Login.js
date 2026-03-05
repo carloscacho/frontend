@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/shared/contexts/AuthContext'
 import Card from '../displays/Card'
+import Button from '@/shared/components/utils/Button';
 
 export default function Login({ redirectPath }) {
   const { login, setSingupOpen } = useAuth()
@@ -53,10 +54,10 @@ export default function Login({ redirectPath }) {
             </div>
           </div>
           <div className="mt-6">
-            <button onClick={handleLogin} className="btn btn-primary btn-block">Entrar</button>
+            <Button onClick={handleLogin} color="primary" mode="" className="btn-block m-0">Entrar</Button>
           </div>
           <div className="mt-6">
-            <button onClick={() => setSingupOpen(true)} className="btn btn-secondary btn-block">Cadastrar</button>
+            <Button onClick={() => setSingupOpen(true)} color="secondary" mode="" className="btn-block m-0">Cadastrar</Button>
           </div>
         </Card>
       </div>

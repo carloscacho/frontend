@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/shared/contexts/AuthContext'
 import Card from "@/shared/components/displays/Card";
 import Input from "@/shared/components/utils/Input";
+import Button from "@/shared/components/utils/Button";
 
 export default function Cadastro() {
   const { cadastrar, setSingupOpen } = useAuth()
@@ -94,10 +95,10 @@ export default function Cadastro() {
 
 
           <div className="mt-6">
-            <button onClick={() => preCadastro()} className="btn btn-primary btn-block">Criar</button>
+            <Button onClick={() => preCadastro()} color="primary" mode="" className="btn-block m-0">Criar</Button>
           </div>
           <div className="mt-6">
-            <button onClick={() => setSingupOpen(false)} className="btn btn-error btn-block">Voltar</button>
+            <Button onClick={() => setSingupOpen(false)} color="error" mode="" className="btn-block m-0">Voltar</Button>
           </div>
         </Card>
       </div>

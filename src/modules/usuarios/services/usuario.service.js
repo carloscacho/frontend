@@ -14,5 +14,10 @@ export const usuarioService = {
     async delete(id) {
         const res = await API.delete(`/usuario/${id}`);
         return res.data;
+    },
+
+    async checkCpf(cpf) {
+        const res = await API.post(`/usuario/teste-cpf`, { cpf });
+        return res.data;
     }
 };

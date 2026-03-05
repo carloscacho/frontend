@@ -1,4 +1,5 @@
 import { eventoService } from "@/modules/eventos/services/evento.service";
+import Button from "@/shared/components/utils/Button";
 
 export async function generateStaticParams() {
     try {
@@ -58,7 +59,7 @@ export default async function EventPage({ params }) {
 
                     <div className="flex justify-center mt-6">
 
-                        <button className="btn btn-info btn-lg btn-wide">Bom Evento a Todos!</button>
+                        <Button mode="" color="info" className="btn-lg btn-wide m-0">Bom Evento a Todos!</Button>
                     </div>
                 </div>
             </div>

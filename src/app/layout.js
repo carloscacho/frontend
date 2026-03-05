@@ -7,7 +7,7 @@ import { DrawerProvider } from "@/shared/contexts/DrawerContext";
 import { EventFilterProvider } from "@/shared/contexts/EventFilterContext";
 import { ModalProvider } from "@/shared/contexts/ModalContext";
 import AdminNavigationWrapper from "@/shared/components/navigation/AdminNavigationWrapper";
-
+import AppTitleUpdater from "@/shared/components/utils/AppTitleUpdater";
 
 export const metadata = {
   title: "IFMS Eventos",
@@ -24,6 +24,7 @@ export default function RootLayout({ children }) {
               <AlertProvider>
                 <AuthProvider>
                   <AdminNavigationWrapper>
+                    <AppTitleUpdater />
                     {children}
                   </AdminNavigationWrapper>
                 </AuthProvider>

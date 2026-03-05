@@ -11,6 +11,7 @@ import Modal from "@/shared/components/displays/Modal"
 import PalestrantesModal from "@/modules/palestrantes/components/PalestrantesModal"
 import CsvPalestrantesModal from "@/modules/palestrantes/components/CsvPalestrantesModal"
 import ConfirmDialog from "@/shared/components/displays/ConfirmDialog"
+import Button from "@/shared/components/utils/Button"
 import { useAuth } from "@/shared/contexts/AuthContext"
 import { usePalestrantes } from "@/modules/palestrantes/hooks/usePalestrantes"
 
@@ -78,14 +79,16 @@ export default function Page() {
 
         {/* CSV Import Button */}
         {isAdmin && eventoSelect && (
-          <button
-            className="btn btn-info btn-outline gap-2"
+          <Button
+            mode="outline"
+            color="info"
+            className="gap-2 m-0"
             onClick={() => refMdCsvImport.current.showModal()}
             title="Importar palestrantes via CSV"
           >
             <PiUploadSimple size={20} />
             <span className="hidden md:inline">Importar CSV</span>
-          </button>
+          </Button>
         )}
       </div>
       <div>

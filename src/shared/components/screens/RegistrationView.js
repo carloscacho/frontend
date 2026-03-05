@@ -1,12 +1,15 @@
 'use client'
-import Cookies from 'js-cookie';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import Login from '@/shared/components/screens/Login';
 import Cadastro from '@/shared/components/screens/Cadastro';
 import { useAlerta } from "@/shared/contexts/AlertContext";
 import Input from "@/shared/components/utils/Input";
+import Button from "@/shared/components/utils/Button";
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '@/shared/components/displays/LoadingSpinner';
+import { usuarioService } from '@/modules/usuarios/services/usuario.service';
+import { inscricaoService } from '@/modules/inscricoes/services/inscricao.service';
 
 export default function RegistrationView({ evento }) {
     const { usuario, singupOpen, setSingupOpen } = useAuth();
@@ -33,17 +36,9 @@ export default function RegistrationView({ evento }) {
 
         setLoading(true);
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
-            const res = await fetch(`${apiUrl}/usuario/teste-cpf`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cpf: cpfInput })
-            });
-
-            const data = await res.json();
+            const data = await usuarioService.checkCpf(cpfInput);
 
             // CPF was entered, proceed with auth flow
-
             if (data.status === 'warning') {
                 // CPF exists -> Go to Login
                 mostrarAlerta('info', 'CPF encontrado. Faça login para continuar.');
@@ -67,44 +62,29 @@ export default function RegistrationView({ evento }) {
         if (!usuario) return;
         setProcessingSubscription(true);
 
-        const userCookies = Cookies.get('usuarioData');
-        const { token } = JSON.parse(userCookies);
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
-            const res = await fetch(`${apiUrl}/evento-participante`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    fk_evento: evento.id_evento,
-                    fk_participante: usuario.participante?.[0]?.id_participante || usuario.id_usuario // Fallback if structure differs
-                })
-            });
+            const participanteId = usuario.participante?.[0]?.id_participante || usuario.id_usuario;
+            await inscricaoService.linkParticipantToEvent(evento.id_evento, participanteId);
 
-            if (res.ok) {
-                mostrarAlerta('success', 'Inscrição realizada com sucesso! Redirecionando...');
+            mostrarAlerta('success', 'Inscrição realizada com sucesso! Redirecionando...');
+            setTimeout(() => {
+                router.push(`/${evento.slug}/programacao`);
+            }, 1500);
+
+        } catch (error) {
+            console.error(error);
+            const errorMessage = error.response?.data?.message || 'Erro ao realizar inscrição.';
+
+            // If already registered, also redirect
+            if (errorMessage.includes('Unique constraint failed')) {
+                mostrarAlerta('info', 'Você já está inscrito neste evento. Redirecionando...');
                 setTimeout(() => {
                     router.push(`/${evento.slug}/programacao`);
                 }, 1500);
             } else {
-                const errorData = await res.json();
-                // If already registered, also redirect
-                if (errorData.message && errorData.message.includes('Unique constraint failed')) {
-                    mostrarAlerta('info', 'Você já está inscrito neste evento. Redirecionando...');
-                    setTimeout(() => {
-                        router.push(`/${evento.slug}/programacao`);
-                    }, 1500);
-                } else {
-                    mostrarAlerta('error', errorData.message || 'Erro ao realizar inscrição.');
-                    setProcessingSubscription(false); // Allow retry
-                }
+                mostrarAlerta('error', errorMessage);
+                setProcessingSubscription(false); // Allow retry
             }
-        } catch (error) {
-            console.error(error);
-            mostrarAlerta('error', 'Erro de conexão.');
-            setProcessingSubscription(false);
         }
     };
 
@@ -126,13 +106,15 @@ export default function RegistrationView({ evento }) {
                         />
 
                         <div className="mt-6">
-                            <button
+                            <Button
                                 onClick={handleCheckCpf}
-                                className="btn btn-primary btn-block"
+                                color="primary"
+                                mode=""
+                                className="btn-block m-0"
                                 disabled={loading}
                             >
-                                {loading ? <span className="loading loading-spinner"></span> : 'Verificar'}
-                            </button>
+                                {loading ? <LoadingSpinner /> : 'Verificar'}
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -145,9 +127,8 @@ export default function RegistrationView({ evento }) {
             <h1 className="text-3xl font-bold text-center mb-8 uppercase text-primary">Inscrição - {evento.nome}</h1>
 
             {usuario && processingSubscription ? (
-                <div className="flex flex-col items-center justify-center py-12">
-                    <span className="loading loading-spinner loading-lg text-primary"></span>
-                    <p className="mt-4 text-lg">Processando sua inscrição...</p>
+                <div className="py-12">
+                    <LoadingSpinner message="Processando sua inscrição..." />
                 </div>
             ) : (
                 <>

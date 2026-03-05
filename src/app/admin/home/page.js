@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { eventoService } from "@/modules/eventos/services/evento.service"
 import Card from "@/shared/components/displays/Card"
+import Button from "@/shared/components/utils/Button"
 import { dateFormateBr } from "@/shared/utils/dateUtils"
 
 import { useRouter } from "next/navigation"
@@ -72,8 +73,8 @@ export default function AdminHome() {
                                 <p>Fim: {dateFormateBr(evento.final)}</p>
                             </div>
                             <div className="card-actions justify-end mt-4">
-                                <button onClick={() => handleVisit(evento)} className="btn btn-primary">Visitar</button>
-                                <button onClick={() => handleEdit(evento)} className="btn btn-secondary">Editar</button>
+                                <Button onClick={() => handleVisit(evento)} mode="" color="primary" className="m-0">Visitar</Button>
+                                <Button onClick={() => handleEdit(evento)} mode="" color="secondary" className="m-0">Editar</Button>
                             </div>
                         </Card>
                     ))}

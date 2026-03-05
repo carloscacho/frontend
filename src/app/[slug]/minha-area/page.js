@@ -13,6 +13,7 @@ import UserProfile from '@/modules/usuarios/components/UserProfile';
 import UserTimeline from '@/modules/usuarios/components/UserTimeline';
 import UpdateInfoModal from '@/modules/usuarios/components/UpdateInfoModal';
 import ChangePasswordModal from '@/modules/usuarios/components/ChangePasswordModal';
+import LoadingSpinner from '@/shared/components/displays/LoadingSpinner';
 
 export default function MinhaAreaPage() {
     const { usuario, updateProfile, changePassword, logout } = useAuth();
@@ -113,16 +114,8 @@ export default function MinhaAreaPage() {
         }
     };
 
-    const handlePrint = () => {
-        window.print();
-    };
-
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <span className="loading loading-spinner loading-lg"></span>
-            </div>
-        );
+        return <LoadingSpinner fullScreen={true} />;
     }
 
     if (!usuario) {
