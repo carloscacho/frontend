@@ -1,9 +1,10 @@
 'use client'
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSchedule } from '@/modules/atividades/hooks/useSchedule';
 import DateTabs from './DateTabs';
 import ActivityCard from './ActivityCard';
+import QrScannerModal from './QrScannerModal';
 
 export default function ScheduleView({ atividades, evento }) {
     const {
@@ -19,12 +20,44 @@ export default function ScheduleView({ atividades, evento }) {
 
     const router = useRouter();
 
+    // Scanner Modal setup
+    const scannerModalRef = useRef(null);
+    const [scanningActivity, setScanningActivity] = useState(null);
+
+    const handleOpenScanner = (atividade) => {
+        setScanningActivity(atividade);
+        scannerModalRef.current?.showModal();
+    };
+
     const handleParticiparWithRefresh = async (atividade) => {
         const success = await handleParticipar(atividade);
         if (success) {
             router.refresh();
         }
     };
+
+    // Smooth Scroll and Highlight for anchor links
+    useEffect(() => {
+        const hash = typeof window !== 'undefined' ? window.location.hash : '';
+        if (hash && hash.startsWith('#atividade-') && filteredAtividades.length > 0) {
+            const hasActivityInCurrentTab = filteredAtividades.some(a => `atividade-${a.id_atividade}` === hash.substring(1));
+
+            if (hasActivityInCurrentTab) {
+                // Wait for the render phase to complete to guarantee DOM presence
+                const timeoutId = setTimeout(() => {
+                    const el = document.querySelector(hash);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Brief glowing highlight effect
+                        el.classList.add('ring-4', 'ring-primary', 'animate-pulse');
+                        setTimeout(() => el.classList.remove('ring-4', 'ring-primary', 'animate-pulse'), 2500);
+                    }
+                }, 300);
+
+                return () => clearTimeout(timeoutId);
+            }
+        }
+    }, [filteredAtividades]);
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-8">
@@ -51,6 +84,7 @@ export default function ScheduleView({ atividades, evento }) {
                         evento={evento}
                         isRegistered={isRegistered}
                         onParticipar={handleParticiparWithRefresh}
+                        onScan={handleOpenScanner}
                         conflictError={conflictErrors[atividade.id_atividade]}
                         usuario={usuario}
                     />
@@ -62,6 +96,12 @@ export default function ScheduleView({ atividades, evento }) {
                     </div>
                 )}
             </div>
+
+            <QrScannerModal
+                refModal={scannerModalRef}
+                atividade={scanningActivity}
+                onSuccess={() => router.refresh()}
+            />
         </div>
     );
 }

@@ -23,13 +23,32 @@ export function useSchedule(atividades, evento) {
         return Array.from(allDates).sort();
     }, [atividades]);
 
-    const [selectedDate, setSelectedDate] = useState(dates[0]);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [initialHashChecked, setInitialHashChecked] = useState(false);
 
     useEffect(() => {
-        if (!selectedDate && dates.length > 0) {
+        if (dates.length > 0 && !initialHashChecked) {
+            const hash = typeof window !== 'undefined' ? window.location.hash : '';
+
+            if (hash && hash.startsWith('#atividade-')) {
+                const activityIdFromHash = parseInt(hash.replace('#atividade-', ''), 10);
+                const targetActivity = atividades.find(a => a.id_atividade === activityIdFromHash);
+
+                if (targetActivity && targetActivity.data_atividade?.length > 0) {
+                    const date = new Date(targetActivity.data_atividade[0].data);
+                    const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+                    if (dates.includes(formattedDate)) {
+                        setSelectedDate(formattedDate);
+                        setInitialHashChecked(true);
+                        return;
+                    }
+                }
+            }
+
             setSelectedDate(dates[0]);
+            setInitialHashChecked(true);
         }
-    }, [dates, selectedDate]);
+    }, [dates, atividades, initialHashChecked]);
 
     const filteredAtividades = useMemo(() => {
         if (!selectedDate) return [];

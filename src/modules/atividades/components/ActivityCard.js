@@ -1,13 +1,15 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { PiUsersFourDuotone, PiWarningDuotone, PiUserPlusDuotone, PiUserMinusDuotone } from 'react-icons/pi';
+import { PiUsersFourDuotone, PiWarningDuotone, PiUserPlusDuotone, PiUserMinusDuotone, PiQrCodeDuotone, PiShareNetworkDuotone } from 'react-icons/pi';
+import { useAlerta } from '@/shared/contexts/AlertContext';
 import { darkenColor, calculateVacancyInfo } from './activityCardUtils';
 import ActivityCardHeader from './ActivityCardHeader';
 import ActivityCardDetails from './ActivityCardDetails';
 import SpeakersList from './SpeakersList';
 
-export default function ActivityCard({ atividade, evento, isRegistered, onParticipar, conflictError, usuario }) {
+export default function ActivityCard({ atividade, evento, isRegistered, onParticipar, onScan, conflictError, usuario }) {
     const router = useRouter();
+    const { mostrarAlerta } = useAlerta();
 
     // Calculate vacancy info
     const vacancyInfo = calculateVacancyInfo(atividade);
@@ -63,8 +65,48 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
 
     const buttonConfig = getButtonConfig();
 
+    const handleShare = async () => {
+        const url = `${window.location.origin}${window.location.pathname}#atividade-${atividade.id_atividade}`;
+
+        let dateTimeStr = 'Data a definir';
+        if (atividade.data_atividade && atividade.data_atividade.length > 0) {
+            const sessions = atividade.data_atividade.map(da => {
+                const date = new Date(da.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+                const time = new Date(da.hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
+                return `${date} às ${time}`;
+            });
+            dateTimeStr = sessions.join(' / ');
+        }
+
+        const shareText = `Evento: ${evento.nome}\nAtividade: ${atividade.nome}\nData e hora: ${dateTimeStr}\nLink: ${url}`;
+
+        const shareData = {
+            title: `Atividade: ${atividade.nome}`,
+            text: shareText
+            // Omitting 'url' property here because it's already cleanly placed inside the 'text' property. 
+            // Some mobile apps duplicate the link if both are provided.
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                // Fallback to clipboard
+                await navigator.clipboard.writeText(shareText);
+                mostrarAlerta('success', 'Informações copiadas para a área de transferência!');
+            }
+        } catch (error) {
+            console.error('Error sharing:', error);
+            // Ignore AbortError when user dismisses the share sheet
+            if (error.name !== 'AbortError') {
+                mostrarAlerta('error', 'Não foi possível compartilhar a atividade.');
+            }
+        }
+    };
+
     return (
         <div
+            id={`atividade-${atividade.id_atividade}`}
             className={`card bg-base-100 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden ${registered ? 'ring-4' : ''
                 }`}
             style={{
@@ -83,9 +125,16 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
 
             {/* Card Body */}
             <div className="card-body p-6">
-                {/* Action Button */}
+                {/* Action Buttons */}
                 {usuario && (
-                    <div className="flex justify-end -mt-11 z-10 mb-2">
+                    <div className="flex justify-end -mt-11 z-10 mb-2 gap-2">
+                        <button
+                            className="btn btn-sm md:btn-md btn-circle bg-base-100 shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl hover:text-primary"
+                            onClick={handleShare}
+                            title="Compartilhar Atividade"
+                        >
+                            <PiShareNetworkDuotone className="w-5 h-5" />
+                        </button>
                         <button
                             className={`btn btn-sm md:btn-md rounded-full shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl px-3 md:px-5 gap-1 md:gap-2 ${buttonConfig.className}`}
                             style={!buttonConfig.disabled && !registered ? {
@@ -105,15 +154,24 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
                         </button>
                     </div>
                 )}
-                {/* Admin Button */}
+                {/* Admin Buttons */}
                 {isAdminOrAux && (
-                    <button
-                        className="btn btn-outline btn-sm mb-4 hover:scale-102 transition-transform"
-                        style={{ borderColor: corSecundaria, color: corSecundaria }}
-                        onClick={() => router.push(`/${evento.slug}/programacao/${atividade.id_atividade}/participantes`)}
-                    >
-                        <PiUsersFourDuotone className="w-4 h-4" /> Ver Inscritos ({totalRegistered})
-                    </button>
+                    <div className="flex flex-col gap-2 mb-4">
+                        <button
+                            className="btn btn-outline btn-sm hover:scale-102 transition-transform"
+                            style={{ borderColor: corSecundaria, color: corSecundaria }}
+                            onClick={() => router.push(`/${evento.slug}/programacao/${atividade.id_atividade}/participantes`)}
+                        >
+                            <PiUsersFourDuotone className="w-4 h-4" /> Ver Inscritos ({totalRegistered})
+                        </button>
+
+                        <button
+                            className="btn btn-primary btn-sm hover:scale-102 transition-transform"
+                            onClick={() => onScan && onScan(atividade)}
+                        >
+                            <PiQrCodeDuotone className="w-4 h-4" /> Ler QR Code
+                        </button>
+                    </div>
                 )}
 
                 {/* Observation Warning */}

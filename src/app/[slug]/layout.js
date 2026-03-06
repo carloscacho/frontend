@@ -35,7 +35,10 @@ export default async function EventLayout({ children, params }) {
                 <footer className="footer footer-center p-10 bg-base-200 text-base-content rounded">
                     <aside>
                         <img width={150} src="https://projetosifms.com.br/sct2025/imagens/logoifmspp.png" alt="" />
-                        <p>Desenvolvido por <a href="https://github.com/carloscacho" target="_blank" rel="noopener noreferrer">Carlos Emilio de Andrade Cacho</a></p>
+                        <p>Desenvolvido por:<br/> <a href="https://github.com/carloscacho" target="_blank" rel="noopener noreferrer">Carlos Emilio de Andrade Cacho</a>
+                        <br/>
+                        Marlom Marsal Marques
+                        </p>
                         <p>© {new Date().getFullYear()} IFMS - Instituto Federal de Mato Grosso do Sul</p>
                     </aside>
                 </footer>
