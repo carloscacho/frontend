@@ -6,7 +6,7 @@ export default function EventHeader({ evento }) {
             <h1 className="text-3xl font-bold uppercase text-primary mb-2">
                 {evento.nome}
             </h1>
-            <p className="text-lg">Faça login para se inscrever no evento</p>
+            <p className="text-lg">Faça login se estiver inscrito no evento</p>
         </div>
     );
 }

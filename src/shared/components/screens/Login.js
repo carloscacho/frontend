@@ -3,9 +3,12 @@ import { useState } from 'react';
 import { useAuth } from '@/shared/contexts/AuthContext'
 import Card from '../displays/Card'
 import Button from '@/shared/components/utils/Button';
+import { useRouter, useParams } from 'next/navigation';
 
 export default function Login({ redirectPath }) {
-  const { login, setSingupOpen } = useAuth()
+  const { login } = useAuth()
+  const router = useRouter();
+  const { slug } = useParams();
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [error, setError] = useState('')
@@ -20,13 +23,10 @@ export default function Login({ redirectPath }) {
   }
 
   return (
-    <div className='flex justify-center center-content pt-20'>
-      <div className="lg:w-1/4 w-2/3">
-        <Card>
-
-          <div className="flex justify-between">
-            <h2 className="text-4xl font-bold">Login</h2>
-          </div>
+    <div className="max-w-md mx-auto py-8 px-4 w-full">
+      <div className="card bg-base-100 shadow-xl border border-base-200">
+        <div className="card-body">
+          <h2 className="card-title justify-center mb-6 text-3xl font-bold uppercase text-primary">Login</h2>
 
           {error && (
             <div className="alert alert-error mt-4">
@@ -35,7 +35,7 @@ export default function Login({ redirectPath }) {
             </div>
           )}
 
-          <div className="mt-6">
+          <div className="mt-4">
             <div>
               <label className="label">
                 <span className="label-text">Email</span>
@@ -44,22 +44,29 @@ export default function Login({ redirectPath }) {
                 value={email} onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <div>
+            <div className="mt-2">
               <label className="label">
                 <span className="label-text">Senha</span>
               </label>
               <input type="password" placeholder="senha" className="input input-bordered w-full"
                 value={senha} onChange={(e) => setSenha(e.target.value)}
               />
+              <div className="text-right mt-1">
+                <a href="#" className="link link-hover text-sm text-primary">Esqueci minha senha</a>
+              </div>
             </div>
           </div>
+
           <div className="mt-6">
             <Button onClick={handleLogin} color="primary" mode="" className="btn-block m-0">Entrar</Button>
           </div>
-          <div className="mt-6">
-            <Button onClick={() => setSingupOpen(true)} color="secondary" mode="" className="btn-block m-0">Cadastrar</Button>
+
+          <div className="divider my-4">Ainda não está inscrito?</div> 
+
+          <div className="mt-2">
+            <Button onClick={() => router.push(`/${slug}/inscricao`)} color="secondary" mode="outline" className="btn-block m-0">Inscreva-se no Evento</Button>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

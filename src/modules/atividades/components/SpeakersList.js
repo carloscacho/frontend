@@ -17,7 +17,7 @@ export default function SpeakersList({ speakers, corSecundaria }) {
 
     const SpeakerItem = ({ palestrante, isMobile = false }) => (
         <div
-            className="flex items-center justify-between gap-2 bg-base-200 rounded-lg px-3 py-2 text-sm hover:bg-base-300 transition-colors"
+            className="flex items-center justify-between gap-2 bg-base-200 text-sm md:text-md rounded-lg px-3 py-2 hover:bg-base-300 transition-colors"
             title={palestrante.nome}
         >
             <span className={`font-medium ${isMobile ? 'truncate' : ''}`}>
@@ -38,7 +38,7 @@ export default function SpeakersList({ speakers, corSecundaria }) {
         <div>
             <div className="flex items-center gap-2 mb-3">
                 <span className="text-gray-500"><PiMicrophoneDuotone className="w-5 h-5" /></span>
-                <span className="font-semibold text-sm">Ministrado por:</span>
+                <span className="font-semibold text-sm md:text-lg">Ministrado por:</span>
             </div>
 
             {/* Desktop: Show all speakers */}

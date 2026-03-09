@@ -178,7 +178,7 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
                 {atividade.observacao && (
                     <div className="alert alert-warning mb-4 py-2">
                         <PiWarningDuotone className="w-5 h-5" />
-                        <span className="text-sm">{atividade.observacao}</span>
+                        <span className="text-sm md:text-lg">{atividade.observacao}</span>
                     </div>
                 )}
 

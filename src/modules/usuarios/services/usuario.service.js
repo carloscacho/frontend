@@ -19,5 +19,15 @@ export const usuarioService = {
     async checkCpf(cpf) {
         const res = await API.post(`/usuario/teste-cpf`, { cpf });
         return res.data;
+    },
+
+    async checkRegistration(cpf, eventId) {
+        const res = await API.get(`/usuario/check-registration/${cpf}/evento/${eventId}`);
+        return res.data;
+    },
+
+    async registerAndSubscribe(data) {
+        const res = await API.post(`/usuario/register-and-subscribe`, data);
+        return res.data;
     }
 };

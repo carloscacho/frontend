@@ -55,10 +55,21 @@ API.interceptors.response.use(
         // If error is 401 and we haven't tried to refresh yet
         if (error.response?.status === 401 && !originalRequest._retry) {
 
-            // Don't try to refresh if this is already a refresh request
-            if (originalRequest.url?.includes('/auth/refresh')) {
-                console.error('[API] Refresh token expired - logging out');
-                performLogout();
+            // Don't try to refresh if this is a login, registration, or refresh request itself
+            const skipRefreshUrls = ['/auth/refresh', '/auth/login', '/usuario/register-and-subscribe'];
+            const shouldSkipRefresh = skipRefreshUrls.some(url => originalRequest.url?.includes(url));
+
+            if (shouldSkipRefresh) {
+                // If it's a refresh request itself, we should log out. Otherwise, just return the 401 to the component.
+                if (originalRequest.url?.includes('/auth/refresh')) {
+                    console.error('[API] Refresh token expired - logging out');
+                    performLogout();
+                }
+                return Promise.reject(error);
+            }
+
+            // Also don't try to refresh if we don't have a token to begin with
+            if (!Cookies.get('usuarioData')) {
                 return Promise.reject(error);
             }
 

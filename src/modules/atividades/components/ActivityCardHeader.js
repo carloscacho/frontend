@@ -17,14 +17,14 @@ export default function ActivityCardHeader({
         >
             {/* Activity Type Badge */}
             {atividade.descricao && (
-                <span className="absolute top-3 left-3 bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1 rounded-full">
+                <span className="absolute top-3 left-3 bg-white/20 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-full">
                     {atividade.descricao}
                 </span>
             )}
 
             {/* Registered Badge */}
             {registered && (
-                <span className="absolute top-3 right-6 bg-green-500 text-white text-xs md:text-sm font-bold px-2 md:px-3 py-1 rounded-full flex items-center gap-1">
+                <span className="absolute top-3 right-6 bg-green-500 text-white font-bold px-2 md:px-3 py-1 rounded-full flex items-center gap-1">
                     ✓ Inscrito
                 </span>
             )}
