@@ -2,46 +2,29 @@
 import { useAlerta } from '@/shared/contexts/AlertContext';
 
 export default function Alert() {
-  const { alerta } = useAlerta();
+  const { alertas } = useAlerta();
 
-  if (!alerta) return null;
+  if (!alertas || alertas.length === 0) return null;
 
-  switch (alerta.tipo) {
-    case 'info':
-      return (
-        <div role="alert" className="alert alert-info slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
-    case 'success':
-      return (
-        <div role="alert" className="alert alert-success slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
+  return (
+    <div className="toast toast-top toast-end z-[9999]">
+      {alertas.map((alerta) => {
+        let alertClass = 'alert-info';
 
-    case 'warning':
-      return (
-        <div role="alert" className="alert alert-warning slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
+        switch (alerta.tipo) {
+          case 'success': alertClass = 'alert-success'; break;
+          case 'warning': alertClass = 'alert-warning'; break;
+          case 'error': alertClass = 'alert-error'; break;
+          case 'info':
+          default: alertClass = 'alert-info'; break;
+        }
 
-    case 'error':
-      return (
-        <div role="alert" className="alert alert-error slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
-
-    default:
-
-      return (
-        <div role="alert" className="alert alert-info slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
-
-  }
-
+        return (
+          <div key={alerta.id} role="alert" className={`alert ${alertClass} shadow-lg slide-bottom`}>
+            <span>{alerta.msg}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
