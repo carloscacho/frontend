@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import Card from '@/shared/components/displays/Card';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LoginForm({ redirectPath }) {
     const { login } = useAuth();
@@ -51,7 +52,7 @@ export default function LoginForm({ redirectPath }) {
                                 value={senha} onChange={(e) => setSenha(e.target.value)}
                             />
                             <div className="text-right mt-1">
-                                <a href="#" className="link link-hover text-sm text-primary">Esqueci minha senha</a>
+                                <Link href={`/${slug}/recoverpass`} className="link link-hover text-sm text-primary">Esqueci minha senha</Link>
                             </div>
                         </div>
                     </div>

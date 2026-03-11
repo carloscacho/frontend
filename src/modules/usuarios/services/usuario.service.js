@@ -29,5 +29,15 @@ export const usuarioService = {
     async registerAndSubscribe(data) {
         const res = await API.post(`/usuario/register-and-subscribe`, data);
         return res.data;
+    },
+
+    async requestPasswordReset(data) {
+        const res = await API.post(`/usuario/request-password-reset`, data);
+        return res.data;
+    },
+
+    async resetPassword(data) {
+        const res = await API.post(`/usuario/reset-password`, data);
+        return res.data;
     }
 };
