@@ -2,46 +2,43 @@
 import { useAlerta } from '@/shared/contexts/AlertContext';
 
 export default function Alert() {
-  const { alerta } = useAlerta();
+  const { alertas } = useAlerta();
 
-  if (!alerta) return null;
+  if (!alertas || alertas.length === 0) return null;
 
-  switch (alerta.tipo) {
-    case 'info':
-      return (
-        <div role="alert" className="alert alert-info slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
-    case 'success':
-      return (
-        <div role="alert" className="alert alert-success slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
+  return (
+    <div className="toast toast-top toast-end z-[9999]">
+      {alertas.map((alerta) => {
+        let alertClass = 'alert-info';
+        let alertIcon = null;
 
-    case 'warning':
-      return (
-        <div role="alert" className="alert alert-warning slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
+        switch (alerta.tipo) {
+          case 'success':
+            alertClass = 'alert-success';
+            alertIcon = <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+            break;
+          case 'warning':
+            alertClass = 'alert-warning';
+            alertIcon = <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>;
+            break;
+          case 'error':
+            alertClass = 'alert-error';
+            alertIcon = <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+            break;
+          case 'info':
+          default:
+            alertClass = 'alert-info';
+            alertIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="h-6 w-6 shrink-0 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>;
+            break;
+        }
 
-    case 'error':
-      return (
-        <div role="alert" className="alert alert-error slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
-
-    default:
-
-      return (
-        <div role="alert" className="alert alert-info slide-bottom pos-abs z-40">
-          <span>{alerta.msg}</span>
-        </div>
-      )
-
-  }
-
+        return (
+          <div key={alerta.id} role="alert" className={`alert ${alertClass} shadow-lg slide-bottom`}>
+            {alertIcon}
+            <span>{alerta.msg}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
