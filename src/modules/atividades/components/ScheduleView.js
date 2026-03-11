@@ -96,6 +96,13 @@ export default function ScheduleView({ atividades, evento }) {
                     </div>
                 )}
             </div>
+            <div className="flex justify-center mt-8 w-full overflow-x-auto">
+                <DateTabs
+                    dates={dates}
+                    selectedDate={selectedDate}
+                    onSelectDate={setSelectedDate}
+                />
+            </div>
 
             <QrScannerModal
                 refModal={scannerModalRef}
