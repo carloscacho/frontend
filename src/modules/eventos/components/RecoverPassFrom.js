@@ -1,48 +1,24 @@
 'use client'
 import Button from "@/shared/components/utils/Button"
 import Input from "@/shared/components/utils/Input"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { useState } from "react"
-import { useAlerta } from "@/shared/contexts/AlertContext"
+import { usePasswordRecovery } from "@/modules/eventos/hooks/usePasswordRecovery"
 
 export default function RecoverPassFrom({ redirectPath }) {
     const router = useRouter();
+    const { slug } = useParams();
     const [cpf, setCpf] = useState('')
     const [email, setEmail] = useState('')
-    const [loading, setLoading] = useState(false)
-    const { mostrarAlerta } = useAlerta()
+
+    const { requestPasswordReset, loading } = usePasswordRecovery(slug);
 
     const handleRecover = async () => {
-        if (!cpf && !email) {
-            mostrarAlerta('error', 'Por favor, informe seu CPF ou Email.')
-            return
-        }
+        const cpfOrEmail = cpf || email;
+        const success = await requestPasswordReset(cpfOrEmail);
 
-        setLoading(true)
-        try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455'
-            const resetUrlPrefix = `${window.location.origin}${window.location.pathname}/reset`
-
-            const res = await fetch(`${apiUrl}/usuario/request-password-reset`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    cpfOrEmail: cpf || email,
-                    resetUrlPrefix
-                }),
-            })
-
-            const data = await res.json()
-
-            if (!res.ok) {
-                throw new Error(data.message || 'Erro ao solicitar recuperação de senha.')
-            }
-
-            mostrarAlerta('success', data.message || 'E-mail de recuperação enviado com sucesso!')
-        } catch (error) {
-            mostrarAlerta('error', error.message)
-        } finally {
-            setLoading(false)
+        if (success) {
+            router.push(redirectPath);
         }
     }
 

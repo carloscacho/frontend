@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
-import { useAlerta } from '@/shared/contexts/AlertContext';
 import Button from '@/shared/components/utils/Button';
 import Input from '@/shared/components/utils/Input';
+import { usePasswordRecovery } from '@/modules/eventos/hooks/usePasswordRecovery';
 
 export default function ResetPasswordForm() {
     const router = useRouter();
@@ -13,55 +13,11 @@ export default function ResetPasswordForm() {
 
     const [novaSenha, setNovaSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
-    const [loading, setLoading] = useState(false);
-    const { mostrarAlerta } = useAlerta();
+
+    const { resetPassword, loading } = usePasswordRecovery(slug);
 
     const handleReset = async () => {
-        if (!token) {
-            mostrarAlerta('error', 'Token de recuperação inválido ou ausente.');
-            return;
-        }
-
-        if (novaSenha !== confirmarSenha) {
-            mostrarAlerta('error', 'As senhas não coincidem.');
-            return;
-        }
-
-        if (novaSenha.length < 6) {
-            mostrarAlerta('error', 'A nova senha deve ter no mínimo 6 caracteres.');
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
-
-            const res = await fetch(`${apiUrl}/usuario/reset-password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    token,
-                    newPassword: novaSenha
-                }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.message || 'Erro ao redefinir a senha.');
-            }
-
-            mostrarAlerta('success', 'Senha redefinida com sucesso! Redirecionando para o login...');
-
-            setTimeout(() => {
-                router.push(`/${slug}/login`);
-            }, 3000);
-
-        } catch (error) {
-            mostrarAlerta('error', error.message);
-        } finally {
-            setLoading(false);
-        }
+        await resetPassword(token, novaSenha, confirmarSenha);
     };
 
     if (!token) {
