@@ -4,6 +4,7 @@ import { useAuth } from '@/shared/contexts/AuthContext';
 import Card from '@/shared/components/displays/Card';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import Input from '@/shared/components/utils/Input';
 
 export default function LoginForm({ redirectPath }) {
     const { login } = useAuth();
@@ -26,7 +27,7 @@ export default function LoginForm({ redirectPath }) {
         <div className="max-w-md mx-auto py-8 px-4 w-full">
             <div className="card bg-base-100 shadow-xl border border-base-200">
                 <div className="card-body">
-                    <h2 className="card-title justify-center mb-6 text-3xl font-bold uppercase text-primary">Login</h2>
+                    <h2 className="card-title justify-center mb-6 text-xl font-bold uppercase text-primary">Login</h2>
 
                     {error && (
                         <div className="alert alert-error mt-4">
@@ -36,24 +37,18 @@ export default function LoginForm({ redirectPath }) {
                     )}
 
                     <div className="mt-4">
-                        <div>
-                            <label className="label">
-                                <span className="label-text">Email</span>
-                            </label>
-                            <input type="text" placeholder="email" className="input input-bordered w-full"
-                                value={email} onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-                        <div className="mt-2">
-                            <label className="label">
-                                <span className="label-text">Senha</span>
-                            </label>
-                            <input type="password" placeholder="senha" className="input input-bordered w-full"
-                                value={senha} onChange={(e) => setSenha(e.target.value)}
-                            />
-                            <div className="text-right mt-1">
-                                <Link href={`/${slug}/recoverpass`} className="link link-hover text-sm text-primary">Esqueci minha senha</Link>
-                            </div>
+                        <Input
+                            label="Email"
+                            value={email}
+                            onChange={setEmail}
+                        />
+                        <Input
+                            label="Senha"
+                            value={senha}
+                            onChange={setSenha}
+                        />
+                        <div className="text-right mt-1">
+                            <Link href={`/${slug}/recoverpass`} className="link link-hover text-sm text-primary">Esqueci minha senha</Link>
                         </div>
                     </div>
 

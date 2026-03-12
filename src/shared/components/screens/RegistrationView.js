@@ -144,7 +144,7 @@ export default function RegistrationView({ evento }) {
                 <h1 className="text-3xl font-bold text-center mb-8 uppercase text-primary">Inscrição - {evento.nome}</h1>
                 <div className="card bg-base-100 shadow-xl border border-base-200">
                     <div className="card-body">
-                        <h2 className="card-title justify-center mb-4">Verificação de Cadastro</h2>
+                        <h2 className="card-title justify-center mb-6 text-xl font-bold uppercase text-primary">Verificação de Cadastro</h2>
                         <p className="text-center mb-4">Informe seu CPF para iniciar a inscrição.</p>
                         <Input
                             label="CPF"
@@ -215,7 +215,7 @@ export default function RegistrationView({ evento }) {
                             <div className="divider">Confirmação de Identidade</div>
                             <Input label="Senha Atual" type="password" value={userData.senhaAtual} onChange={(v) => updateField('senhaAtual', v)} placeholder="Para atualizar seus dados, insira sua senha" />
                             <div className="text-right mt-1">
-                                <a href={`/${evento.slug}/login`} className="link link-hover text-sm text-primary">Esqueci minha senha</a>
+                                <a href={`/${evento.slug}/recoverpass`} className="link link-hover text-sm text-primary">Esqueci minha senha</a>
                             </div>
                         </>
                     ) : (
@@ -227,11 +227,11 @@ export default function RegistrationView({ evento }) {
                     )}
 
                     <div className="mt-6 flex flex-col gap-3">
-                        <Button onClick={handleRegisterAndSubscribe} color="primary" className="btn-block m-0" disabled={loading}>
+                        <Button onClick={handleRegisterAndSubscribe} color="primary" mode="primary" className="btn-block m-0" disabled={loading}>
                             {loading ? <LoadingSpinner /> : 'Finalizar Inscrição'}
                         </Button>
-                        <Button onClick={() => setStep('check_cpf')} color="error" className="btn-block m-0" disabled={loading}>
-                            Volar
+                        <Button onClick={() => setStep('check_cpf')} color="error" mode="outline" className="btn-block m-0" disabled={loading}>
+                            Voltar
                         </Button>
                     </div>
                 </div>

@@ -1,11 +1,8 @@
 'use client'
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
-import QRCode from 'react-qr-code';
+import { useState, useRef } from 'react';
 import { useAlerta } from '@/shared/contexts/AlertContext';
-import Cookies from 'js-cookie';
-import Modal from '@/shared/components/displays/Modal';
 import { useMinhaArea } from '@/modules/usuarios/hooks/useMinhaArea';
 
 // Components
@@ -16,7 +13,7 @@ import ChangePasswordModal from '@/modules/usuarios/components/ChangePasswordMod
 import LoadingSpinner from '@/shared/components/displays/LoadingSpinner';
 
 export default function MinhaAreaPage() {
-    const { usuario, updateProfile, changePassword, logout } = useAuth();
+    const { usuario, changePassword, logout } = useAuth();
     const { mostrarAlerta } = useAlerta();
     const router = useRouter();
     const params = useParams();
@@ -28,15 +25,6 @@ export default function MinhaAreaPage() {
     const updateModalRef = useRef(null);
     const passwordModalRef = useRef(null);
 
-    // Update info form state
-    const [updateForm, setUpdateForm] = useState({
-        nome: '',
-        email: '',
-        instituicao: '',
-        comunidade: '',
-        ra: ''
-    });
-
     // Password form state
     const [passwordForm, setPasswordForm] = useState({
         senhaAtual: '',
@@ -44,46 +32,16 @@ export default function MinhaAreaPage() {
         confirmarSenha: ''
     });
 
-    useEffect(() => {
-        if (!usuario) {
+    if (loading) {
+        return <LoadingSpinner fullScreen={true} />;
+    }
+
+    if (!usuario) {
+        if (typeof window !== 'undefined') {
             router.push(`/${slug}/login`);
-            return;
         }
-
-        // Initialize update form with current user data
-        setUpdateForm({
-            nome: usuario.nome || '',
-            email: usuario.email || '',
-            instituicao: usuario.instituicao || '',
-            comunidade: usuario.comunidade || '',
-            ra: usuario.ra || ''
-        });
-    }, [usuario, slug, router]);
-
-    const handleUpdateInfo = async () => {
-        try {
-            // Prepare payload with correct types
-            const payload = {
-                ...updateForm,
-                ra: updateForm.ra ? parseInt(updateForm.ra) : null,
-                instituicao: updateForm.instituicao || null,
-                comunidade: updateForm.comunidade || null
-            };
-
-            await updateProfile(payload);
-
-            // Close modal
-            if (updateModalRef.current) {
-                updateModalRef.current.close();
-            }
-
-            // Reload page to reflect changes
-            setTimeout(() => window.location.reload(), 1000);
-        } catch (error) {
-            console.error('Update error:', error);
-            // Error is already handled in context
-        }
-    };
+        return null;
+    }
 
     const handleChangePassword = async () => {
         // Validation
@@ -114,14 +72,6 @@ export default function MinhaAreaPage() {
         }
     };
 
-    if (loading) {
-        return <LoadingSpinner fullScreen={true} />;
-    }
-
-    if (!usuario) {
-        return null;
-    }
-
     const participanteId = usuario.participante?.[0]?.id_participante;
 
     const onClosePasswordModal = () => {
@@ -150,9 +100,7 @@ export default function MinhaAreaPage() {
 
             <UpdateInfoModal
                 refModal={updateModalRef}
-                updateForm={updateForm}
-                setUpdateForm={setUpdateForm}
-                handleUpdateInfo={handleUpdateInfo}
+                evento={evento}
             />
 
             <ChangePasswordModal

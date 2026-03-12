@@ -26,7 +26,7 @@ export default function RecoverPassFrom({ redirectPath }) {
         <div className="max-w-md mx-auto py-8 px-4 w-full">
             <div className="card bg-base-100 shadow-xl border border-base-200">
                 <div className="card-body">
-                    <h2 className="card-title justify-center mb-6 text-3xl font-bold uppercase text-primary">Recuperar Senha</h2>
+                    <h2 className="card-title justify-center mb-6 text-xl font-bold uppercase text-primary">Recuperar Senha</h2>
                     <p className="text-center mb-6">Digite seu CPF ou Email para recuperar sua senha</p>
                     <div className="mt-4">
                         <Input

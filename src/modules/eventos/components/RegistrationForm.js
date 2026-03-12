@@ -46,7 +46,7 @@ export default function RegistrationForm() {
             <div className="lg:w-1/4 w-2/3">
                 <Card>
                     <div className="flex justify-between">
-                        <h2 className="text-4xl font-bold">Cadastro</h2>
+                        <h2 className="card-title justify-center mb-6 text-xl font-bold uppercase text-primary">Cadastro</h2>
                     </div>
 
                     {error && (
