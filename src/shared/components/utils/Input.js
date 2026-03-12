@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { GoEyeClosed, GoEye } from "react-icons/go";
 
 export default function Input({ label, placeholder, value, onChange, type, badge, badgeColor }) {
+  const isPasswordType = type === 'password';
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="relative w-full my-3 py-0.5">
@@ -11,7 +14,7 @@ export default function Input({ label, placeholder, value, onChange, type, badge
         placeholder=" "
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
-        type={type}
+        type={isPasswordType ? (showPassword ? 'text' : 'password') : type}
       />
       <label
         htmlFor={label}
@@ -23,6 +26,20 @@ export default function Input({ label, placeholder, value, onChange, type, badge
       >
         {label}
       </label>
+      
+      {isPasswordType && (
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary focus:outline-none"
+        >
+          {showPassword ? (
+             <GoEye size={24} />
+          ) : (
+             <GoEyeClosed size={24} />
+          )}
+        </button>
+      )}
     </div>
 
 

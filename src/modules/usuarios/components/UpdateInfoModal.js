@@ -1,7 +1,8 @@
 import Modal from '@/shared/components/displays/Modal';
 
 export default function UpdateInfoModal({ refModal, evento }) {
-    const nomeResponsavel = evento?.usuario?.nome || 'Administrador do Evento';
+    const nomeResponsavel = evento?.usuario_responsavel?.nome || 'Administrador do Evento';
+    const emailResponsavel = evento?.usuario_responsavel?.email;
 
     return (
         <Modal refModal={refModal}>
@@ -15,6 +16,11 @@ export default function UpdateInfoModal({ refModal, evento }) {
                 <div className="bg-base-200 p-4 rounded-lg border border-base-300">
                     <h4 className="font-semibold text-base-content mb-2">Responsável pelo evento:</h4>
                     <p className="font-medium">{nomeResponsavel}</p>
+                    {emailResponsavel && (
+                        <p className="text-sm mt-1">
+                            Email: <a href={`mailto:${emailResponsavel}`} className="link link-primary">{emailResponsavel}</a>
+                        </p>
+                    )}
                 </div>
 
                 <div className="divider">OU</div>

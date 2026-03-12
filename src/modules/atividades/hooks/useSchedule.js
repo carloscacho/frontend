@@ -95,6 +95,7 @@ export function useSchedule(atividades, evento) {
                     const endTime = new Date(session.duracao).toLocaleTimeString('en-GB');
                     registeredSessions.push({
                         activityName: activity.nome,
+                        activityId: activity.id_atividade,
                         start: new Date(`${sessionDate}T${startTime}`),
                         end: new Date(`${sessionDate}T${endTime}`)
                     });
@@ -111,7 +112,7 @@ export function useSchedule(atividades, evento) {
 
             for (const registeredSession of registeredSessions) {
                 if (newStart < registeredSession.end && newEnd > registeredSession.start) {
-                    return registeredSession.activityName;
+                    return { name: registeredSession.activityName, id: registeredSession.activityId };
                 }
             }
         }
@@ -143,9 +144,22 @@ export function useSchedule(atividades, evento) {
             }
 
             if (!registered) {
-                const conflictName = checkTimeConflict(atividade);
-                if (conflictName) {
-                    setConflictErrors(prev => ({ ...prev, [atividade.id_atividade]: `Conflito de horário com: ${conflictName}` }));
+                const conflict = checkTimeConflict(atividade);
+                if (conflict) {
+                    setConflictErrors(prev => ({ 
+                        ...prev, 
+                        [atividade.id_atividade]: (
+                            <span>
+                                Conflito de horário com a atividade:{' '}
+                                <a 
+                                    href={`#atividade-${conflict.id}`}
+                                    className="underline hover:text-red-900"
+                                >
+                                    {conflict.name}
+                                </a>
+                            </span>
+                        )
+                    }));
                     return;
                 }
             }

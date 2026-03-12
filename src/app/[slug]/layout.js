@@ -2,6 +2,7 @@ import EventNavbar from "@/shared/components/navigation/EventNavbar"
 import EventBanner from "@/shared/components/displays/EventBanner"
 import { NavigationLoadingProvider } from "@/shared/contexts/NavigationLoadingContext"
 import logoIFMS from "@/assets/logoifmspp.png"
+import Image from "next/image"
 
 import { eventoService } from "@/modules/eventos/services/evento.service";
 
@@ -34,10 +35,10 @@ export default async function EventLayout({ children, params }) {
                 {/* Footer */}
                 <footer className="footer footer-center p-10 bg-base-200 text-base-content rounded">
                     <aside>
-                        <img width={150} src="https://projetosifms.com.br/sct2025/imagens/logoifmspp.png" alt="" />
-                        <p>Desenvolvido por:<br/> <a href="https://github.com/carloscacho" target="_blank" rel="noopener noreferrer">Carlos Emilio de Andrade Cacho</a>
-                        <br/>
-                        Marlom Marsal Marques
+                        <Image width={200} src={logoIFMS} alt="Logo IFMS campus Ponta Porã" />
+                        <p>Desenvolvido por:<br /> <a href="https://github.com/carloscacho" target="_blank" rel="noopener noreferrer">Carlos Emilio de Andrade Cacho</a>
+                            <br />
+                            Marlom Marsal Marques
                         </p>
                         <p>© {new Date().getFullYear()} IFMS - Instituto Federal de Mato Grosso do Sul</p>
                     </aside>

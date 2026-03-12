@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import Input from "@/shared/components/utils/Input";
 import Button from "@/shared/components/utils/Button";
 import InputColor from "@/shared/components/utils/InputColor";
+import SingleSelect from "@/shared/components/utils/SingleSelect";
 import { useModal } from "@/shared/contexts/ModalContext";
 import { formatDateToISO } from "@/shared/utils/dateUtils";
+import { usuarioService } from "@/modules/usuarios/services/usuario.service";
 
 export default function Eventos({ onClickSalvar, onClickCancelar, initialData }) {
     const [nome, setNome] = useState("")
@@ -16,8 +18,14 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
     const [banner, setBanner] = useState("")
     const [corPrimaria, setCorPrimaria] = useState("")
     const [corSecundaria, setCorSecundaria] = useState("")
+    const [usuarioResponsavel, setUsuarioResponsavel] = useState(null)
+    const [usuariosOptions, setUsuariosOptions] = useState([])
 
     const { refMd } = useModal()
+
+    React.useEffect(() => {
+        usuarioService.getAll().then(setUsuariosOptions).catch(console.error);
+    }, []);
 
     React.useEffect(() => {
         if (initialData) {
@@ -31,6 +39,7 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
             setBanner(initialData.banner || "")
             setCorPrimaria(initialData.cor_primaria || "")
             setCorSecundaria(initialData.cor_secundaria || "")
+            setUsuarioResponsavel(initialData.usuario_responsavel || (initialData.fk_usuario_responsavel ? { id_usuario: initialData.fk_usuario_responsavel } : null))
         } else {
             setNome("")
             setAno(new Date().getFullYear())
@@ -42,6 +51,7 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
             setBanner("")
             setCorPrimaria("")
             setCorSecundaria("")
+            setUsuarioResponsavel(null)
         }
     }, [initialData])
 
@@ -134,6 +144,15 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
 
             />
 
+            <SingleSelect
+                label="Responsável pelo Evento:"
+                options={usuariosOptions}
+                value={usuarioResponsavel}
+                onChange={setUsuarioResponsavel}
+                valueKey="id_usuario"
+                labelKey="nome"
+            />
+
             <div className="btns w-full flex justify-end mt-2">
                 <Button onClick={() => {
                     const formData = new FormData();
@@ -146,6 +165,11 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
                     formData.append('base_url', baseUrl);
                     formData.append('cor_primaria', corPrimaria);
                     formData.append('cor_secundaria', corSecundaria);
+                    if (usuarioResponsavel) {
+                        formData.append('fk_usuario_responsavel', usuarioResponsavel.id_usuario);
+                    } else {
+                        formData.append('fk_usuario_responsavel', 'null');
+                    }
 
                     if (banner instanceof File) {
                         formData.append('banner', banner);

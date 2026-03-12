@@ -21,7 +21,7 @@ export default function RegistrationView({ evento }) {
     const [userData, setUserData] = useState({
         nome: '', email: '', cpf: '',
         senha: '', confSenha: '', senhaAtual: '',
-        tipo: 1, ra: '', siape: '', instituicao: ''
+        vinculo: 1, ra: '', siape: '', instituicao: ''
     });
     const [isExistingUser, setIsExistingUser] = useState(false);
 
@@ -66,7 +66,7 @@ export default function RegistrationView({ evento }) {
                     ...userData,
                     ...data.user,
                     cpf: cpfInput,
-                    tipo: data.user.tipo || 1,
+                    vinculo: data.user.vinculo || 1,
                     ra: data.user.ra || '',
                     siape: data.user.siape || '',
                     instituicao: data.user.instituicao || '',
@@ -78,7 +78,7 @@ export default function RegistrationView({ evento }) {
                 setUserData({
                     nome: '', email: '',
                     senha: '', confSenha: '', senhaAtual: '',
-                    tipo: 1, ra: '', siape: '', instituicao: '',
+                    vinculo: 1, ra: '', siape: '', instituicao: '',
                     cpf: cpfInput
                 });
                 setStep('registration_form');
@@ -114,9 +114,9 @@ export default function RegistrationView({ evento }) {
                 cpf: userData.cpf.replace(/\D/g, ''),
                 senha: userData.senha || undefined,
                 senhaAtual: userData.senhaAtual || undefined,
-                tipo: Number(userData.tipo),
-                ra: userData.tipo == 1 && userData.ra ? Number(userData.ra) : undefined,
-                siape: userData.tipo == 2 && userData.siape ? userData.siape : undefined,
+                vinculo: Number(userData.vinculo),
+                ra: userData.vinculo == 1 && userData.ra ? Number(userData.ra) : undefined,
+                siape: userData.vinculo == 2 && userData.siape ? userData.siape : undefined,
                 instituicao: userData.instituicao || undefined,
                 id_evento: evento.id_evento,
             };
@@ -187,24 +187,24 @@ export default function RegistrationView({ evento }) {
                         <label className="label"><span className="label-text font-semibold">Tipo de Vínculo</span></label>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <label className="label cursor-pointer gap-2">
-                                <input type="radio" name="tipo" className="radio radio-primary" checked={userData.tipo == 1} onChange={() => updateField('tipo', 1)} />
+                                <input type="radio" name="vinculo" className="radio radio-primary" checked={userData.vinculo == 1} onChange={() => updateField('vinculo', 1)} />
                                 <span className="label-text">Aluno IFMS</span>
                             </label>
                             <label className="label cursor-pointer gap-2">
-                                <input type="radio" name="tipo" className="radio radio-primary" checked={userData.tipo == 2} onChange={() => updateField('tipo', 2)} />
+                                <input type="radio" name="vinculo" className="radio radio-primary" checked={userData.vinculo == 2} onChange={() => updateField('vinculo', 2)} />
                                 <span className="label-text">Professor IFMS</span>
                             </label>
                             <label className="label cursor-pointer gap-2">
-                                <input type="radio" name="tipo" className="radio radio-primary" checked={userData.tipo == 3} onChange={() => updateField('tipo', 3)} />
+                                <input type="radio" name="vinculo" className="radio radio-primary" checked={userData.vinculo == 3} onChange={() => updateField('vinculo', 3)} />
                                 <span className="label-text">Comunidade Externa</span>
                             </label>
                         </div>
                     </div>
 
-                    {userData.tipo == 1 && (
+                    {userData.vinculo == 1 && (
                         <Input label="RA (Registro Acadêmico)" value={userData.ra} onChange={(v) => updateField('ra', v)} />
                     )}
-                    {userData.tipo == 2 && (
+                    {userData.vinculo == 2 && (
                         <Input label="SIAPE" value={userData.siape} onChange={(v) => updateField('siape', v)} />
                     )}
 

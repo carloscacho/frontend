@@ -46,6 +46,7 @@ export default function LoginForm({ redirectPath }) {
                             label="Senha"
                             value={senha}
                             onChange={setSenha}
+                            type="password"
                         />
                         <div className="text-right mt-1">
                             <Link href={`/${slug}/recoverpass`} className="link link-hover text-sm text-primary">Esqueci minha senha</Link>
