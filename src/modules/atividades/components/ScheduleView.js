@@ -1,10 +1,37 @@
 'use client'
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSchedule } from '@/modules/atividades/hooks/useSchedule';
 import DateTabs from './DateTabs';
 import ActivityCard from './ActivityCard';
 import QrScannerModal from './QrScannerModal';
+import { PiSunHorizonDuotone, PiSunDuotone, PiMoonStarsDuotone } from 'react-icons/pi';
+
+const PERIODS = [
+    { key: 'matutino', label: 'Matutino', icon: PiSunHorizonDuotone, minHour: 0, maxHour: 12 },
+    { key: 'vespertino', label: 'Vespertino', icon: PiSunDuotone, minHour: 12, maxHour: 18 },
+    { key: 'noturno', label: 'Noturno', icon: PiMoonStarsDuotone, minHour: 18, maxHour: 24 },
+];
+
+/**
+ * Extracts the earliest start time (in total minutes since midnight, UTC)
+ * from sessions matching the selected date tab.
+ */
+function getEarliestMinutesForDate(atividade, selectedDate) {
+    let earliest = Infinity;
+    atividade.data_atividade?.forEach(da => {
+        const date = new Date(da.data);
+        const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+        if (formattedDate === selectedDate && da.hora) {
+            const horaDate = new Date(da.hora);
+            const totalMinutes = horaDate.getUTCHours() * 60 + horaDate.getUTCMinutes();
+            if (totalMinutes < earliest) {
+                earliest = totalMinutes;
+            }
+        }
+    });
+    return earliest;
+}
 
 export default function ScheduleView({ atividades, evento }) {
     const {
@@ -35,6 +62,26 @@ export default function ScheduleView({ atividades, evento }) {
             router.refresh();
         }
     };
+
+    // Group activities by period (Matutino / Vespertino / Noturno), sorted by start time
+    const groupedByPeriod = useMemo(() => {
+        // Sort all filtered activities by their earliest start time for the selected date
+        const sorted = [...filteredAtividades].sort((a, b) => {
+            return getEarliestMinutesForDate(a, selectedDate) - getEarliestMinutesForDate(b, selectedDate);
+        });
+
+        const groups = PERIODS.map(period => {
+            const activities = sorted.filter(atividade => {
+                const earliestMinutes = getEarliestMinutesForDate(atividade, selectedDate);
+                const earliestHour = earliestMinutes / 60;
+                return earliestHour >= period.minHour && earliestHour < period.maxHour;
+            });
+            return { ...period, activities };
+        });
+
+        // Only return periods that have activities
+        return groups.filter(g => g.activities.length > 0);
+    }, [filteredAtividades, selectedDate]);
 
     // Smooth Scroll and Highlight for anchor links
     useEffect(() => {
@@ -76,19 +123,36 @@ export default function ScheduleView({ atividades, evento }) {
                 onSelectDate={setSelectedDate}
             />
 
-            <div className="space-y-6">
-                {filteredAtividades.map(atividade => (
-                    <ActivityCard
-                        key={atividade.id_atividade}
-                        atividade={atividade}
-                        evento={evento}
-                        isRegistered={isRegistered}
-                        onParticipar={handleParticiparWithRefresh}
-                        onScan={handleOpenScanner}
-                        conflictError={conflictErrors[atividade.id_atividade]}
-                        usuario={usuario}
-                    />
-                ))}
+            <div className="space-y-4">
+                {groupedByPeriod.map(period => {
+                    const Icon = period.icon;
+                    return (
+                        <div key={period.key} className="collapse collapse-arrow bg-base-100 shadow-md rounded-xl border border-base-300">
+                            <input type="checkbox" defaultChecked />
+                            <div className="collapse-title flex items-center gap-3 text-lg font-bold">
+                                <Icon className="w-6 h-6 text-primary" />
+                                <span>{period.label}</span>
+                                <span className="badge badge-primary badge-sm ml-1">{period.activities.length}</span>
+                            </div>
+                            <div className="collapse-content px-2 sm:px-4">
+                                <div className="space-y-6 pt-2">
+                                    {period.activities.map(atividade => (
+                                        <ActivityCard
+                                            key={atividade.id_atividade}
+                                            atividade={atividade}
+                                            evento={evento}
+                                            isRegistered={isRegistered}
+                                            onParticipar={handleParticiparWithRefresh}
+                                            onScan={handleOpenScanner}
+                                            conflictError={conflictErrors[atividade.id_atividade]}
+                                            usuario={usuario}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
 
                 {filteredAtividades.length === 0 && (
                     <div className="text-center py-10 text-gray-500">

@@ -86,18 +86,42 @@ export function useSchedule(atividades, evento) {
 
     const checkTimeConflict = useCallback((newActivity) => {
         const registeredSessions = [];
+
+        /**
+         * Calculates the end time in total UTC minutes since midnight.
+         * duracao stores the duration (e.g. "1970-01-01T05:00:00Z" = 5 hours),
+         * NOT the end time. End = start + duration.
+         */
+        const getStartAndEndMinutes = (session) => {
+            const horaDate = new Date(session.hora);
+            const startMinutes = horaDate.getUTCHours() * 60 + horaDate.getUTCMinutes();
+
+            const duracaoDate = new Date(session.duracao);
+            const durationMinutes = duracaoDate.getUTCHours() * 60 + duracaoDate.getUTCMinutes();
+
+            const endMinutes = startMinutes + durationMinutes;
+            return { startMinutes, endMinutes };
+        };
+
+        const buildUTCDate = (sessionDate, totalMinutes) => {
+            const hours = Math.floor(totalMinutes / 60) % 24;
+            const minutes = totalMinutes % 60;
+            const hh = String(hours).padStart(2, '0');
+            const mm = String(minutes).padStart(2, '0');
+            return new Date(`${sessionDate}T${hh}:${mm}:00Z`);
+        };
+
         atividades.forEach(activity => {
             if (activity.id_atividade === newActivity.id_atividade) return;
             activity.data_atividade?.forEach(session => {
                 if (registrations.includes(session.id_data_atividade)) {
                     const sessionDate = session.data.split('T')[0];
-                    const startTime = new Date(session.hora).toLocaleTimeString('en-GB');
-                    const endTime = new Date(session.duracao).toLocaleTimeString('en-GB');
+                    const { startMinutes, endMinutes } = getStartAndEndMinutes(session);
                     registeredSessions.push({
                         activityName: activity.nome,
                         activityId: activity.id_atividade,
-                        start: new Date(`${sessionDate}T${startTime}`),
-                        end: new Date(`${sessionDate}T${endTime}`)
+                        start: buildUTCDate(sessionDate, startMinutes),
+                        end: buildUTCDate(sessionDate, endMinutes)
                     });
                 }
             });
@@ -105,13 +129,20 @@ export function useSchedule(atividades, evento) {
 
         for (const newSession of newActivity.data_atividade) {
             const newSessionDate = newSession.data.split('T')[0];
-            const newStartTime = new Date(newSession.hora).toLocaleTimeString('en-GB');
-            const newEndTime = new Date(newSession.duracao).toLocaleTimeString('en-GB');
-            const newStart = new Date(`${newSessionDate}T${newStartTime}`);
-            const newEnd = new Date(`${newSessionDate}T${newEndTime}`);
+            const { startMinutes, endMinutes } = getStartAndEndMinutes(newSession);
+            const newStart = buildUTCDate(newSessionDate, startMinutes);
+            const newEnd = buildUTCDate(newSessionDate, endMinutes);
 
             for (const registeredSession of registeredSessions) {
-                if (newStart < registeredSession.end && newEnd > registeredSession.start) {
+                // Overlap: starts before the other ends AND ends after the other starts
+                // Adjacent sessions (one ends exactly when the other starts) are allowed
+                const overlaps = newStart.getTime() < registeredSession.end.getTime()
+                    && newEnd.getTime() > registeredSession.start.getTime();
+
+                const isAdjacent = newEnd.getTime() === registeredSession.start.getTime()
+                    || newStart.getTime() === registeredSession.end.getTime();
+
+                if (overlaps && !isAdjacent) {
                     return { name: registeredSession.activityName, id: registeredSession.activityId };
                 }
             }
@@ -186,7 +217,7 @@ export function useSchedule(atividades, evento) {
             if (successCount > 0) {
                 const msg = registered ? 'Inscrição cancelada com sucesso!' : 'Inscrição realizada com sucesso!';
                 mostrarAlerta('success', msg);
-                fetchRegistrations();
+                await fetchRegistrations();
                 return true; // Signal success
             } else if (errorCount > 0) {
                 mostrarAlerta('error', 'Erro ao processar solicitação. Tente novamente.');

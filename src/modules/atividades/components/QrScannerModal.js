@@ -84,7 +84,12 @@ export default function QrScannerModal({ refModal, atividade, onSuccess }) {
             }
         } catch (error) {
             console.error('Error recording presence:', error);
-            const msg = error.response?.data?.message || 'Erro ao confirmar presença.';
+            let msg;
+            if (error.response?.status === 404) {
+                msg = 'Aluno não inscrito nesta atividade!';
+            } else {
+                msg = error.response?.data?.message || 'Erro ao confirmar presença.';
+            }
             setFeedback({ type: 'error', message: msg });
         } finally {
             startCooldown();
