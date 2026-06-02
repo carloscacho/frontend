@@ -97,6 +97,12 @@ export default function RegistrationView({ evento }) {
             mostrarAlerta('error', 'Preencha todos os campos obrigatórios.');
             return;
         }
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(userData.email)) {
+            mostrarAlerta('error', 'Email inválido. Verifique se o email está no formato correto (ex: nome@email.com).');
+            return;
+        }
         if (isExistingUser && !userData.senhaAtual) {
             mostrarAlerta('error', 'Insira sua senha atual para confirmar a atualização de dados.');
             return;

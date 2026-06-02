@@ -27,6 +27,12 @@ export default function RegistrationForm() {
             return;
         }
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setError('Email inválido. Verifique se o email está no formato correto (ex: nome@email.com).');
+            return;
+        }
+
         // Remove non-digits for length check if needed, but assuming raw input
         if (cpf.length < 11) {
             setError('CPF deve ter no minimo onze caracteres');

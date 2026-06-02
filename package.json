@@ -6,7 +6,8 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest --verbose"
   },
   "dependencies": {
     "axios": "^1.11.0",
@@ -19,11 +20,20 @@
     "react-qr-code": "^2.0.18"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "babel-jest": "^30.4.1",
     "daisyui": "^5.0.43",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
     "tailwindcss": "^4"
   }
 }

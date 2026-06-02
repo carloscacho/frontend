@@ -24,6 +24,9 @@ export default function Cadastro() {
     else if (senha !== confSenha) {
       setError('Senha e Confirmação de senha são diferentes')
     }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Email inválido. Verifique se o email está no formato correto (ex: nome@email.com).')
+    }
     else if (cpf.length < 11) {
       setError('cpf deve ter no minimo onze caracteres')
     }
