@@ -47,6 +47,51 @@ jest.mock('@/modules/usuarios/services/usuario.service', () => ({
   },
 }));
 
+jest.mock('@/modules/turmas/services/turma.service', () => ({
+  turmaService: {
+    getAll: jest.fn().mockResolvedValue([
+      { id_turma: 1, nome: 'Tecnologia em Análise e Desenvolvimento de Sistemas' },
+      { id_turma: 2, nome: 'Técnico em Informática' },
+    ]),
+  },
+}));
+
+jest.mock('@/modules/turnos/services/turno.service', () => ({
+  turnoService: {
+    getAll: jest.fn().mockResolvedValue([
+      { id_turno: 1, nome: 'Matutino' },
+      { id_turno: 2, nome: 'Vespertino' },
+      { id_turno: 3, nome: 'Noturno' },
+    ]),
+  },
+}));
+
+jest.mock('@/shared/components/utils/MultiSelect', () => ({ options, selectedValues, onChange, label, valueKey, labelKey }) => (
+  <div data-testid={`multiselect-${label}`}>
+    <label>{label}</label>
+    <div data-testid="selected-values">{JSON.stringify(selectedValues)}</div>
+    {options.map((opt) => {
+      const isSelected = selectedValues.includes(opt[valueKey]);
+      return (
+        <button
+          key={opt[valueKey]}
+          type="button"
+          data-testid={`option-${opt[valueKey]}`}
+          onClick={() => {
+            if (isSelected) {
+              onChange(selectedValues.filter(val => val !== opt[valueKey]));
+            } else {
+              onChange([...selectedValues, opt[valueKey]]);
+            }
+          }}
+        >
+          {opt[labelKey]}
+        </button>
+      );
+    })}
+  </div>
+));
+
 jest.mock('@/shared/components/utils/Input', () => ({ label, value, onChange, type, placeholder, disabled }) => (
   <div>
     <label htmlFor={label}>{label}</label>
@@ -99,6 +144,23 @@ async function goToRegistrationForm(status = 'not_found') {
   await waitFor(() => {
     expect(screen.getByTestId('input-Nome')).toBeInTheDocument();
   });
+
+  const selectCurso = screen.getByTestId('select-Curso');
+  if (selectCurso.options.length > 1) {
+    fireEvent.change(selectCurso, { target: { value: selectCurso.options[1].value } });
+  }
+  const selectTurno = screen.getByTestId('select-Turno');
+  if (selectTurno.options.length > 1) {
+    fireEvent.change(selectTurno, { target: { value: selectTurno.options[1].value } });
+  }
+  const selectSemestre = screen.getByTestId('select-Semestre');
+  if (selectSemestre.options.length > 1) {
+    fireEvent.change(selectSemestre, { target: { value: selectSemestre.options[1].value } });
+  }
+  const raInput = screen.queryByTestId('input-RA (Registro Acadêmico)');
+  if (raInput) {
+    fireEvent.change(raInput, { target: { value: '12345' } });
+  }
 }
 
 function fillField(testId, value) {
@@ -480,3 +542,201 @@ describe('RegistrationView – Step 2: Usuário Existente', () => {
     });
   });
 });
+
+describe('RegistrationView – Coleta de Informações do Aluno', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('não exibe campos de Curso, Turno e Semestre se vínculo for Comunidade Externa', async () => {
+    await goToRegistrationForm();
+    // Select Comunidade Externa
+    fireEvent.click(screen.getByLabelText('Comunidade Externa'));
+    
+    expect(screen.queryByTestId('select-Curso')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('select-Turno')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('select-Semestre')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('input-RA (Registro Acadêmico)')).not.toBeInTheDocument();
+  });
+
+  test('exibe erro se RA está vazio para vínculo Aluno', async () => {
+    await goToRegistrationForm();
+    fillField('input-Nome', 'Maria');
+    fillField('input-Email', 'maria@email.com');
+    fillField('input-Senha', 'senhaSegura');
+    fillField('input-Confirmar Senha', 'senhaSegura');
+    // Default is Aluno, let's clear RA
+    fillField('input-RA (Registro Acadêmico)', '');
+    clickFinalizar();
+    expect(mockMostrarAlerta).toHaveBeenCalledWith('error', 'RA (Registro Acadêmico) é obrigatório.');
+  });
+
+  test('exibe erro se Curso não selecionado para vínculo Aluno', async () => {
+    await goToRegistrationForm();
+    fillField('input-Nome', 'Maria');
+    fillField('input-Email', 'maria@email.com');
+    fillField('input-Senha', 'senhaSegura');
+    fillField('input-Confirmar Senha', 'senhaSegura');
+    // Clear Curso select
+    fireEvent.change(screen.getByTestId('select-Curso'), { target: { value: '' } });
+    clickFinalizar();
+    expect(mockMostrarAlerta).toHaveBeenCalledWith('error', 'Curso é obrigatório.');
+  });
+
+  test('exibe erro se Turno não selecionado para vínculo Aluno', async () => {
+    await goToRegistrationForm();
+    fillField('input-Nome', 'Maria');
+    fillField('input-Email', 'maria@email.com');
+    fillField('input-Senha', 'senhaSegura');
+    fillField('input-Confirmar Senha', 'senhaSegura');
+    // Clear Turno select
+    fireEvent.change(screen.getByTestId('select-Turno'), { target: { value: '' } });
+    clickFinalizar();
+    expect(mockMostrarAlerta).toHaveBeenCalledWith('error', 'Turno é obrigatório.');
+  });
+
+  test('exibe erro se Semestre não selecionado para vínculo Aluno', async () => {
+    await goToRegistrationForm();
+    fillField('input-Nome', 'Maria');
+    fillField('input-Email', 'maria@email.com');
+    fillField('input-Senha', 'senhaSegura');
+    fillField('input-Confirmar Senha', 'senhaSegura');
+    // Clear Semestre select
+    fireEvent.change(screen.getByTestId('select-Semestre'), { target: { value: '' } });
+    clickFinalizar();
+    expect(mockMostrarAlerta).toHaveBeenCalledWith('error', 'Semestre é obrigatório.');
+  });
+});
+
+describe('RegistrationView – Coleta de Informações do Professor e Instituição', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('não exibe campo de Instituição para Aluno ou Professor, mas exibe para Comunidade Externa', async () => {
+    await goToRegistrationForm();
+    // Default is Aluno (vinculo = 1)
+    expect(screen.queryByTestId('input-Instituição')).not.toBeInTheDocument();
+
+    // Select Professor (vinculo = 2)
+    fireEvent.click(screen.getByLabelText('Professor IFMS'));
+    expect(screen.queryByTestId('input-Instituição')).not.toBeInTheDocument();
+
+    // Select Comunidade Externa (vinculo = 3)
+    fireEvent.click(screen.getByLabelText('Comunidade Externa'));
+    expect(screen.getByTestId('input-Instituição')).toBeInTheDocument();
+  });
+
+  test('exibe campos de SIAPE e MultiSelect Curso(s) quando vínculo for Professor', async () => {
+    await goToRegistrationForm();
+    // Select Professor (vinculo = 2)
+    fireEvent.click(screen.getByLabelText('Professor IFMS'));
+
+    expect(screen.getByTestId('input-SIAPE')).toBeInTheDocument();
+    expect(screen.getByTestId('multiselect-Curso(s)')).toBeInTheDocument();
+  });
+
+  test('exibe erro se SIAPE está vazio para vínculo Professor', async () => {
+    await goToRegistrationForm();
+    // Select Professor (vinculo = 2)
+    fireEvent.click(screen.getByLabelText('Professor IFMS'));
+
+    fillField('input-Nome', 'Carlos Professor');
+    fillField('input-Email', 'carlos@ifms.edu.br');
+    fillField('input-Senha', 'senhaSegura');
+    fillField('input-Confirmar Senha', 'senhaSegura');
+
+    // Select at least one course via our mocked MultiSelect
+    fireEvent.click(screen.getByTestId('option-1'));
+
+    // Leave SIAPE empty
+    fillField('input-SIAPE', '');
+
+    clickFinalizar();
+    expect(mockMostrarAlerta).toHaveBeenCalledWith('error', 'SIAPE é obrigatório.');
+  });
+
+  test('exibe erro se nenhum curso está selecionado para vínculo Professor', async () => {
+    await goToRegistrationForm();
+    // Select Professor (vinculo = 2)
+    fireEvent.click(screen.getByLabelText('Professor IFMS'));
+
+    fillField('input-Nome', 'Carlos Professor');
+    fillField('input-Email', 'carlos@ifms.edu.br');
+    fillField('input-Senha', 'senhaSegura');
+    fillField('input-Confirmar Senha', 'senhaSegura');
+
+    // Fill SIAPE
+    fillField('input-SIAPE', '123456');
+
+    // Do not select any course (selectedValues is empty)
+    clickFinalizar();
+    expect(mockMostrarAlerta).toHaveBeenCalledWith('error', 'Selecione pelo menos um curso.');
+  });
+
+  test('envia dados corretos para vínculo Professor na inscrição', async () => {
+    mockRegisterAndSubscribe.mockResolvedValue({ message: 'ok' });
+    await goToRegistrationForm();
+    // Select Professor (vinculo = 2)
+    fireEvent.click(screen.getByLabelText('Professor IFMS'));
+
+    fillField('input-Nome', 'Carlos Professor');
+    fillField('input-Email', 'carlos@ifms.edu.br');
+    fillField('input-Senha', 'senhaSegura');
+    fillField('input-Confirmar Senha', 'senhaSegura');
+    fillField('input-SIAPE', '123456');
+
+    // Select two courses
+    fireEvent.click(screen.getByTestId('option-1'));
+    fireEvent.click(screen.getByTestId('option-2'));
+
+    clickFinalizar();
+
+    await waitFor(() => {
+      expect(mockRegisterAndSubscribe).toHaveBeenCalledWith(expect.objectContaining({
+        nome: 'Carlos Professor',
+        email: 'carlos@ifms.edu.br',
+        vinculo: 2,
+        siape: '123456',
+        fk_turmas: [1, 2],
+        id_evento: 1,
+      }));
+      expect(mockRegisterAndSubscribe).not.toHaveProperty('fk_turma');
+      expect(mockRegisterAndSubscribe).not.toHaveProperty('fk_turno');
+      expect(mockRegisterAndSubscribe).not.toHaveProperty('semestre');
+      expect(mockRegisterAndSubscribe).not.toHaveProperty('ra');
+      expect(mockRegisterAndSubscribe).not.toHaveProperty('instituicao');
+    });
+  });
+
+  test('mapeia fk_turmas corretamente de um professor existente na busca por CPF', async () => {
+    mockCheckRegistration.mockResolvedValue({
+      status: 'exists_not_registered',
+      user: {
+        nome: 'Professor Existente',
+        email: 'prof@ifms.edu.br',
+        vinculo: 2,
+        siape: '654321',
+        participante: [
+          {
+            participante_turma: [
+              { fk_turma: 1 },
+              { fk_turma: 2 }
+            ]
+          }
+        ]
+      },
+    });
+
+    render(<RegistrationView evento={mockEvento} />);
+    fillCpf('123.456.789-01');
+    clickVerificar();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('input-Nome')).toHaveValue('Professor Existente');
+      expect(screen.getByTestId('input-SIAPE')).toHaveValue('654321');
+      expect(screen.getByTestId('selected-values').textContent).toBe('[1,2]');
+    });
+  });
+});
+

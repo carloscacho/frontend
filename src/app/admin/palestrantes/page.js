@@ -18,6 +18,7 @@ import { usePalestrantes } from "@/modules/palestrantes/hooks/usePalestrantes"
 export default function Page() {
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
+  const isAuthorized = usuario?.tipo === 1 || usuario?.tipo === 4
 
   const refMdPalestrantes = useRef(null)
   const refMdConfirmation = useRef(null)
@@ -72,13 +73,13 @@ export default function Page() {
             openCreate(searchTerm ? { nome: searchTerm } : null)
             refMdPalestrantes.current.showModal()
           }}
-          hideButton={!isAdmin}
+          hideButton={!isAuthorized}
         >
           <SortControl value={sortOrder} onChange={setSortOrder} />
         </TextInputWithButton>
 
         {/* CSV Import Button */}
-        {isAdmin && eventoSelect && (
+        {isAuthorized && eventoSelect && (
           <Button
             mode="outline"
             color="info"
@@ -95,8 +96,8 @@ export default function Page() {
         <ListItens
           info="lista de palestrante cadastradas"
           list={normalizedList}
-          deleteFunction={isAdmin ? onDelete : null}
-          editFunction={isAdmin ? (item) => {
+          deleteFunction={isAuthorized ? onDelete : null}
+          editFunction={isAuthorized ? (item) => {
             openEdit(item)
             refMdPalestrantes.current.showModal()
           } : null}

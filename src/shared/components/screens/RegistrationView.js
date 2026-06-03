@@ -7,6 +7,9 @@ import Button from "@/shared/components/utils/Button";
 import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/shared/components/displays/LoadingSpinner';
 import { usuarioService } from '@/modules/usuarios/services/usuario.service';
+import { turmaService } from '@/modules/turmas/services/turma.service';
+import { turnoService } from '@/modules/turnos/services/turno.service';
+import MultiSelect from '@/shared/components/utils/MultiSelect';
 
 export default function RegistrationView({ evento }) {
     const { usuario, setSingupOpen } = useAuth();
@@ -16,14 +19,54 @@ export default function RegistrationView({ evento }) {
     const [step, setStep] = useState('check_cpf'); // check_cpf, registration_form
     const [cpfInput, setCpfInput] = useState('');
     const [loading, setLoading] = useState(false);
+    const [turmas, setTurmas] = useState([]);
+    const [turnos, setTurnos] = useState([]);
 
     // Form fields
     const [userData, setUserData] = useState({
         nome: '', email: '', cpf: '',
         senha: '', confSenha: '', senhaAtual: '',
-        vinculo: 1, ra: '', siape: '', instituicao: ''
+        vinculo: 1, ra: '', siape: '', instituicao: '',
+        fk_turma: '', fk_turno: '', semestre: '',
+        fk_turmas: []
     });
     const [isExistingUser, setIsExistingUser] = useState(false);
+
+    useEffect(() => {
+        const fetchTurmasAndTurnos = async () => {
+            try {
+                const turmasData = await turmaService.getAll();
+                const turnosData = await turnoService.getAll();
+                setTurmas(turmasData || []);
+                setTurnos(turnosData || []);
+            } catch (err) {
+                console.error("Erro ao carregar turmas e turnos:", err);
+            }
+        };
+        fetchTurmasAndTurnos();
+    }, []);
+
+    const getSemestersOptions = () => {
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth() + 1; // 1-12
+        const isFirstHalf = currentMonth <= 6;
+        
+        if (isFirstHalf) {
+            return [
+                { value: 1, label: `${currentYear}-1 (1º Semestre)` },
+                { value: 3, label: `${currentYear - 1}-1 (3º Semestre)` },
+                { value: 5, label: `${currentYear - 2}-1 (5º Semestre)` },
+                { value: 7, label: 'Turmas anteriores' }
+            ];
+        } else {
+            return [
+                { value: 2, label: `${currentYear}-1 (2º Semestre)` },
+                { value: 4, label: `${currentYear - 1}-1 (4º Semestre)` },
+                { value: 6, label: `${currentYear - 2}-1 (6º Semestre)` },
+                { value: 8, label: 'Turmas anteriores' }
+            ];
+        }
+    };
 
     const formatCPF = (value) => {
         const cleaned = value.replace(/\D/g, '');
@@ -70,6 +113,10 @@ export default function RegistrationView({ evento }) {
                     ra: data.user.ra || '',
                     siape: data.user.siape || '',
                     instituicao: data.user.instituicao || '',
+                    fk_turma: data.user.participante?.[0]?.fk_turma || '',
+                    fk_turno: data.user.participante?.[0]?.fk_turno || '',
+                    semestre: data.user.participante?.[0]?.semestre || '',
+                    fk_turmas: data.user.participante?.[0]?.participante_turma?.map(pt => pt.fk_turma) || [],
                 });
                 setStep('registration_form');
             } else {
@@ -79,6 +126,8 @@ export default function RegistrationView({ evento }) {
                     nome: '', email: '',
                     senha: '', confSenha: '', senhaAtual: '',
                     vinculo: 1, ra: '', siape: '', instituicao: '',
+                    fk_turma: '', fk_turno: '', semestre: '',
+                    fk_turmas: [],
                     cpf: cpfInput
                 });
                 setStep('registration_form');
@@ -103,6 +152,34 @@ export default function RegistrationView({ evento }) {
             mostrarAlerta('error', 'Email inválido. Verifique se o email está no formato correto (ex: nome@email.com).');
             return;
         }
+        if (userData.vinculo == 1) {
+            if (!userData.ra) {
+                mostrarAlerta('error', 'RA (Registro Acadêmico) é obrigatório.');
+                return;
+            }
+            if (!userData.fk_turma) {
+                mostrarAlerta('error', 'Curso é obrigatório.');
+                return;
+            }
+            if (!userData.fk_turno) {
+                mostrarAlerta('error', 'Turno é obrigatório.');
+                return;
+            }
+            if (!userData.semestre) {
+                mostrarAlerta('error', 'Semestre é obrigatório.');
+                return;
+            }
+        }
+        if (userData.vinculo == 2) {
+            if (!userData.siape) {
+                mostrarAlerta('error', 'SIAPE é obrigatório.');
+                return;
+            }
+            if (!userData.fk_turmas || userData.fk_turmas.length === 0) {
+                mostrarAlerta('error', 'Selecione pelo menos um curso.');
+                return;
+            }
+        }
         if (isExistingUser && !userData.senhaAtual) {
             mostrarAlerta('error', 'Insira sua senha atual para confirmar a atualização de dados.');
             return;
@@ -123,7 +200,11 @@ export default function RegistrationView({ evento }) {
                 vinculo: Number(userData.vinculo),
                 ra: userData.vinculo == 1 && userData.ra ? Number(userData.ra) : undefined,
                 siape: userData.vinculo == 2 && userData.siape ? userData.siape : undefined,
-                instituicao: userData.instituicao || undefined,
+                instituicao: userData.vinculo == 3 && userData.instituicao ? userData.instituicao : undefined,
+                fk_turma: userData.vinculo == 1 && userData.fk_turma ? Number(userData.fk_turma) : undefined,
+                fk_turno: userData.vinculo == 1 && userData.fk_turno ? Number(userData.fk_turno) : undefined,
+                semestre: userData.vinculo == 1 && userData.semestre ? Number(userData.semestre) : undefined,
+                fk_turmas: userData.vinculo == 2 && userData.fk_turmas ? userData.fk_turmas.map(Number) : undefined,
                 id_evento: evento.id_evento,
             };
 
@@ -185,36 +266,114 @@ export default function RegistrationView({ evento }) {
                         {isExistingUser ? 'Atualize seus dados' : 'Complete seu cadastro'}
                     </h2>
 
-                    <Input label="CPF" value={userData.cpf} disabled={true} />
-                    <Input label="Nome" value={userData.nome} onChange={(v) => updateField('nome', v)} />
-                    <Input label="Email" type="email" value={userData.email} onChange={(v) => updateField('email', v)} />
-
-                    <div className="form-control mb-4">
-                        <label className="label"><span className="label-text font-semibold">Tipo de Vínculo</span></label>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <label className="label cursor-pointer gap-2">
-                                <input type="radio" name="vinculo" className="radio radio-primary" checked={userData.vinculo == 1} onChange={() => updateField('vinculo', 1)} />
-                                <span className="label-text">Aluno IFMS</span>
-                            </label>
-                            <label className="label cursor-pointer gap-2">
-                                <input type="radio" name="vinculo" className="radio radio-primary" checked={userData.vinculo == 2} onChange={() => updateField('vinculo', 2)} />
-                                <span className="label-text">Professor IFMS</span>
-                            </label>
-                            <label className="label cursor-pointer gap-2">
-                                <input type="radio" name="vinculo" className="radio radio-primary" checked={userData.vinculo == 3} onChange={() => updateField('vinculo', 3)} />
-                                <span className="label-text">Comunidade Externa</span>
-                            </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Nome - full width */}
+                        <div className="sm:col-span-2">
+                            <Input label="Nome" value={userData.nome} onChange={(v) => updateField('nome', v)} />
                         </div>
+
+                        {/* CPF and Email - two columns */}
+                        <Input label="CPF" value={userData.cpf} disabled={true} />
+                        <Input label="Email" type="email" value={userData.email} onChange={(v) => updateField('email', v)} />
+
+                        {/* Tipo de Vínculo - full width */}
+                        <div className="form-control sm:col-span-2 mb-2">
+                            <label className="label"><span className="label-text font-semibold">Tipo de Vínculo</span></label>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <label className="label cursor-pointer gap-2">
+                                    <input type="radio" name="vinculo" className="radio radio-primary" checked={userData.vinculo == 1} onChange={() => updateField('vinculo', 1)} />
+                                    <span className="label-text">Aluno IFMS</span>
+                                </label>
+                                <label className="label cursor-pointer gap-2">
+                                    <input type="radio" name="vinculo" className="radio radio-primary" checked={userData.vinculo == 2} onChange={() => {
+                                        updateField('vinculo', 2);
+                                    }} />
+                                    <span className="label-text">Professor IFMS</span>
+                                </label>
+                                <label className="label cursor-pointer gap-2">
+                                    <input type="radio" name="vinculo" className="radio radio-primary" checked={userData.vinculo == 3} onChange={() => {
+                                        updateField('vinculo', 3);
+                                    }} />
+                                    <span className="label-text">Comunidade Externa</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Conditional fields based on Vínculo */}
+                        {userData.vinculo == 1 && (
+                            <>
+                                {/* Curso and RA in two columns */}
+                                <div className="form-control">
+                                    <label className="label"><span className="label-text font-semibold">Curso</span></label>
+                                    <select
+                                        className="select select-bordered w-full"
+                                        value={userData.fk_turma}
+                                        onChange={(e) => updateField('fk_turma', e.target.value ? Number(e.target.value) : '')}
+                                        data-testid="select-Curso"
+                                    >
+                                        <option value="">Selecione o Curso</option>
+                                        {turmas.map((t) => (
+                                            <option key={t.id_turma} value={t.id_turma}>{t.nome}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <Input label="RA (Registro Acadêmico)" value={userData.ra} onChange={(v) => updateField('ra', v)} />
+
+                                {/* Turno and Semestre in two columns */}
+                                <div className="form-control">
+                                    <label className="label"><span className="label-text font-semibold">Turno</span></label>
+                                    <select
+                                        className="select select-bordered w-full"
+                                        value={userData.fk_turno}
+                                        onChange={(e) => updateField('fk_turno', e.target.value ? Number(e.target.value) : '')}
+                                        data-testid="select-Turno"
+                                    >
+                                        <option value="">Selecione o Turno</option>
+                                        {turnos.map((t) => (
+                                            <option key={t.id_turno} value={t.id_turno}>{t.nome}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-control">
+                                    <label className="label"><span className="label-text font-semibold">Ano de Entrada (semestre atual)</span></label>
+                                    <select
+                                        className="select select-bordered w-full"
+                                        value={userData.semestre}
+                                        onChange={(e) => updateField('semestre', e.target.value ? Number(e.target.value) : '')}
+                                        data-testid="select-Semestre"
+                                    >
+                                        <option value="">Selecione o Semestre</option>
+                                        {getSemestersOptions().map((opt) => (
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </>
+                        )}
+
+                        {userData.vinculo == 2 && (
+                            <>
+                                {/* Cursos (MultiSelect) and SIAPE in two columns */}
+                                <div className="form-control">
+                                    <MultiSelect
+                                        label="Curso(s)"
+                                        options={turmas}
+                                        selectedValues={userData.fk_turmas || []}
+                                        onChange={(selected) => updateField('fk_turmas', selected)}
+                                        valueKey="id_turma"
+                                        labelKey="nome"
+                                    />
+                                </div>
+                                <Input label="SIAPE" value={userData.siape} onChange={(v) => updateField('siape', v)} />
+                            </>
+                        )}
+
+                        {userData.vinculo == 3 && (
+                            <div className="sm:col-span-2">
+                                <Input label="Instituição" value={userData.instituicao} onChange={(v) => updateField('instituicao', v)} />
+                            </div>
+                        )}
                     </div>
-
-                    {userData.vinculo == 1 && (
-                        <Input label="RA (Registro Acadêmico)" value={userData.ra} onChange={(v) => updateField('ra', v)} />
-                    )}
-                    {userData.vinculo == 2 && (
-                        <Input label="SIAPE" value={userData.siape} onChange={(v) => updateField('siape', v)} />
-                    )}
-
-                    <Input label="Instituição" value={userData.instituicao} onChange={(v) => updateField('instituicao', v)} />
 
                     {isExistingUser ? (
                         <>

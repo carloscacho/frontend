@@ -18,20 +18,20 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="lemonade">
       <body className="bg-ifms">
-        <DrawerProvider>
-          <EventFilterProvider>
-            <ModalProvider>
-              <AlertProvider>
-                <AuthProvider>
+        <AlertProvider>
+          <AuthProvider>
+            <DrawerProvider>
+              <EventFilterProvider>
+                <ModalProvider>
                   <AdminNavigationWrapper>
                     <AppTitleUpdater />
                     {children}
                   </AdminNavigationWrapper>
-                </AuthProvider>
-              </AlertProvider>
-            </ModalProvider>
-          </EventFilterProvider>
-        </DrawerProvider>
+                </ModalProvider>
+              </EventFilterProvider>
+            </DrawerProvider>
+          </AuthProvider>
+        </AlertProvider>
 
       </body>
 

@@ -11,6 +11,11 @@ jest.mock("@/modules/usuarios/services/usuario.service", () => ({
     }
 }));
 
+const mockGetAllRecords = jest.fn();
+jest.mock("@/shared/utils/crud", () => ({
+    getAllRecords: (url) => mockGetAllRecords(url)
+}));
+
 jest.mock("@/shared/contexts/ModalContext", () => ({
     useModal: () => ({
         refMd: { current: null }
@@ -84,6 +89,7 @@ describe("EventosModal Component", () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockGetAllUsuarios.mockResolvedValue(mockUsuarios);
+        mockGetAllRecords.mockResolvedValue([]);
     });
 
     test("deve renderizar campos com os valores iniciais padrão para criação", async () => {

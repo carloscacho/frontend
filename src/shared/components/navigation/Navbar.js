@@ -58,6 +58,7 @@ export default function Navbar() {
                             onChange={setEventoSelect}
                             valueKey="id_evento"
                             labelBgColor="bg-base-200"
+                            disabled={usuario?.tipo === 4}
                         />
                     )}
                 </div>

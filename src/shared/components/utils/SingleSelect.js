@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { PiX } from "react-icons/pi";
 
-export default function SingleSelect({ options, value, onChange, label, valueKey = "id", labelKey = "nome", labelBgColor = "bg-base-100" }) {
+export default function SingleSelect({ options, value, onChange, label, valueKey = "id", labelKey = "nome", labelBgColor = "bg-base-100", disabled = false }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const wrapperRef = useRef(null);
@@ -20,6 +20,7 @@ export default function SingleSelect({ options, value, onChange, label, valueKey
     }, [wrapperRef]);
 
     const handleSelect = (option) => {
+        if (disabled) return;
         onChange(option);
         setSearchTerm("");
         setIsOpen(false);
@@ -27,6 +28,7 @@ export default function SingleSelect({ options, value, onChange, label, valueKey
 
     const handleClear = (e) => {
         e.stopPropagation();
+        if (disabled) return;
         onChange(null);
         setSearchTerm("");
     };
@@ -36,15 +38,18 @@ export default function SingleSelect({ options, value, onChange, label, valueKey
         opt[labelKey].toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const selectedLabel = value ? value[labelKey] : "";
+    const resolvedValue = (value && options) ? options.find(opt => String(opt[valueKey]) === String(value[valueKey])) : null;
+    const selectedLabel = resolvedValue ? resolvedValue[labelKey] : (value ? value[labelKey] : "");
     const hasValue = value || searchTerm || isOpen;
 
     return (
         <div className="relative w-3/4 md:w-full my-3 py-0.5" ref={wrapperRef}>
             <div
-                className={`flex items-center gap-2 px-3 py-2 border rounded-lg bg-transparent min-h-[3rem] relative cursor-text transition-all duration-200
-                    ${isOpen ? 'border-primary ring-1 ring-primary' : 'border-gray-300'}`}
+                className={`flex items-center gap-2 px-3 py-2 border rounded-lg min-h-[3rem] relative transition-all duration-200
+                    ${disabled ? 'opacity-60 cursor-not-allowed bg-base-300/10 border-gray-300 pointer-events-none' : 'bg-transparent cursor-text border-gray-300'}
+                    ${isOpen && !disabled ? 'border-primary ring-1 ring-primary' : ''}`}
                 onClick={() => {
+                    if (disabled) return;
                     setIsOpen(true);
                     const input = wrapperRef.current?.querySelector('input');
                     if (input) input.focus();
@@ -54,26 +59,24 @@ export default function SingleSelect({ options, value, onChange, label, valueKey
                 {value && (
                     <div className="badge badge-primary gap-1 p-3 max-w-[85%]">
                         <span className="truncate">{selectedLabel}</span>
-                        {/* <button
-                            onClick={handleClear}
-                            className="hover:text-white/80 flex-shrink-0"
-                            type="button"
-                        >
-                            <PiX />
-                        </button> */}
                     </div>
                 )}
 
                 <input
                     type="text"
-                    className="flex-1 outline-none bg-transparent min-w-[50px] text-base-content placeholder-gray-400"
+                    className="flex-1 outline-none bg-transparent min-w-[50px] text-base-content placeholder-gray-400 disabled:cursor-not-allowed"
                     placeholder=""
                     value={searchTerm}
+                    disabled={disabled}
                     onChange={(e) => {
+                        if (disabled) return;
                         setSearchTerm(e.target.value);
                         setIsOpen(true);
                     }}
-                    onFocus={() => setIsOpen(true)}
+                    onFocus={() => {
+                        if (disabled) return;
+                        setIsOpen(true);
+                    }}
                 />
             </div>
 

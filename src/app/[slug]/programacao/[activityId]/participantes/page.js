@@ -25,7 +25,7 @@ export default function ParticipantsPage() {
 
     useEffect(() => {
         // Simple role check redirect
-        if (usuario && usuario.tipo !== 1 && usuario.tipo !== 3) {
+        if (usuario && ![1, 3, 4].includes(usuario.tipo)) {
             router.push(`/${slug}/programacao`);
         }
     }, [usuario, slug, router]);

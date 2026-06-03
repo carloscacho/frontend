@@ -5,14 +5,18 @@ import React from "react";
 import { MdOutlineGroups2 } from "react-icons/md";
 import { SiGoogleclassroom, SiGoogletasks } from "react-icons/si";
 import { TbSunMoon } from "react-icons/tb";
-import { PiUsersDuotone, PiCertificateDuotone, PiCalendarCheckDuotone, PiChalkboardTeacherDuotone, PiHouseDuotone } from "react-icons/pi";
+import { PiUsersDuotone, PiCertificateDuotone, PiCalendarCheckDuotone, PiChalkboardTeacherDuotone, PiHouseDuotone, PiChartBarDuotone } from "react-icons/pi";
 
 import { useDrawer } from "@/shared/contexts/DrawerContext";
+import { useAuth } from "@/shared/contexts/AuthContext";
 
 const Drawer = ({ children }) => {
 
     const { drawer } = useDrawer()
     const pathname = usePathname()
+    const { usuario } = useAuth()
+
+    const isResponsavel = usuario?.tipo === 4;
 
     const menuItems = [
         { name: "Home", icon: <PiHouseDuotone size={24} />, path: "/admin/home" },
@@ -24,7 +28,17 @@ const Drawer = ({ children }) => {
         { name: "Turmas", icon: <MdOutlineGroups2 size={24} />, path: "/admin/turmas" },
         { name: "Turnos", icon: <TbSunMoon size={24} />, path: "/admin/turnos" },
         { name: "Usuários", icon: <PiUsersDuotone size={24} />, path: "/admin/usuarios" },
+        { name: "Relatórios", icon: <PiChartBarDuotone size={24} />, path: "/admin/relatorios" },
     ];
+
+    const filteredMenuItems = isResponsavel
+        ? menuItems.filter(item => 
+            item.path === "/admin/home" || 
+            item.path === "/admin/atividades" || 
+            item.path === "/admin/palestrantes" || 
+            item.path === "/admin/relatorios"
+          )
+        : menuItems;
 
     if (pathname === "/admin") {
         return (
@@ -48,7 +62,7 @@ const Drawer = ({ children }) => {
                 </label>
 
                 <ul className={`menu bg-base-200 text-base-content min-h-full pt-8 p-4 transition-all duration-300 ${drawer ? "w-60" : "w-20 overflow-visible"}`}>
-                    {menuItems.map((item, index) => (
+                    {filteredMenuItems.map((item, index) => (
                         <li key={index} className="mb-2">
                             <Link
                                 href={item.path}

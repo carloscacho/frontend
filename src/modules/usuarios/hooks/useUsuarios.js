@@ -17,7 +17,7 @@ export function useUsuarios() {
     const isAdmin = usuario?.tipo === 1;
     const { mostrarAlerta } = useAlerta();
 
-    const tipos = ["admin", "comum", "auxiliar"];
+    const tipos = ["admin", "comum", "auxiliar", "responsável"];
 
     const getAllusuario = useCallback(async () => {
         try {

@@ -8,7 +8,8 @@ export default function RoleChangeModal({ user, onSave, onCancel }) {
     const roles = [
         { id: 1, nome: "Admin" },
         { id: 2, nome: "Comum" },
-        { id: 3, nome: "Auxiliar" }
+        { id: 3, nome: "Auxiliar" },
+        { id: 4, nome: "Responsável" }
     ];
 
     useEffect(() => {

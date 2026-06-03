@@ -4,6 +4,7 @@ import { PiSunDuotone, PiMoonDuotone } from "react-icons/pi";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useAlerta } from "@/shared/contexts/AlertContext";
 import { useNavigationLoading } from "@/shared/contexts/NavigationLoadingContext";
+import { useEventTheme } from "@/shared/contexts/EventThemeContext";
 import NavigationLink from "./NavigationLink";
 import NavigationProgress from "./NavigationProgress";
 
@@ -36,9 +37,17 @@ export default function EventNavbar({ evento }) {
     const { mostrarAlerta } = useAlerta();
     const { stopLoading } = useNavigationLoading();
 
+    let themeEvent = evento;
+    try {
+        const themeContext = useEventTheme();
+        themeEvent = themeContext.themeEvent || evento;
+    } catch (e) {
+        // Fallback if rendered outside of provider
+    }
+
     // Cores do evento
-    const corPrimaria = evento.cor_primaria || '#32A041';
-    const corSecundaria = evento.cor_secundaria || corPrimaria;
+    const corPrimaria = themeEvent.cor_primaria || '#32A041';
+    const corSecundaria = themeEvent.cor_secundaria || corPrimaria;
 
     useEffect(() => {
         const storedTheme = localStorage.getItem("theme") || "emerald";

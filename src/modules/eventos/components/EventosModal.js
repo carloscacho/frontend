@@ -6,6 +6,7 @@ import SingleSelect from "@/shared/components/utils/SingleSelect";
 import { useModal } from "@/shared/contexts/ModalContext";
 import { formatDateToISO } from "@/shared/utils/dateUtils";
 import { usuarioService } from "@/modules/usuarios/services/usuario.service";
+import { getAllRecords } from "@/shared/utils/crud";
 
 export default function Eventos({ onClickSalvar, onClickCancelar, initialData }) {
     const [nome, setNome] = useState("")
@@ -20,14 +21,21 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
     const [corSecundaria, setCorSecundaria] = useState("")
     const [usuarioResponsavel, setUsuarioResponsavel] = useState(null)
     const [usuariosOptions, setUsuariosOptions] = useState([])
+    const [eventoPai, setEventoPai] = useState(null)
+    const [eventosOptions, setEventosOptions] = useState([])
 
     const { refMd } = useModal()
+    const fileInputRef = React.useRef(null)
 
     React.useEffect(() => {
         usuarioService.getAll().then(setUsuariosOptions).catch(console.error);
+        getAllRecords('/evento').then(setEventosOptions).catch(console.error);
     }, []);
 
     React.useEffect(() => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
         if (initialData) {
             setNome(initialData.nome)
             setAno(initialData.ano)
@@ -40,6 +48,7 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
             setCorPrimaria(initialData.cor_primaria || "")
             setCorSecundaria(initialData.cor_secundaria || "")
             setUsuarioResponsavel(initialData.usuario_responsavel || (initialData.fk_usuario_responsavel ? { id_usuario: initialData.fk_usuario_responsavel } : null))
+            setEventoPai(initialData.evento_pai || (initialData.fk_evento_pai ? { id_evento: initialData.fk_evento_pai } : null))
         } else {
             setNome("")
             setAno(new Date().getFullYear())
@@ -52,6 +61,7 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
             setCorPrimaria("")
             setCorSecundaria("")
             setUsuarioResponsavel(null)
+            setEventoPai(null)
         }
     }, [initialData])
 
@@ -87,16 +97,42 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
                 placeholder="Ex: semana-ct"
                 type="text"
             />
-            <div className="form-control w-full my-3">
-                <label className="label">
-                    <span className="label-text">Banner:</span>
-                </label>
-                <input
-                    type="file"
-                    className="file-input file-input-bordered w-full"
-                    onChange={(e) => setBanner(e.target.files[0])}
-                    accept="image/*"
-                />
+            <div className="form-control w-full my-3 flex gap-4">
+                <div className="flex flex-col gap-4">
+                    <label className="label">
+                        <span className="label-text">Banner:</span>
+                    </label>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        className="file-input file-input-bordered w-full"
+                        onChange={(e) => setBanner(e.target.files[0] || "")}
+                        accept="image/*"
+                    />
+                </div>
+
+                {banner && typeof banner === 'string' && (
+                    
+                        <div className="mt-2 text-sm text-gray-500 flex flex-col gap-2">
+                            <span>Banner atual:</span>
+                            <img
+                                src={`http://localhost:4455${banner.startsWith('/') ? '' : '/'}${banner}`}
+                                alt="Banner Atual"
+                                className="h-12 w-auto object-cover rounded border border-gray-300"
+                            />
+                        </div>
+                   
+                )}
+                {banner && banner instanceof File && typeof window !== 'undefined' && (
+                    <div className="mt-2 text-sm text-gray-500 flex items-center gap-2">
+                        <span>Novo banner selecionado:</span>
+                        <img
+                            src={URL.createObjectURL(banner)}
+                            alt="Novo Banner"
+                            className="h-12 w-auto object-cover rounded border border-gray-300"
+                        />
+                    </div>
+                )}
             </div>
             <div className="flex gap-4">
                 <InputColor
@@ -112,44 +148,56 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
                     placeholder="#FFFFFF"
                 />
             </div>
+            <div className="flex gap-4">
+                <Input
+                    label="Ano:"
+                    value={ano}
+                    onChange={setAno}
+                    placeholder="Preencha o Ano do evento"
+                    type="number"
+                    badge='obrigatorio'
+                    badgeColor='error'
+                />
+                <Input
+                    label="Data Inicio:"
+                    value={dataInicio}
+                    onChange={setDataInicio}
+                    placeholder="Preencha a data de inicio do evento"
+                    type="date"
+                    badge='obrigatorio'
+                    badgeColor='error'
 
-            <Input
-                label="Ano:"
-                value={ano}
-                onChange={setAno}
-                placeholder="Preencha o Ano do evento"
-                type="number"
-                badge='obrigatorio'
-                badgeColor='error'
-            />
-            <Input
-                label="Data Inicio:"
-                value={dataInicio}
-                onChange={setDataInicio}
-                placeholder="Preencha a data de inicio do evento"
-                type="date"
-                badge='obrigatorio'
-                badgeColor='error'
+                />
 
-            />
+                <Input
+                    label="Data Final:"
+                    value={dataFim}
+                    onChange={setDataFim}
+                    placeholder="Preencha a data de inicio do evento"
+                    type="date"
+                    badge='obrigatorio'
+                    badgeColor='error'
 
-            <Input
-                label="Data Final:"
-                value={dataFim}
-                onChange={setDataFim}
-                placeholder="Preencha a data de inicio do evento"
-                type="date"
-                badge='obrigatorio'
-                badgeColor='error'
-
-            />
-
+                />
+            </div>
             <SingleSelect
                 label="Responsável pelo Evento:"
                 options={usuariosOptions}
                 value={usuarioResponsavel}
                 onChange={setUsuarioResponsavel}
                 valueKey="id_usuario"
+                labelKey="nome"
+            />
+
+            <SingleSelect
+                label="Evento Pai (Opcional):"
+                options={eventosOptions.filter(e =>
+                    (!initialData || e.id_evento !== initialData.id_evento) &&
+                    !e.fk_evento_pai
+                )}
+                value={eventoPai}
+                onChange={setEventoPai}
+                valueKey="id_evento"
                 labelKey="nome"
             />
 
@@ -169,6 +217,11 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
                         formData.append('fk_usuario_responsavel', usuarioResponsavel.id_usuario);
                     } else {
                         formData.append('fk_usuario_responsavel', 'null');
+                    }
+                    if (eventoPai) {
+                        formData.append('fk_evento_pai', eventoPai.id_evento);
+                    } else {
+                        formData.append('fk_evento_pai', 'null');
                     }
 
                     if (banner instanceof File) {

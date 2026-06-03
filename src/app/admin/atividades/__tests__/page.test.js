@@ -137,6 +137,14 @@ describe("Atividades Admin Page", () => {
         expect(screen.queryByTestId("delete-101")).not.toBeInTheDocument();
     });
 
+    test("deve renderizar botões de criar, editar e excluir para responsável do evento (tipo === 4)", () => {
+        mockUseAuth.mockReturnValue({ usuario: { tipo: 4 } });
+        render(<Page />);
+        expect(screen.getByTestId("create-button")).toBeInTheDocument();
+        expect(screen.getByTestId("edit-101")).toBeInTheDocument();
+        expect(screen.getByTestId("delete-101")).toBeInTheDocument();
+    });
+
     test("deve chamar setSearchTerm ao alterar termo na busca", () => {
         render(<Page />);
         fireEvent.change(screen.getByTestId("search-input"), { target: { value: "Python" } });

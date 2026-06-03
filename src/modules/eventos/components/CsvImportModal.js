@@ -49,6 +49,29 @@ export default function CsvImportModal({ refModal, evento, onImport, onClose }) 
             return { data: [], errors: [`Campos obrigatórios faltando: ${missingFields.join(', ')}`] };
         }
 
+        const speakerIndices = [];
+        headers.forEach((header, idx) => {
+            if (header.startsWith('palestrante_nome')) {
+                const suffix = header.substring('palestrante_nome'.length);
+                const emailHeader = `palestrante_email${suffix}`;
+                const emailIdx = headers.findIndex(h => h === emailHeader);
+                
+                let instIdx = headers.findIndex(h => h === `palestrante_instituicao${suffix}`);
+                if (instIdx === -1) {
+                    instIdx = headers.findIndex(h => h === `palestrante_instituição${suffix}`);
+                }
+                if (instIdx === -1) {
+                    instIdx = headers.findIndex(h => h === `palestrante_inst${suffix}`);
+                }
+                
+                speakerIndices.push({
+                    nameIdx: idx,
+                    emailIdx: emailIdx,
+                    instIdx: instIdx
+                });
+            }
+        });
+
         const data = [];
         const parseErrors = [];
 
@@ -93,6 +116,24 @@ export default function CsvImportModal({ refModal, evento, onImport, onClose }) 
                 continue;
             }
 
+            // Parse speakers for this row
+            const palestrantes_detalhes = [];
+            speakerIndices.forEach(({ nameIdx, emailIdx, instIdx }) => {
+                const nameVal = values[nameIdx]?.trim();
+                const emailVal = emailIdx !== -1 ? values[emailIdx]?.trim() : '';
+                const instVal = instIdx !== -1 ? values[instIdx]?.trim() : '';
+                
+                if (nameVal && emailVal) {
+                    palestrantes_detalhes.push({
+                        nome: nameVal,
+                        email: emailVal,
+                        instituicao: instVal || null
+                    });
+                } else if (nameVal && !emailVal) {
+                    parseErrors.push(`Linha ${i + 1}: Palestrante '${nameVal}' fornecido sem email correspondente`);
+                }
+            });
+
             // Build activity object
             const atividade = {
                 nome: row.nome,
@@ -100,6 +141,7 @@ export default function CsvImportModal({ refModal, evento, onImport, onClose }) 
                 observacao: row.observacao || null,
                 limite: row.limite ? parseInt(row.limite, 10) : null,
                 fk_evento: evento.id,
+                palestrantes_detalhes: palestrantes_detalhes.length > 0 ? palestrantes_detalhes : undefined
             };
 
             // Add date only if both data and hora are valid
@@ -257,8 +299,10 @@ export default function CsvImportModal({ refModal, evento, onImport, onClose }) 
                                 onChange={handleFileChange}
                                 className="file-input file-input-bordered w-full"
                             />
-                            <p className="text-xs text-gray-500 mt-2">
-                                Formato: nome, descricao, limite, data (YYYY-MM-DD), hora (HH:MM), duracao (HH:MM), observacao
+                             <p className="text-xs text-gray-500 mt-2">
+                                Formato base: nome, descricao, limite, data (YYYY-MM-DD), hora (HH:MM), duracao (HH:MM), observacao.
+                                <br />
+                                Para adicionar palestrantes, inclua colunas como: palestrante_nome, palestrante_email, palestrante_instituicao (para múltiplos palestrantes use sufixos, ex: palestrante_nome_1, palestrante_email_1, palestrante_instituicao_1...).
                             </p>
                         </div>
 
@@ -288,8 +332,8 @@ export default function CsvImportModal({ refModal, evento, onImport, onClose }) 
                                                 <th>Nome</th>
                                                 <th>Descrição</th>
                                                 <th>Limite</th>
-                                                <th>Data</th>
-                                                <th>Hora</th>
+                                                <th>Data/Hora</th>
+                                                <th>Palestrantes</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -297,10 +341,17 @@ export default function CsvImportModal({ refModal, evento, onImport, onClose }) 
                                                 <tr key={index}>
                                                     <td>{index + 1}</td>
                                                     <td className="font-medium">{item.nome}</td>
-                                                    <td className="truncate max-w-[200px]">{item.descricao || '-'}</td>
+                                                    <td className="truncate max-w-[150px]">{item.descricao || '-'}</td>
                                                     <td>{item.limite || '∞'}</td>
-                                                    <td>{item.data_atividade?.data || '-'}</td>
-                                                    <td>{item.data_atividade?.hora || '-'}</td>
+                                                    <td>
+                                                        {item.data_atividade?.data ? `${item.data_atividade.data} ${item.data_atividade.hora}` : '-'}
+                                                    </td>
+                                                    <td className="truncate max-w-[150px]">
+                                                        {item.palestrantes_detalhes 
+                                                            ? item.palestrantes_detalhes.map(p => `${p.nome} (${p.email})`).join(', ')
+                                                            : '-'
+                                                        }
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>

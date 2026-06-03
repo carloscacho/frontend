@@ -38,5 +38,10 @@ export const eventoService = {
     async delete(id) {
         const response = await API.delete(`/evento/${id}`);
         return response.data;
+    },
+ 
+    async getReport(id) {
+        const response = await API.get(`/evento/${id}/relatorio`);
+        return response.data;
     }
 };

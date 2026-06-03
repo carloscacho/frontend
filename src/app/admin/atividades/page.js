@@ -15,6 +15,7 @@ import { useAtividades } from "@/modules/atividades/hooks/useAtividades"
 export default function Page() {
   const { usuario } = useAuth()
   const isAdmin = usuario?.tipo === 1
+  const isAuthorized = usuario?.tipo === 1 || usuario?.tipo === 4
 
   const refMdAtividades = useRef(null)
   const refMdConfirmation = useRef(null)
@@ -66,7 +67,7 @@ export default function Page() {
             openCreate(searchTerm ? { nome: searchTerm } : null)
             refMdAtividades.current.showModal()
           }}
-          hideButton={!isAdmin}
+          hideButton={!isAuthorized}
         >
           <SortControl value={sortOrder} onChange={setSortOrder} />
         </TextInputWithButton>
@@ -75,8 +76,8 @@ export default function Page() {
         <ListItens
           info="lista de atividade cadastradas"
           list={normalizedList}
-          deleteFunction={isAdmin ? onDelete : null}
-          editFunction={isAdmin ? (item) => {
+          deleteFunction={isAuthorized ? onDelete : null}
+          editFunction={isAuthorized ? (item) => {
             openEdit(item)
             refMdAtividades.current.showModal()
           } : null}

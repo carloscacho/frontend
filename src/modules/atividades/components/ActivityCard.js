@@ -23,7 +23,7 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
     const corPrimariaDark = darkenColor(corPrimaria, 15);
 
     const registered = isRegistered(atividade);
-    const isAdminOrAux = usuario && (usuario.tipo === 1 || usuario.tipo === 3);
+    const isAdminOrAux = usuario && [1, 3, 4].includes(usuario.tipo);
 
     // Determine button state
     const getButtonConfig = () => {

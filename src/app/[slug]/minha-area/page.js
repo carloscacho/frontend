@@ -1,7 +1,7 @@
 'use client'
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAlerta } from '@/shared/contexts/AlertContext';
 import { useMinhaArea } from '@/modules/usuarios/hooks/useMinhaArea';
 
@@ -32,14 +32,17 @@ export default function MinhaAreaPage() {
         confirmarSenha: ''
     });
 
+    useEffect(() => {
+        if (!loading && !usuario) {
+            router.push(`/${slug}/login`);
+        }
+    }, [loading, usuario, router, slug]);
+
     if (loading) {
         return <LoadingSpinner fullScreen={true} />;
     }
 
     if (!usuario) {
-        if (typeof window !== 'undefined') {
-            router.push(`/${slug}/login`);
-        }
         return null;
     }
 

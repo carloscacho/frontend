@@ -4,22 +4,26 @@ import { eventoService } from "@/modules/eventos/services/evento.service"
 import Card from "@/shared/components/displays/Card"
 import Button from "@/shared/components/utils/Button"
 import { dateFormateBr } from "@/shared/utils/dateUtils"
-
 import { useRouter } from "next/navigation"
 import { useEventFilter } from "@/shared/contexts/EventFilterContext"
+import { useAuth } from "@/shared/contexts/AuthContext"
 
 export default function AdminHome() {
     const [eventos, setEventos] = useState([])
     const router = useRouter()
     const { setEventoSelect } = useEventFilter()
+    const { usuario } = useAuth()
 
     useEffect(() => {
         async function fetchEventos() {
-            const data = await eventoService.getAll()
+            let data = await eventoService.getAll()
+            if (usuario?.tipo === 4) {
+                data = data.filter(e => e.fk_usuario_responsavel === usuario.id_usuario)
+            }
             setEventos(data.reverse())
         }
         fetchEventos()
-    }, [])
+    }, [usuario])
 
     const handleEdit = (evento) => {
         setEventoSelect(evento)

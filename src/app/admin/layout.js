@@ -15,17 +15,24 @@ export default function AdminLayout({ children }) {
         // Skip check if on login page
         if (isLoginPage) return;
 
-        // Check if user is logged in and is admin
+        // Check if user is logged in and authorized
         if (usuario) {
-            if (usuario.tipo !== 1) {
-                // Not an admin, redirect to root
+            const isAllowed = usuario.tipo === 1 || 
+                (usuario.tipo === 4 && (
+                    pathname === '/admin/home' || 
+                    pathname.startsWith('/admin/relatorios') ||
+                    pathname.startsWith('/admin/atividades') ||
+                    pathname.startsWith('/admin/palestrantes')
+                ));
+            if (!isAllowed) {
+                // Not authorized, redirect to root
                 router.push('/');
             }
         } else {
             // Not logged in, redirect to admin login
             router.push('/admin/login');
         }
-    }, [usuario, router, isLoginPage]);
+    }, [usuario, router, isLoginPage, pathname]);
 
     // Render login page immediately without sidebar/navbar if desired, 
     // or just render children. 
@@ -35,8 +42,17 @@ export default function AdminLayout({ children }) {
     }
 
     // Don't render admin content if not authorized
-    // Note: The visibility of Navbar/Drawer is now handled by AdminNavigationWrapper in root layout
-    if (!usuario || usuario.tipo !== 1) {
+    const isAllowed = usuario && (
+        usuario.tipo === 1 ||
+        (usuario.tipo === 4 && (
+            pathname === '/admin/home' || 
+            pathname.startsWith('/admin/relatorios') ||
+            pathname.startsWith('/admin/atividades') ||
+            pathname.startsWith('/admin/palestrantes')
+        ))
+    );
+
+    if (!isAllowed) {
         return (
             <LoadingSpinner fullScreen={true} />
         );
