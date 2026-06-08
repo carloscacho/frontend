@@ -1,10 +1,11 @@
 'use client'
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { eventoService } from "@/modules/eventos/services/evento.service"
 import Button from "@/shared/components/utils/Button"
 import LoadingSpinner from "@/shared/components/displays/LoadingSpinner"
 import { useAlerta } from "@/shared/contexts/AlertContext"
+import { getSemesterLabel } from "@/shared/utils/dateUtils"
 
 export default function RelatorioDetalhado() {
     const { id } = useParams()
@@ -13,6 +14,12 @@ export default function RelatorioDetalhado() {
 
     const [reportData, setReportData] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [exportingPdf, setExportingPdf] = useState(false)
+    const [exportingTablePdf, setExportingTablePdf] = useState(false)
+
+    // Refs for PDF export
+    const reportContentRef = useRef(null)
+    const tableRef = useRef(null)
 
     // Filters
     const [selectedTurma, setSelectedTurma] = useState("")
@@ -58,17 +65,7 @@ export default function RelatorioDetalhado() {
         }
     }, [reportData])
 
-    // Format semester labels based on event year
-    const getSemesterLabel = (sem, currentYear = 2026) => {
-        if (!sem) return ''
-        if (sem === 1) return `${currentYear}-1 (1º Semestre)`
-        if (sem === 2) return `${currentYear}-1 (2º Semestre)`
-        if (sem === 3) return `${currentYear - 1}-1 (3º Semestre)`
-        if (sem === 4) return `${currentYear - 1}-1 (4º Semestre)`
-        if (sem === 5) return `${currentYear - 2}-1 (5º Semestre)`
-        if (sem === 6) return `${currentYear - 2}-1 (6º Semestre)`
-        return 'Turmas anteriores'
-    }
+    // Format semester labels based on event year is now imported from shared utils
 
     // Dynamic Filter Processing
     const filteredAtividades = useMemo(() => {
@@ -109,13 +106,21 @@ export default function RelatorioDetalhado() {
         })
     }, [reportData, selectedTurma, selectedSemestre, selectedVinculo, selectedPresenca])
 
+    // Build a sequential ID map for activities
+    const atividadesComId = useMemo(() => {
+        return filteredAtividades.map((a, idx) => ({
+            ...a,
+            sequentialId: idx + 1
+        }))
+    }, [filteredAtividades])
+
     // Overall KPI statistics
     const stats = useMemo(() => {
         let totalRegistrations = 0
         let totalPresents = 0
         const uniqueParticipants = new Set()
 
-        filteredAtividades.forEach(a => {
+        atividadesComId.forEach(a => {
             totalRegistrations += a.totalInscritos
             totalPresents += a.totalPresentes
             a.participantes.forEach(p => uniqueParticipants.add(p.fk_participante))
@@ -131,24 +136,24 @@ export default function RelatorioDetalhado() {
             uniqueParticipantsCount: uniqueParticipants.size,
             presenceRate
         }
-    }, [filteredAtividades])
+    }, [atividadesComId])
 
     // Exports
     const copyTableData = () => {
-        let tsv = "Atividade\tSala/Local\tLimite de Vagas\tInscritos\tPresentes\tTaxa de Presença (%)\n"
-        filteredAtividades.forEach(a => {
+        let tsv = "ID\tAtividade\tSala/Local\tLimite de Vagas\tInscritos\tPresentes\tTaxa de Presença (%)\n"
+        atividadesComId.forEach(a => {
             const rate = a.totalInscritos > 0 ? ((a.totalPresentes / a.totalInscritos) * 100).toFixed(1) : "0.0"
-            tsv += `${a.nome}\t${a.sala}\t${a.limite || 'Ilimitado'}\t${a.totalInscritos}\t${a.totalPresentes}\t${rate}%\n`
+            tsv += `${a.sequentialId}\t${a.nome}\t${a.sala}\t${a.limite || 'Ilimitado'}\t${a.totalInscritos}\t${a.totalPresentes}\t${rate}%\n`
         })
         navigator.clipboard.writeText(tsv)
         mostrarAlerta('success', 'Dados da tabela copiados! Cole diretamente em uma planilha.')
     }
 
     const downloadCSV = () => {
-        let csv = "\uFEFFAtividade;Sala/Local;Limite de Vagas;Inscritos;Presentes;Taxa de Presenca (%)\n"
-        filteredAtividades.forEach(a => {
+        let csv = "\uFEFFID;Atividade;Sala/Local;Limite de Vagas;Inscritos;Presentes;Taxa de Presenca (%)\n"
+        atividadesComId.forEach(a => {
             const rate = a.totalInscritos > 0 ? ((a.totalPresentes / a.totalInscritos) * 100).toFixed(1) : "0.0"
-            csv += `"${a.nome}";"${a.sala}";"${a.limite || 'Ilimitado'}";${a.totalInscritos};${a.totalPresentes};${rate}\n`
+            csv += `${a.sequentialId};"${a.nome}";"${a.sala}";"${a.limite || 'Ilimitado'}";${a.totalInscritos};${a.totalPresentes};${rate}\n`
         })
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
         const link = document.createElement("a")
@@ -159,18 +164,159 @@ export default function RelatorioDetalhado() {
         document.body.removeChild(link)
     }
 
-    const downloadChartSVG = (svgId, filename) => {
+    // Download chart as PNG image
+    const downloadChartPNG = (svgId, filename) => {
         const svgEl = document.getElementById(svgId)
         if (!svgEl) return
-        const svgString = new XMLSerializer().serializeToString(svgEl)
+
+        const svgClone = svgEl.cloneNode(true)
+        // Apply computed styles inline for proper rendering
+        const computedStyles = window.getComputedStyle(svgEl)
+        svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+        
+        // Set background to white for the exported image
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+        rect.setAttribute('width', '100%')
+        rect.setAttribute('height', '100%')
+        rect.setAttribute('fill', 'white')
+        svgClone.insertBefore(rect, svgClone.firstChild)
+
+        // Inline all text styles so they render properly in the canvas
+        svgClone.querySelectorAll('text').forEach(textEl => {
+            const original = svgEl.querySelector(`text`) // approximate
+            textEl.setAttribute('fill', '#333')
+            textEl.style.fontFamily = 'Arial, sans-serif'
+        })
+
+        const svgString = new XMLSerializer().serializeToString(svgClone)
         const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" })
-        const svgUrl = URL.createObjectURL(svgBlob)
-        const downloadLink = document.createElement("a")
-        downloadLink.href = svgUrl;
-        downloadLink.download = filename;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+        const url = URL.createObjectURL(svgBlob)
+
+        const img = new Image()
+        img.onload = () => {
+            const canvas = document.createElement('canvas')
+            const scale = 2 // Higher resolution
+            canvas.width = img.width * scale
+            canvas.height = img.height * scale
+            const ctx = canvas.getContext('2d')
+            ctx.scale(scale, scale)
+            ctx.fillStyle = 'white'
+            ctx.fillRect(0, 0, img.width, img.height)
+            ctx.drawImage(img, 0, 0, img.width, img.height)
+            
+            canvas.toBlob((blob) => {
+                const downloadLink = document.createElement("a")
+                downloadLink.href = URL.createObjectURL(blob)
+                downloadLink.download = filename
+                document.body.appendChild(downloadLink)
+                downloadLink.click()
+                document.body.removeChild(downloadLink)
+                URL.revokeObjectURL(url)
+            }, 'image/png')
+        }
+        img.src = url
+    }
+
+    // Export full report as PDF using html2canvas-pro + jspdf
+    const exportReportPDF = async () => {
+        if (!reportContentRef.current) return
+        setExportingPdf(true)
+        
+        try {
+            const html2canvas = (await import('html2canvas-pro')).default
+            const { jsPDF } = await import('jspdf')
+            const element = reportContentRef.current
+
+            const canvas = await html2canvas(element, { 
+                scale: 2, 
+                useCORS: true,
+                letterRendering: true,
+                scrollY: 0,
+                windowWidth: element.scrollWidth
+            })
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.98)
+            const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' })
+            
+            const pdfWidth = pdf.internal.pageSize.getWidth()
+            const pdfHeight = pdf.internal.pageSize.getHeight()
+            const margin = 10
+            const usableWidth = pdfWidth - (margin * 2)
+            const imgHeightInPdf = (canvas.height * usableWidth) / canvas.width
+            
+            let heightLeft = imgHeightInPdf
+            let position = 0
+            const usablePdfHeight = pdfHeight - (margin * 2)
+            
+            pdf.addImage(imgData, 'JPEG', margin, position + margin, usableWidth, imgHeightInPdf)
+            heightLeft -= usablePdfHeight
+            
+            while (heightLeft > 0) {
+                position = position - usablePdfHeight
+                pdf.addPage()
+                pdf.addImage(imgData, 'JPEG', margin, position + margin, usableWidth, imgHeightInPdf)
+                heightLeft -= usablePdfHeight
+            }
+
+            pdf.save(`relatorio_${reportData.evento.nome.replace(/\s+/g, '_')}.pdf`)
+            mostrarAlerta('success', 'PDF do relatório exportado com sucesso!')
+        } catch (err) {
+            console.error("Erro ao exportar PDF:", err)
+            mostrarAlerta('error', 'Erro ao exportar PDF. Tente novamente.')
+        } finally {
+            setExportingPdf(false)
+        }
+    }
+
+    // Export only the activities table as PDF
+    const exportTablePDF = async () => {
+        if (!tableRef.current) return
+        setExportingTablePdf(true)
+
+        try {
+            const html2canvas = (await import('html2canvas-pro')).default
+            const { jsPDF } = await import('jspdf')
+            const element = tableRef.current
+
+            const canvas = await html2canvas(element, { 
+                scale: 2, 
+                useCORS: true,
+                letterRendering: true,
+                scrollY: 0,
+                windowWidth: element.scrollWidth
+            })
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.98)
+            const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' })
+            
+            const pdfWidth = pdf.internal.pageSize.getWidth()
+            const pdfHeight = pdf.internal.pageSize.getHeight()
+            const margin = 10
+            const usableWidth = pdfWidth - (margin * 2)
+            const imgHeightInPdf = (canvas.height * usableWidth) / canvas.width
+            
+            let heightLeft = imgHeightInPdf
+            let position = 0
+            const usablePdfHeight = pdfHeight - (margin * 2)
+            
+            pdf.addImage(imgData, 'JPEG', margin, position + margin, usableWidth, imgHeightInPdf)
+            heightLeft -= usablePdfHeight
+            
+            while (heightLeft > 0) {
+                position = position - usablePdfHeight
+                pdf.addPage()
+                pdf.addImage(imgData, 'JPEG', margin, position + margin, usableWidth, imgHeightInPdf)
+                heightLeft -= usablePdfHeight
+            }
+
+            pdf.save(`tabela_atividades_${reportData.evento.nome.replace(/\s+/g, '_')}.pdf`)
+            mostrarAlerta('success', 'PDF da tabela exportado com sucesso!')
+        } catch (err) {
+            console.error("Erro ao exportar PDF da tabela:", err)
+            mostrarAlerta('error', 'Erro ao exportar PDF da tabela. Tente novamente.')
+        } finally {
+            setExportingTablePdf(false)
+        }
     }
 
     // Chart Components
@@ -181,7 +327,7 @@ export default function RelatorioDetalhado() {
         const chartHeight = height - 2 * padding
         const chartWidth = width - 2 * padding
 
-        const maxVal = Math.max(...filteredAtividades.map(a => Math.max(a.totalInscritos, 1)), 5)
+        const maxVal = Math.max(...atividadesComId.map(a => Math.max(a.totalInscritos, 1)), 5)
 
         return (
             <svg id="chart-activities" viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
@@ -199,8 +345,8 @@ export default function RelatorioDetalhado() {
                     )
                 })}
 
-                {filteredAtividades.map((a, idx) => {
-                    const barWidth = chartWidth / (filteredAtividades.length || 1)
+                {atividadesComId.map((a, idx) => {
+                    const barWidth = chartWidth / (atividadesComId.length || 1)
                     const x = padding + idx * barWidth + barWidth * 0.15
                     const w = barWidth * 0.7
 
@@ -234,11 +380,11 @@ export default function RelatorioDetalhado() {
                                 x={x + w / 2} 
                                 y={height - padding + 15} 
                                 textAnchor="middle" 
-                                className="text-[8px] fill-base-content font-semibold"
+                                className="text-[10px] fill-base-content font-bold"
                             >
-                                {a.nome.length > 10 ? `${a.nome.slice(0, 8)}...` : a.nome}
+                                {a.sequentialId}
                             </text>
-                            <title>{`${a.nome}: ${a.totalInscritos} inscritos, ${a.totalPresentes} presentes`}</title>
+                            <title>{`#${a.sequentialId} - ${a.nome}: ${a.totalInscritos} inscritos, ${a.totalPresentes} presentes`}</title>
                         </g>
                     )
                 })}
@@ -248,7 +394,7 @@ export default function RelatorioDetalhado() {
 
     const ChartVinculos = () => {
         let aluno = 0, professor = 0, comunidade = 0
-        filteredAtividades.forEach(a => {
+        atividadesComId.forEach(a => {
             a.participantes.forEach(p => {
                 if (p.vinculo === 1) aluno++
                 else if (p.vinculo === 2) professor++
@@ -353,221 +499,250 @@ export default function RelatorioDetalhado() {
                 }
             `}</style>
 
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-base-300 pb-4 mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-primary">{reportData.evento.nome}</h1>
-                    <p className="text-sm text-base-content/75 mt-1">
-                        Responsável: <span className="font-semibold">{reportData.evento.responsavel}</span>
-                    </p>
-                </div>
-                <div className="flex flex-wrap gap-2 no-print">
-                    <Button onClick={() => window.print()} color="primary">Exportar PDF</Button>
-                    <Button onClick={copyTableData} color="secondary" mode="outline">Copiar Tabela</Button>
-                    <Button onClick={downloadCSV} color="accent" mode="outline">Baixar CSV</Button>
-                    <Button onClick={() => router.push('/admin/relatorios')} color="neutral" mode="outline">Voltar</Button>
-                </div>
+            {/* Action Buttons (outside report content for PDF) */}
+            <div className="flex flex-wrap gap-2 mb-6 pt-8 no-print">
+                <Button onClick={exportReportPDF} color="primary" disabled={exportingPdf}>
+                    {exportingPdf ? 'Gerando PDF...' : 'Exportar PDF'}
+                </Button>
+                <Button onClick={copyTableData} color="secondary" mode="outline">Copiar Tabela</Button>
+                <Button onClick={downloadCSV} color="accent" mode="outline">Baixar CSV</Button>
+                <Button onClick={() => router.push('/admin/relatorios')} color="neutral" mode="outline">Voltar</Button>
             </div>
 
-            {/* Filter Section */}
-            <div className="card bg-base-100 shadow-sm border border-base-200 p-4 mb-6 no-print">
-                <h3 className="font-bold mb-3 text-sm uppercase text-base-content/70">Filtros de Relatório</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    {/* Course Filter */}
-                    <div className="form-control">
-                        <label className="label py-1"><span className="label-text font-semibold text-xs">Curso/Turma</span></label>
-                        <select 
-                            className="select select-bordered select-sm w-full"
-                            value={selectedTurma}
-                            onChange={(e) => setSelectedTurma(e.target.value)}
-                            data-testid="select-turma"
-                        >
-                            <option value="">Todos os Cursos</option>
-                            {filterOptions.turmas.map(t => (
-                                <option key={t} value={t}>{t}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Semester Filter */}
-                    <div className="form-control">
-                        <label className="label py-1"><span className="label-text font-semibold text-xs">Ano/Semestre Entrada</span></label>
-                        <select 
-                            className="select select-bordered select-sm w-full"
-                            value={selectedSemestre}
-                            onChange={(e) => setSelectedSemestre(e.target.value)}
-                            data-testid="select-semestre"
-                        >
-                            <option value="">Todos os Semestres</option>
-                            {filterOptions.semestres.map(s => (
-                                <option key={s} value={s}>{getSemesterLabel(s, eventYear)}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Vínculo Filter */}
-                    <div className="form-control">
-                        <label className="label py-1"><span className="label-text font-semibold text-xs">Tipo de Vínculo</span></label>
-                        <select 
-                            className="select select-bordered select-sm w-full"
-                            value={selectedVinculo}
-                            onChange={(e) => setSelectedVinculo(e.target.value)}
-                            data-testid="select-vinculo"
-                        >
-                            <option value="">Todos</option>
-                            <option value="1">Aluno IFMS</option>
-                            <option value="2">Professor IFMS</option>
-                            <option value="3">Comunidade Externa</option>
-                        </select>
-                    </div>
-
-                    {/* Presence Filter */}
-                    <div className="form-control">
-                        <label className="label py-1"><span className="label-text font-semibold text-xs">Presença</span></label>
-                        <select 
-                            className="select select-bordered select-sm w-full"
-                            value={selectedPresenca}
-                            onChange={(e) => setSelectedPresenca(e.target.value)}
-                            data-testid="select-presenca"
-                        >
-                            <option value="">Todas Inscrições</option>
-                            <option value="presente">Confirmados (Presente)</option>
-                            <option value="ausente">Faltantes (Ausente)</option>
-                        </select>
+            {/* ====== REPORT CONTENT (captured by PDF) ====== */}
+            <div ref={reportContentRef}>
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-base-300 pb-4 mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-primary">{reportData.evento.nome}</h1>
+                        <p className="text-sm text-base-content/75 mt-1">
+                            Responsável: <span className="font-semibold">{reportData.evento.responsavel}</span>
+                        </p>
                     </div>
                 </div>
-            </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black text-primary" data-testid="kpi-evento-inscritos">{reportData.evento.totalInscritos}</span>
-                    <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Inscritos Evento</span>
-                </div>
-                <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black text-primary" data-testid="kpi-atividades-totais">{reportData.atividades.length}</span>
-                    <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Atividades Totais</span>
-                </div>
-                <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black text-secondary" data-testid="kpi-inscricoes-ativ">{stats.totalRegistrations}</span>
-                    <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Inscrições Ativ.</span>
-                </div>
-                <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black text-success" data-testid="kpi-presencas-confirmadas">{stats.totalPresents}</span>
-                    <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Presenças Confirmadas</span>
-                </div>
-                <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center col-span-2 md:col-span-1">
-                    <span className="text-2xl font-black text-info" data-testid="kpi-presenca-geral">{stats.presenceRate}%</span>
-                    <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Presença Geral</span>
-                </div>
-            </div>
-
-            {/* Visual Charts Area */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                {/* Bar chart activity */}
-                <div className="card bg-base-100 shadow-sm border border-base-200 p-4 md:col-span-2">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-sm uppercase text-base-content/70">Atividades: Inscrições vs Presenças</h3>
-                        <div className="flex items-center gap-4 text-xs no-print">
-                            <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 bg-[#4ade80] rounded-sm"></div>
-                                <span>Inscritos</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 bg-[#fcd34d] rounded-sm"></div>
-                                <span>Presentes</span>
-                            </div>
-                            <button 
-                                onClick={() => downloadChartSVG('chart-activities', 'grafico_atividades.svg')}
-                                className="link link-primary hover:text-primary-focus ml-2"
+                {/* Filter Section */}
+                <div className="card bg-base-100 shadow-sm border border-base-200 p-4 mb-6 no-print" data-html2canvas-ignore="true">
+                    <h3 className="font-bold mb-3 text-sm uppercase text-base-content/70">Filtros de Relatório</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        {/* Course Filter */}
+                        <div className="form-control">
+                            <label className="label py-1"><span className="label-text font-semibold text-xs">Curso/Turma</span></label>
+                            <select 
+                                className="select select-bordered select-sm w-full"
+                                value={selectedTurma}
+                                onChange={(e) => setSelectedTurma(e.target.value)}
+                                data-testid="select-turma"
                             >
-                                SVG ↓
-                            </button>
+                                <option value="">Todos os Cursos</option>
+                                {filterOptions.turmas.map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Semester Filter */}
+                        <div className="form-control">
+                            <label className="label py-1"><span className="label-text font-semibold text-xs">Ano/Semestre Entrada</span></label>
+                            <select 
+                                className="select select-bordered select-sm w-full"
+                                value={selectedSemestre}
+                                onChange={(e) => setSelectedSemestre(e.target.value)}
+                                data-testid="select-semestre"
+                            >
+                                <option value="">Todos os Semestres</option>
+                                {filterOptions.semestres.map(s => (
+                                    <option key={s} value={s}>{getSemesterLabel(s, eventYear)}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Vínculo Filter */}
+                        <div className="form-control">
+                            <label className="label py-1"><span className="label-text font-semibold text-xs">Tipo de Vínculo</span></label>
+                            <select 
+                                className="select select-bordered select-sm w-full"
+                                value={selectedVinculo}
+                                onChange={(e) => setSelectedVinculo(e.target.value)}
+                                data-testid="select-vinculo"
+                            >
+                                <option value="">Todos</option>
+                                <option value="1">Aluno IFMS</option>
+                                <option value="2">Professor IFMS</option>
+                                <option value="3">Comunidade Externa</option>
+                            </select>
+                        </div>
+
+                        {/* Presence Filter */}
+                        <div className="form-control">
+                            <label className="label py-1"><span className="label-text font-semibold text-xs">Presença</span></label>
+                            <select 
+                                className="select select-bordered select-sm w-full"
+                                value={selectedPresenca}
+                                onChange={(e) => setSelectedPresenca(e.target.value)}
+                                data-testid="select-presenca"
+                            >
+                                <option value="">Todas Inscrições</option>
+                                <option value="presente">Confirmados (Presente)</option>
+                                <option value="ausente">Faltantes (Ausente)</option>
+                            </select>
                         </div>
                     </div>
-                    {filteredAtividades.length === 0 ? (
-                        <div className="h-48 flex items-center justify-center text-sm text-base-content/50">
-                            Nenhuma atividade para exibir.
-                        </div>
-                    ) : (
-                        <ChartAtividades />
-                    )}
                 </div>
 
-                {/* Connection Types Donut Chart */}
-                <div className="card bg-base-100 shadow-sm border border-base-200 p-4">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-sm uppercase text-base-content/70">Proporção por Vínculo</h3>
-                        <button 
-                            onClick={() => downloadChartSVG('chart-vinculos', 'grafico_vinculos.svg')}
-                            className="link link-primary hover:text-primary-focus text-xs no-print"
+                {/* KPI Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                    <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-black text-primary" data-testid="kpi-evento-inscritos">{reportData.evento.totalInscritos}</span>
+                        <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Inscritos Evento</span>
+                    </div>
+                    <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-black text-primary" data-testid="kpi-atividades-totais">{reportData.atividades.length}</span>
+                        <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Atividades Totais</span>
+                    </div>
+                    <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-black text-secondary" data-testid="kpi-inscricoes-ativ">{stats.totalRegistrations}</span>
+                        <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Inscrições Ativ.</span>
+                    </div>
+                    <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-black text-success" data-testid="kpi-presencas-confirmadas">{stats.totalPresents}</span>
+                        <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Presenças Confirmadas</span>
+                    </div>
+                    <div className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-col items-center justify-center col-span-2 md:col-span-1">
+                        <span className="text-2xl font-black text-info" data-testid="kpi-presenca-geral">{stats.presenceRate}%</span>
+                        <span className="text-[10px] uppercase font-bold text-base-content/60 text-center mt-1">Presença Geral</span>
+                    </div>
+                </div>
+
+                {/* Visual Charts Area */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    {/* Bar chart activity */}
+                    <div className="card bg-base-100 shadow-sm border border-base-200 p-4 md:col-span-2">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-bold text-sm uppercase text-base-content/70">Atividades: Inscrições vs Presenças</h3>
+                            <div className="flex items-center gap-4 text-xs no-print" data-html2canvas-ignore="true">
+                                <div className="flex items-center gap-1">
+                                    <div className="w-3 h-3 bg-[#4ade80] rounded-sm"></div>
+                                    <span>Inscritos</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <div className="w-3 h-3 bg-[#fcd34d] rounded-sm"></div>
+                                    <span>Presentes</span>
+                                </div>
+                                <Button 
+                                    onClick={() => downloadChartPNG('chart-activities', 'grafico_atividades.png')} 
+                                    color="primary" 
+                                    mode="outline" 
+                                    className="no-print m-0"
+                                    data-html2canvas-ignore="true"
+                                >
+                                    PNG ↓
+                                </Button>
+                            </div>
+                        </div>
+                        {atividadesComId.length === 0 ? (
+                            <div className="h-48 flex items-center justify-center text-sm text-base-content/50">
+                                Nenhuma atividade para exibir.
+                            </div>
+                        ) : (
+                            <ChartAtividades />
+                        )}
+                    </div>
+
+                    {/* Connection Types Donut Chart */}
+                    <div className="card bg-base-100 shadow-sm border border-base-200 p-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-bold text-sm uppercase text-base-content/70">Proporção por Vínculo</h3>
+                            <Button 
+                                onClick={() => downloadChartPNG('chart-vinculos', 'grafico_vinculos.png')} 
+                                color="primary" 
+                                mode="outline" 
+                                className="no-print m-0"
+                                data-html2canvas-ignore="true"
+                            >
+                                PNG ↓
+                            </Button>
+                        </div>
+                        <ChartVinculos />
+                    </div>
+                </div>
+
+                {/* Data Table */}
+                <div ref={tableRef} className="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
+                    <div className="p-4 border-b border-base-200 bg-base-100 flex justify-between items-center">
+                        <h3 className="font-bold text-sm uppercase text-base-content/70">Tabela de Atividades</h3>
+                        <Button 
+                            onClick={exportTablePDF} 
+                            color="primary" 
+                            mode="outline" 
+                            className="no-print m-0"
+                            disabled={exportingTablePdf}
+                            data-html2canvas-ignore="true"
                         >
-                            SVG ↓
-                        </button>
+                            {exportingTablePdf ? 'Gerando...' : 'Exportar Tabela em PDF'}
+                        </Button>
                     </div>
-                    <ChartVinculos />
-                </div>
-            </div>
-
-            {/* Data Table */}
-            <div className="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
-                <div className="p-4 border-b border-base-200 bg-base-100">
-                    <h3 className="font-bold text-sm uppercase text-base-content/70">Tabela de Atividades</h3>
-                </div>
-                <div className="overflow-x-auto w-full">
-                    <table className="table table-zebra w-full text-sm">
-                        <thead>
-                            <tr>
-                                <th>Atividade</th>
-                                <th>Sala/Local</th>
-                                <th className="text-center">Limite Vagas</th>
-                                <th className="text-center">Inscritos</th>
-                                <th className="text-center">Presentes</th>
-                                <th className="text-center">Taxa de Presença</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredAtividades.length === 0 ? (
+                    <div className="overflow-x-auto w-full">
+                        <table className="table table-zebra w-full text-sm">
+                            <thead>
                                 <tr>
-                                    <td colSpan="6" className="text-center py-6 text-base-content/55">
-                                        Nenhuma atividade ou participante encontrado com os filtros selecionados.
-                                    </td>
+                                    <th className="text-center w-16">ID</th>
+                                    <th>Atividade</th>
+                                    <th>Sala/Local</th>
+                                    <th className="text-center">Limite Vagas</th>
+                                    <th className="text-center">Inscritos</th>
+                                    <th className="text-center">Presentes</th>
+                                    <th className="text-center">Taxa de Presença</th>
                                 </tr>
-                            ) : (
-                                <>
-                                    {filteredAtividades.map((a) => {
-                                        const rate = a.totalInscritos > 0 
-                                            ? ((a.totalPresentes / a.totalInscritos) * 100).toFixed(1)
-                                            : "0.0"
-                                        return (
-                                            <tr key={a.id_atividade} className="hover">
-                                                <td className="font-medium text-primary" data-testid={`nome-${a.id_atividade}`}>{a.nome}</td>
-                                                <td>{a.sala}</td>
-                                                <td className="text-center">{a.limite || 'Ilimitado'}</td>
-                                                <td className="text-center font-semibold" data-testid={`inscritos-${a.id_atividade}`}>{a.totalInscritos}</td>
-                                                <td className="text-center font-semibold text-success" data-testid={`presentes-${a.id_atividade}`}>{a.totalPresentes}</td>
-                                                <td className="text-center">
-                                                    <span className={`badge ${Number(rate) >= 70 ? 'badge-success' : Number(rate) >= 40 ? 'badge-warning' : 'badge-error'} badge-outline font-bold`}>
-                                                        {rate}%
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        )
-                                    })}
-                                    <tr className="bg-base-200/50 font-bold border-t-2 border-base-300">
-                                        <td>TOTALIZADOR</td>
-                                        <td>-</td>
-                                        <td className="text-center">-</td>
-                                        <td className="text-center text-secondary">{stats.totalRegistrations}</td>
-                                        <td className="text-center text-success">{stats.totalPresents}</td>
-                                        <td className="text-center text-info">{stats.presenceRate}%</td>
+                            </thead>
+                            <tbody>
+                                {atividadesComId.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="7" className="text-center py-6 text-base-content/55">
+                                            Nenhuma atividade ou participante encontrado com os filtros selecionados.
+                                        </td>
                                     </tr>
-                                </>
-                            )}
-                        </tbody>
-                    </table>
+                                ) : (
+                                    <>
+                                        {atividadesComId.map((a) => {
+                                            const rate = a.totalInscritos > 0 
+                                                ? ((a.totalPresentes / a.totalInscritos) * 100).toFixed(1)
+                                                : "0.0"
+                                            return (
+                                                <tr key={a.id_atividade} className="hover">
+                                                    <td className="text-center font-bold text-base-content/70" data-testid={`id-${a.id_atividade}`}>{a.sequentialId}</td>
+                                                    <td className="font-medium text-primary" data-testid={`nome-${a.id_atividade}`} title={a.nome}>
+                                                        {a.nome}
+                                                    </td>
+                                                    <td>{a.sala}</td>
+                                                    <td className="text-center">{a.limite || 'Ilimitado'}</td>
+                                                    <td className="text-center font-semibold" data-testid={`inscritos-${a.id_atividade}`}>{a.totalInscritos}</td>
+                                                    <td className="text-center font-semibold text-success" data-testid={`presentes-${a.id_atividade}`}>{a.totalPresentes}</td>
+                                                    <td className="text-center">
+                                                        <span className={`badge ${Number(rate) >= 70 ? 'badge-success' : Number(rate) >= 40 ? 'badge-warning' : 'badge-error'} badge-outline font-bold`}>
+                                                            {rate}%
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                        <tr className="bg-base-200/50 font-bold border-t-2 border-base-300">
+                                            <td className="text-center">-</td>
+                                            <td>TOTALIZADOR</td>
+                                            <td>-</td>
+                                            <td className="text-center">-</td>
+                                            <td className="text-center text-secondary">{stats.totalRegistrations}</td>
+                                            <td className="text-center text-success">{stats.totalPresents}</td>
+                                            <td className="text-center text-info">{stats.presenceRate}%</td>
+                                        </tr>
+                                    </>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+            {/* ====== END REPORT CONTENT ====== */}
         </div>
     )
 }

@@ -42,4 +42,37 @@ const calculateEndTime = (dateStr, timeStr, durationStr) => {
     return `${pad(endHours)}:${pad(endMinutes)}`;
 }
 
-export { formatDateToISO, dateFormateBr, calculateEndTime }
+const getSemestersOptions = () => {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1; // 1-12
+    const isFirstHalf = currentMonth <= 6;
+    
+    if (isFirstHalf) {
+        return [
+            { value: 1, label: getSemesterLabel(1, currentYear) },
+            { value: 3, label: getSemesterLabel(3, currentYear) },
+            { value: 5, label: getSemesterLabel(5, currentYear) },
+            { value: 7, label: 'Turmas anteriores' }
+        ];
+    } else {
+        return [
+            { value: 2, label: getSemesterLabel(2, currentYear) },
+            { value: 4, label: getSemesterLabel(4, currentYear) },
+            { value: 6, label: getSemesterLabel(6, currentYear) },
+            { value: 8, label: 'Turmas anteriores' }
+        ];
+    }
+};
+
+const getSemesterLabel = (sem, currentYear = new Date().getFullYear()) => {
+    if (!sem) return '';
+    if (sem === 1) return `${currentYear}-1 (1º Semestre)`;
+    if (sem === 2) return `${currentYear}-1 (2º Semestre)`;
+    if (sem === 3) return `${currentYear - 1}-1 (3º Semestre)`;
+    if (sem === 4) return `${currentYear - 1}-1 (4º Semestre)`;
+    if (sem === 5) return `${currentYear - 2}-1 (5º Semestre)`;
+    if (sem === 6) return `${currentYear - 2}-1 (6º Semestre)`;
+    return 'Turmas anteriores';
+};
+
+export { formatDateToISO, dateFormateBr, calculateEndTime, getSemestersOptions, getSemesterLabel }

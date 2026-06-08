@@ -10,6 +10,7 @@ import { usuarioService } from '@/modules/usuarios/services/usuario.service';
 import { turmaService } from '@/modules/turmas/services/turma.service';
 import { turnoService } from '@/modules/turnos/services/turno.service';
 import MultiSelect from '@/shared/components/utils/MultiSelect';
+import { getSemestersOptions } from '@/shared/utils/dateUtils';
 
 export default function RegistrationView({ evento }) {
     const { usuario, setSingupOpen } = useAuth();
@@ -45,28 +46,6 @@ export default function RegistrationView({ evento }) {
         };
         fetchTurmasAndTurnos();
     }, []);
-
-    const getSemestersOptions = () => {
-        const currentYear = new Date().getFullYear();
-        const currentMonth = new Date().getMonth() + 1; // 1-12
-        const isFirstHalf = currentMonth <= 6;
-        
-        if (isFirstHalf) {
-            return [
-                { value: 1, label: `${currentYear}-1 (1º Semestre)` },
-                { value: 3, label: `${currentYear - 1}-1 (3º Semestre)` },
-                { value: 5, label: `${currentYear - 2}-1 (5º Semestre)` },
-                { value: 7, label: 'Turmas anteriores' }
-            ];
-        } else {
-            return [
-                { value: 2, label: `${currentYear}-1 (2º Semestre)` },
-                { value: 4, label: `${currentYear - 1}-1 (4º Semestre)` },
-                { value: 6, label: `${currentYear - 2}-1 (6º Semestre)` },
-                { value: 8, label: 'Turmas anteriores' }
-            ];
-        }
-    };
 
     const formatCPF = (value) => {
         const cleaned = value.replace(/\D/g, '');
