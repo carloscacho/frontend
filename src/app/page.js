@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { eventoService } from "@/modules/eventos/services/evento.service"
 import { dateFormateBr } from "@/shared/utils/dateUtils"
+import EventCard from "@/shared/components/displays/EventCard"
 import Link from "next/link"
 
 export default function Home() {
@@ -15,20 +16,7 @@ export default function Home() {
     fetchEventos()
   }, [])
 
-  const EventImage = ({ evento }) => {
-    const baseUrl = "http://localhost:4455"
-    const imageUrl = evento.banner
-      ? `${baseUrl}${evento.banner.startsWith('/') ? '' : '/'}${evento.banner}`
-      : "https://placehold.co/400x200?text=Evento"
-
-    return (
-      <img
-        src={imageUrl}
-        alt={evento.nome}
-        className="w-full h-48 object-cover"
-      />
-    )
-  }
+    // Event image logic is now imported from shared utils
 
   return (
     <div className="w-full min-h-screen bg-base-200 flex flex-col items-center py-10">
@@ -37,24 +25,11 @@ export default function Home() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {eventos.map((evento) => (
-            <div key={evento.id_evento} className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-              <figure>
-                <EventImage evento={evento} />
-              </figure>
-              <div className="card-body">
-                <h2 className="card-title">{evento.nome}</h2>
-                <p className="line-clamp-3">{evento.descricao}</p>
-                <div className="text-sm text-gray-500 mt-2">
-                  <p>Início: {dateFormateBr(evento.inicio)}</p>
-                  <p>Fim: {dateFormateBr(evento.final)}</p>
-                </div>
-                <div className="card-actions justify-end mt-4">
-                  <Link href={`/${evento.slug}`} className="btn btn-primary w-full">
-                    Visitar
-                  </Link>
-                </div>
-              </div>
-            </div>
+            <EventCard key={evento.id_evento} evento={evento}>
+              <Link href={`/${evento.slug}`} className="btn btn-primary w-full">
+                Visitar
+              </Link>
+            </EventCard>
           ))}
         </div>
       </div>

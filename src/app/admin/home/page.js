@@ -1,12 +1,11 @@
 'use client'
 import { useState, useEffect } from "react"
 import { eventoService } from "@/modules/eventos/services/evento.service"
-import Card from "@/shared/components/displays/Card"
 import Button from "@/shared/components/utils/Button"
-import { dateFormateBr } from "@/shared/utils/dateUtils"
 import { useRouter } from "next/navigation"
 import { useEventFilter } from "@/shared/contexts/EventFilterContext"
 import { useAuth } from "@/shared/contexts/AuthContext"
+import EventCard from "@/shared/components/displays/EventCard"
 
 export default function AdminHome() {
     const [eventos, setEventos] = useState([])
@@ -39,29 +38,12 @@ export default function AdminHome() {
         }
     }
 
-    const EventImage = ({ evento }) => {
-        const [imgSrc, setImgSrc] = useState(`${evento.base_url}${evento.slug}/imagens/fundo.png`)
-
-        const handleError = () => {
-            if (imgSrc !== `${evento.base_url}${evento.slug}/imagens/logo.png`) {
-                setImgSrc(`${evento.base_url}${evento.slug}/imagens/logo.png`)
-            }
-        }
-
-        return (
-            <img
-                src={imgSrc}
-                alt={evento.nome}
-                onError={handleError}
-                className="w-full h-48 object-cover"
-            />
-        )
-    }
+    // Event image logic is now imported from shared utils
 
     return (
         <div className="w-full h-[calc(100vh-4rem)] flex flex-col">
             {/* Sticky Header */}
-            <div className="sticky top-24 z-20 bg-base-200 border-b border-base-300 px-6 py-4">
+            <div className="sticky top-6 z-20 bg-base-200 border-b border-base-300 px-6 py-4">
                 <h1 className="text-3xl font-bold">Eventos Cadastrados</h1>
             </div>
 
@@ -69,18 +51,10 @@ export default function AdminHome() {
             <div className="flex-1 overflow-y-auto bg-base-200 p-6 ">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
                     {eventos.map((evento) => (
-                        <Card key={evento.id_evento} figure={<EventImage evento={evento} />}>
-                            <h2 className="card-title">{evento.nome}</h2>
-                            <p>{evento.descricao}</p>
-                            <div className="text-sm text-gray-500 mt-2">
-                                <p>Início: {dateFormateBr(evento.inicio)}</p>
-                                <p>Fim: {dateFormateBr(evento.final)}</p>
-                            </div>
-                            <div className="card-actions justify-end mt-4">
-                                <Button onClick={() => handleVisit(evento)} mode="" color="primary" className="m-0">Visitar</Button>
-                                <Button onClick={() => handleEdit(evento)} mode="" color="secondary" className="m-0">Editar</Button>
-                            </div>
-                        </Card>
+                        <EventCard key={evento.id_evento} evento={evento}>
+                            <Button onClick={() => handleVisit(evento)} mode="" color="primary" className="m-0">Visitar</Button>
+                            <Button onClick={() => handleEdit(evento)} mode="" color="secondary" className="m-0">Editar</Button>
+                        </EventCard>
                     ))}
                 </div>
             </div>
