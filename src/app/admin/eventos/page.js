@@ -100,6 +100,22 @@ export default function Page() {
             refMdEventos.current.showModal()
           } : null}
           importFunction={isAdmin ? handleOpenCsvImport : null}
+          groupBy={(item) => {
+            const raw = item.raw || {}
+            if (!raw.inicio || !raw.final) return "Sem data definida"
+            const now = new Date()
+            const start = new Date(raw.inicio)
+            const end = new Date(raw.final)
+            if (now > end) return "Eventos Finalizados"
+            if (now >= start && now <= end) return "Sendo Executados"
+            return "Irão Acontecer"
+          }}
+          groupOrder={[
+            "Irão Acontecer",
+            "Sendo Executados",
+            "Eventos Finalizados",
+            "Sem data definida"
+          ]}
         />
       </div>
       <Modal refModal={refMdEventos}>

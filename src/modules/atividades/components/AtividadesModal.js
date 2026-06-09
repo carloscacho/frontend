@@ -11,6 +11,7 @@ import { useEventFilter } from "@/shared/contexts/EventFilterContext";
 
 export default function AtividadesModal({ onClickSalvar, onClickCancelar, initialData }) {
     const [nome, setNome] = useState("");
+    const [tipo, setTipo] = useState("");
     const [descricao, setDescricao] = useState("");
     const [observacao, setObservacao] = useState("");
     const [limite, setLimite] = useState("");
@@ -46,6 +47,7 @@ export default function AtividadesModal({ onClickSalvar, onClickCancelar, initia
     useEffect(() => {
         if (initialData) {
             setNome(initialData.nome);
+            setTipo(initialData.tipo || "");
             setDescricao(initialData.descricao || "");
             setObservacao(initialData.observacao || "");
             setLimite(initialData.limite || "");
@@ -76,6 +78,7 @@ export default function AtividadesModal({ onClickSalvar, onClickCancelar, initia
         } else {
             // Reset fields for create mode
             setNome("");
+            setTipo("");
             setDescricao("");
             setObservacao("");
             setLimite("");
@@ -91,6 +94,7 @@ export default function AtividadesModal({ onClickSalvar, onClickCancelar, initia
     const handleSubmit = () => {
         const payload = {
             nome,
+            tipo,
             descricao,
             observacao,
             limite: parseInt(limite),
@@ -119,10 +123,17 @@ export default function AtividadesModal({ onClickSalvar, onClickCancelar, initia
                 badgeColor='error'
             />
             <Input
+                label="Tipo:"
+                value={tipo}
+                onChange={setTipo}
+                placeholder="Tipo da atividade (ex: Palestra, Minicurso)"
+                type="text"
+            />
+            <Input
                 label="Descrição:"
                 value={descricao}
                 onChange={setDescricao}
-                placeholder="Descrição"
+                placeholder="Descrição e informações da atividade"
                 type="text"
             />
             <Input

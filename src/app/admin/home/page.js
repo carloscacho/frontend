@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { useEventFilter } from "@/shared/contexts/EventFilterContext"
 import { useAuth } from "@/shared/contexts/AuthContext"
 import EventCard from "@/shared/components/displays/EventCard"
+import StickyHeader from "@/shared/components/displays/StickyHeader"
 
 export default function AdminHome() {
     const [eventos, setEventos] = useState([])
@@ -42,18 +43,15 @@ export default function AdminHome() {
 
     return (
         <div className="w-full h-[calc(100vh-4rem)] flex flex-col">
-            {/* Sticky Header */}
-            <div className="sticky top-6 z-20 bg-base-200 border-b border-base-300 px-6 py-4">
-                <h1 className="text-3xl font-bold">Eventos Cadastrados</h1>
-            </div>
+            <StickyHeader title="Eventos Cadastrados" />
 
             {/* Content Area */}
             <div className="flex-1 overflow-y-auto bg-base-200 p-6 ">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
                     {eventos.map((evento) => (
                         <EventCard key={evento.id_evento} evento={evento}>
-                            <Button onClick={() => handleVisit(evento)} mode="" color="primary" className="m-0">Visitar</Button>
-                            <Button onClick={() => handleEdit(evento)} mode="" color="secondary" className="m-0">Editar</Button>
+                            <Button onClick={() => handleVisit(evento)}  color="primary" className="m-0">Visitar</Button>
+                            <Button onClick={() => handleEdit(evento)}  color="secondary" className="m-0">Editar</Button>
                         </EventCard>
                     ))}
                 </div>

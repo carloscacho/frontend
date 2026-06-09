@@ -75,6 +75,23 @@ export default function Page() {
           list={normalizarLista(usuarioF)}
           deleteFunction={isAdmin ? clickDelete : null}
           roleFunction={isAdmin ? clickRole : null}
+          groupBy={(item) => {
+            const tipo = item.raw?.tipo
+            switch (tipo) {
+              case 1: return "Administradores"
+              case 2: return "Estudantes"
+              case 3: return "Avaliadores"
+              case 4: return "Organizadores"
+              default: return "Outros"
+            }
+          }}
+          groupOrder={[
+            "Administradores",
+            "Organizadores",
+            "Avaliadores",
+            "Estudantes",
+            "Outros"
+          ]}
         />
       </div>
       <Modal refModal={refMdUsuarios}

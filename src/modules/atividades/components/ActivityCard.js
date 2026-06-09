@@ -21,6 +21,9 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
     const corPrimaria = evento.cor_primaria || '#2F855A';
     const corSecundaria = evento.cor_secundaria || '#3ABFF8';
     const corPrimariaDark = darkenColor(corPrimaria, 15);
+    const corSecundariaDark = darkenColor(corSecundaria, 15);
+
+    const isAviso = atividade.limite === -1;
 
     const registered = isRegistered(atividade);
     const isAdminOrAux = usuario && [1, 3, 4].includes(usuario.tipo);
@@ -116,8 +119,8 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
             {/* Card Header */}
             <ActivityCardHeader
                 atividade={atividade}
-                corPrimaria={corPrimaria}
-                corPrimariaDark={corPrimariaDark}
+                corPrimaria={isAviso ? corSecundaria : corPrimaria}
+                corPrimariaDark={isAviso ? corSecundariaDark : corPrimariaDark}
                 registered={registered}
                 usuario={usuario}
                 conflictError={conflictError}
@@ -135,35 +138,39 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
                         >
                             <PiShareNetworkDuotone className="w-5 h-5" />
                         </button>
-                        <button
-                            className={`btn btn-sm md:btn-md rounded-full shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl px-3 md:px-5 gap-1 md:gap-2 ${buttonConfig.className}`}
-                            style={!buttonConfig.disabled && !registered ? {
-                                backgroundColor: corSecundaria,
-                                borderColor: corSecundaria,
-                                color: '#fff',
-                                boxShadow: `0 4px 14px ${corSecundaria}40`
-                            } : registered ? {
-                                boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)'
-                            } : undefined}
-                            onClick={() => onParticipar(atividade)}
-                            disabled={buttonConfig.disabled}
-                        >
-                            {buttonConfig.icon}
-                            <span className="hidden md:inline">{buttonConfig.text}</span>
-                            <span className="md:hidden">{buttonConfig.mobileText}</span>
-                        </button>
+                        {!isAviso && (
+                            <button
+                                className={`btn btn-sm md:btn-md rounded-full shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl px-3 md:px-5 gap-1 md:gap-2 ${buttonConfig.className}`}
+                                style={!buttonConfig.disabled && !registered ? {
+                                    backgroundColor: corSecundaria,
+                                    borderColor: corSecundaria,
+                                    color: '#fff',
+                                    boxShadow: `0 4px 14px ${corSecundaria}40`
+                                } : registered ? {
+                                    boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)'
+                                } : undefined}
+                                onClick={() => onParticipar(atividade)}
+                                disabled={buttonConfig.disabled}
+                            >
+                                {buttonConfig.icon}
+                                <span className="hidden md:inline">{buttonConfig.text}</span>
+                                <span className="md:hidden">{buttonConfig.mobileText}</span>
+                            </button>
+                        )}
                     </div>
                 )}
                 {/* Admin Buttons */}
                 {isAdminOrAux && (
                     <div className="flex flex-col gap-2 mb-4">
-                        <button
-                            className="btn btn-outline btn-sm hover:scale-102 transition-transform"
-                            style={{ borderColor: corSecundaria, color: corSecundaria }}
-                            onClick={() => router.push(`/${evento.slug}/programacao/${atividade.id_atividade}/participantes`)}
-                        >
-                            <PiUsersFourDuotone className="w-4 h-4" /> Ver Inscritos ({totalRegistered})
-                        </button>
+                        {!isAviso && (
+                            <button
+                                className="btn btn-outline btn-sm hover:scale-102 transition-transform"
+                                style={{ borderColor: corSecundaria, color: corSecundaria }}
+                                onClick={() => router.push(`/${evento.slug}/programacao/${atividade.id_atividade}/participantes`)}
+                            >
+                                <PiUsersFourDuotone className="w-4 h-4" /> Ver Inscritos ({totalRegistered})
+                            </button>
+                        )}
 
                         <button
                             className="btn btn-primary btn-sm hover:scale-102 transition-transform"
@@ -171,6 +178,13 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
                         >
                             <PiQrCodeDuotone className="w-4 h-4" /> Ler QR Code
                         </button>
+                    </div>
+                )}
+
+                {/* Description Text */}
+                {atividade.descricao && (
+                    <div className="mb-4 text-sm md:text-base text-gray-700 whitespace-pre-wrap">
+                        {atividade.descricao}
                     </div>
                 )}
 
@@ -183,7 +197,7 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
                 )}
 
                 {/* Info Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={`grid grid-cols-1 ${speakers.length > 0 ? 'md:grid-cols-2' : ''} gap-6`}>
                     {/* Left Column - Details */}
                     <ActivityCardDetails
                         atividade={atividade}
@@ -191,10 +205,12 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
                     />
 
                     {/* Right Column - Speakers */}
-                    <SpeakersList
-                        speakers={speakers}
-                        corSecundaria={corSecundaria}
-                    />
+                    {speakers.length > 0 && (
+                        <SpeakersList
+                            speakers={speakers}
+                            corSecundaria={corSecundaria}
+                        />
+                    )}
                 </div>
             </div>
         </div>

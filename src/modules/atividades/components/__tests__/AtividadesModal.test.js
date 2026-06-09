@@ -155,6 +155,7 @@ describe("AtividadesModal Component", () => {
         await waitFor(() => expect(mockGetSalas).toHaveBeenCalled());
 
         expect(screen.getByTestId("input-Nome:")).toHaveValue("");
+        expect(screen.getByTestId("input-Tipo:")).toHaveValue("");
         expect(screen.getByTestId("input-Descrição:")).toHaveValue("");
         expect(screen.getByTestId("input-Observação:")).toHaveValue("");
         expect(screen.getByTestId("input-Limite:")).toHaveValue(null);
@@ -170,6 +171,7 @@ describe("AtividadesModal Component", () => {
         const initialData = {
             id_atividade: 101,
             nome: "Workshop Git",
+            tipo: "Oficina",
             descricao: "Aprenda Git na prática",
             observacao: "Levar notebook",
             limite: 30,
@@ -199,6 +201,7 @@ describe("AtividadesModal Component", () => {
         await waitFor(() => expect(mockGetSalas).toHaveBeenCalled());
 
         expect(screen.getByTestId("input-Nome:")).toHaveValue("Workshop Git");
+        expect(screen.getByTestId("input-Tipo:")).toHaveValue("Oficina");
         expect(screen.getByTestId("input-Descrição:")).toHaveValue("Aprenda Git na prática");
         expect(screen.getByTestId("input-Observação:")).toHaveValue("Levar notebook");
         expect(screen.getByTestId("input-Limite:")).toHaveValue(30);
@@ -234,6 +237,7 @@ describe("AtividadesModal Component", () => {
         await waitFor(() => expect(mockGetSalas).toHaveBeenCalled());
 
         fireEvent.change(screen.getByTestId("input-Nome:"), { target: { value: "Minicurso Docker" } });
+        fireEvent.change(screen.getByTestId("input-Tipo:"), { target: { value: "Minicurso" } });
         fireEvent.change(screen.getByTestId("input-Descrição:"), { target: { value: "Docker Básico" } });
         fireEvent.change(screen.getByTestId("input-Limite:"), { target: { value: "45" } });
         fireEvent.change(screen.getByTestId("select-Local"), { target: { value: "2" } }); // Auditório Principal (id: 2)
@@ -254,6 +258,7 @@ describe("AtividadesModal Component", () => {
 
         expect(mockOnClickSalvar).toHaveBeenCalledWith({
             nome: "Minicurso Docker",
+            tipo: "Minicurso",
             descricao: "Docker Básico",
             observacao: "",
             limite: 45,

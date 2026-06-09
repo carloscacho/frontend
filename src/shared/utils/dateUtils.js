@@ -75,4 +75,19 @@ const getSemesterLabel = (sem, currentYear = new Date().getFullYear()) => {
     return 'Turmas anteriores';
 };
 
-export { formatDateToISO, dateFormateBr, calculateEndTime, getSemestersOptions, getSemesterLabel }
+const formatDateRange = (start, end) => {
+    const startDate = new Date(start)
+    const endDate = new Date(end)
+    const startDay = startDate.getDate() + 1
+    const endDay = endDate.getDate() + 1
+    const month = startDate.toLocaleString('pt-BR', { month: 'long' })
+
+    if (startDate.getMonth() === endDate.getMonth()) {
+        return { days: `${startDay} a ${endDay}`, month }
+    } else {
+        const endMonth = endDate.toLocaleString('pt-BR', { month: 'long' })
+        return { days: `${startDay}`, month: `${month} a ${endDay} de ${endMonth}` }
+    }
+}
+
+export { formatDateToISO, dateFormateBr, calculateEndTime, getSemestersOptions, getSemesterLabel, formatDateRange }

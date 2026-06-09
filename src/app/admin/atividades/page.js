@@ -81,6 +81,25 @@ export default function Page() {
             openEdit(item)
             refMdAtividades.current.showModal()
           } : null}
+          groupBy={(item) => {
+            const da = item.raw?.data_atividade?.[0]
+            if (!da || !da.data || !da.hora) return "Sem cronograma"
+            
+            // Format date DD/MM
+            const dateObj = new Date(da.data)
+            const day = String(dateObj.getUTCDate()).padStart(2, '0')
+            const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0')
+            const dateStr = `${day}/${month}`
+
+            // Determine period
+            const timeObj = new Date(da.hora)
+            const hour = timeObj.getUTCHours()
+            let period = "Noturno"
+            if (hour < 12) period = "Matutino"
+            else if (hour < 18) period = "Vespertino"
+
+            return `${dateStr} - ${period}`
+          }}
         />
       </div>
       <Modal refModal={refMdAtividades}>

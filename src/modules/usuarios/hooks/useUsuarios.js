@@ -37,7 +37,8 @@ export function useUsuarios() {
         return lista.map(item => ({
             id: item.id_usuario,
             nome: item.nome,
-            description: `${item.email} - ${formatCPF(item.cpf || '')} - ${tipos[item.tipo - 1]}`
+            description: `${item.email} - ${formatCPF(item.cpf || '')} - ${tipos[item.tipo - 1]}`,
+            raw: item
         }));
     }, []); // tipos array is static within normalizer
 

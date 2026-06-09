@@ -1,5 +1,6 @@
 import { eventoService } from "@/modules/eventos/services/evento.service";
 import Button from "@/shared/components/utils/Button";
+import { formatDateRange } from "@/shared/utils/dateUtils";
 
 export async function generateStaticParams() {
     try {
@@ -24,21 +25,6 @@ export default async function EventPage({ params }) {
     }
 
     if (!evento) return <div className="flex justify-center items-center h-48">Evento não encontrado</div>
-
-    const formatDateRange = (start, end) => {
-        const startDate = new Date(start)
-        const endDate = new Date(end)
-        const startDay = startDate.getDate() + 1
-        const endDay = endDate.getDate() + 1
-        const month = startDate.toLocaleString('pt-BR', { month: 'long' })
-
-        if (startDate.getMonth() === endDate.getMonth()) {
-            return { days: `${startDay} a ${endDay}`, month }
-        } else {
-            const endMonth = endDate.toLocaleString('pt-BR', { month: 'long' })
-            return { days: `${startDay}`, month: `${month} a ${endDay} de ${endMonth}` }
-        }
-    }
 
     const { days, month } = formatDateRange(evento.inicio, evento.final)
 

@@ -101,6 +101,43 @@ export default function Page() {
             openEdit(item)
             refMdPalestrantes.current.showModal()
           } : null}
+          groupBy={(item) => {
+            const paList = item.raw?.palestrante_atividade || []
+            if (paList.length === 0) return "Sem atividades"
+
+            const periods = new Set()
+            
+            paList.forEach(pa => {
+              const da = pa.atividade?.data_atividade?.[0]
+              if (da && da.hora) {
+                const hour = new Date(da.hora).getUTCHours()
+                if (hour < 12) periods.add("Matutino")
+                else if (hour < 18) periods.add("Vespertino")
+                else periods.add("Noturno")
+              }
+            })
+
+            if (periods.size === 0) return "Sem cronograma"
+
+            // The user approved "texto misto (ex: Matutino/Noturno)"
+            const periodsArray = Array.from(periods).sort((a, b) => {
+              const order = { "Matutino": 1, "Vespertino": 2, "Noturno": 3 }
+              return order[a] - order[b]
+            })
+
+            return periodsArray.join(" / ")
+          }}
+          groupOrder={[
+            "Matutino",
+            "Vespertino",
+            "Noturno",
+            "Matutino / Vespertino",
+            "Matutino / Noturno",
+            "Vespertino / Noturno",
+            "Matutino / Vespertino / Noturno",
+            "Sem cronograma",
+            "Sem atividades"
+          ]}
         />
       </div>
       <Modal refModal={refMdPalestrantes}>
