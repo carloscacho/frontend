@@ -9,14 +9,19 @@ export default function Login({ redirectPath }) {
   const { login } = useAuth()
   const router = useRouter();
   const { slug } = useParams();
-  const [email, setEmail] = useState('')
+  const [identificador, setIdentificador] = useState('')
   const [senha, setSenha] = useState('')
   const [error, setError] = useState('')
 
   const handleLogin = async () => {
     setError('');
     try {
-      await login(email, senha, redirectPath);
+      let finalIdentificador = identificador.trim();
+      // Se não tem '@' e tem apenas números, pontos e traços, trata como CPF e remove pontuação
+      if (!finalIdentificador.includes('@') && /^[\d.-]+$/.test(finalIdentificador)) {
+        finalIdentificador = finalIdentificador.replace(/\D/g, '');
+      }
+      await login(finalIdentificador, senha, redirectPath);
     } catch (error) {
       setError(error.message || 'Erro ao fazer login');
     }
@@ -38,10 +43,10 @@ export default function Login({ redirectPath }) {
           <div className="mt-4">
             <div>
               <label className="label">
-                <span className="label-text">Email</span>
+                <span className="label-text">Email ou CPF</span>
               </label>
-              <input type="text" placeholder="email" className="input input-bordered w-full"
-                value={email} onChange={(e) => setEmail(e.target.value)}
+              <input type="text" placeholder="Digite seu email ou CPF" className="input input-bordered w-full"
+                value={identificador} onChange={(e) => setIdentificador(e.target.value)}
               />
             </div>
             <div className="mt-2">
