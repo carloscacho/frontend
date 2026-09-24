@@ -76,7 +76,7 @@ export default function EventBanner({ evento: propEvento }) {
     }
 
     const bannerUrl = displayEvent.banner
-        ? `http://localhost:4455${displayEvent.banner.startsWith('/') ? '' : '/'}${displayEvent.banner}`
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455'}${displayEvent.banner.startsWith('/') ? '' : '/'}${displayEvent.banner}`
         : null;
 
     // Fallback color: secondary > primary > dark neutral

@@ -1,5 +1,5 @@
 export const getEventImageUrl = (evento) => {
-    const baseUrl = "http://localhost:4455"
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4455"
     if (!evento || !evento.banner) {
         return "https://placehold.co/400x200?text=Evento"
     }

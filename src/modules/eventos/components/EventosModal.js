@@ -116,7 +116,7 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
                         <div className="mt-2 text-sm text-gray-500 flex flex-col gap-2">
                             <span>Banner atual:</span>
                             <img
-                                src={`http://localhost:4455${banner.startsWith('/') ? '' : '/'}${banner}`}
+                                src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455'}${banner.startsWith('/') ? '' : '/'}${banner}`}
                                 alt="Banner Atual"
                                 className="h-12 w-auto object-cover rounded border border-gray-300"
                             />
@@ -209,7 +209,7 @@ export default function Eventos({ onClickSalvar, onClickCancelar, initialData })
                     formData.append('data_fim', formatDateToISO(dataFim));
                     formData.append('ano', parseInt(ano));
                     formData.append('slug', slug);
-                    const baseUrl = "http://localhost:3000";
+                    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
                     formData.append('base_url', baseUrl);
                     formData.append('cor_primaria', corPrimaria);
                     formData.append('cor_secundaria', corSecundaria);
