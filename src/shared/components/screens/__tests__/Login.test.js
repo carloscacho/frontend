@@ -31,7 +31,7 @@ jest.mock('@/shared/components/utils/Button', () => ({ children, onClick, ...pro
 
 // ── Helpers ─────────────────────────────────────────────────────────
 function getEmailInput() {
-  return screen.getByPlaceholderText('email');
+  return screen.getByPlaceholderText('Digite seu email ou CPF');
 }
 function getSenhaInput() {
   return screen.getByPlaceholderText('senha');
@@ -127,6 +127,17 @@ describe('Login – Validações e Fluxo', () => {
       });
       // Nenhum alert de erro deve aparecer
       expect(screen.queryByText(/Erro/i)).not.toBeInTheDocument();
+    });
+
+    test('remove pontuação do CPF ao logar', async () => {
+      mockLogin.mockResolvedValue(undefined);
+      render(<Login redirectPath="/admin/home" />);
+      fireEvent.change(getEmailInput(), { target: { value: '123.456.789-00' } });
+      fireEvent.change(getSenhaInput(), { target: { value: 'senhaCorreta' } });
+      clickEntrar();
+      await waitFor(() => {
+        expect(mockLogin).toHaveBeenCalledWith('12345678900', 'senhaCorreta', '/admin/home');
+      });
     });
   });
 

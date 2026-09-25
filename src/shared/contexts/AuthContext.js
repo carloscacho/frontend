@@ -34,18 +34,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   /**
-   * Login with email and password
-   * @param {string} email 
+   * Login with email or cpf and password
+   * @param {string} loginParam 
    * @param {string} senha 
    * @param {string|null} redirectPath 
    */
-  const login = async (email, senha, redirectPath = null) => {
+  const login = async (loginParam, senha, redirectPath = null) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4455';
     console.log("Fazendo login...");
     const res = await fetch(`${apiUrl}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, senha }),
+      body: JSON.stringify({ login: loginParam, senha }),
     });
 
     const data = await res.json();
