@@ -29,7 +29,8 @@ export default function RegistrationView({ evento }) {
         senha: '', confSenha: '', senhaAtual: '',
         vinculo: 1, ra: '', siape: '', instituicao: '',
         fk_turma: '', fk_turno: '', semestre: '',
-        fk_turmas: []
+        fk_turmas: [],
+        primeiro_acesso: undefined
     });
     const [isExistingUser, setIsExistingUser] = useState(false);
 
@@ -96,6 +97,7 @@ export default function RegistrationView({ evento }) {
                     fk_turno: data.user.participante?.[0]?.fk_turno || '',
                     semestre: data.user.participante?.[0]?.semestre || '',
                     fk_turmas: data.user.participante?.[0]?.participante_turma?.map(pt => pt.fk_turma) || [],
+                    primeiro_acesso: data.user.primeiro_acesso,
                 });
                 setStep('registration_form');
             } else {
@@ -107,7 +109,8 @@ export default function RegistrationView({ evento }) {
                     vinculo: 1, ra: '', siape: '', instituicao: '',
                     fk_turma: '', fk_turno: '', semestre: '',
                     fk_turmas: [],
-                    cpf: cpfInput
+                    cpf: cpfInput,
+                    primeiro_acesso: undefined
                 });
                 setStep('registration_form');
             }
@@ -159,11 +162,11 @@ export default function RegistrationView({ evento }) {
                 return;
             }
         }
-        if (isExistingUser && !userData.senhaAtual) {
+        if (isExistingUser && !userData.primeiro_acesso && !userData.senhaAtual) {
             mostrarAlerta('error', 'Insira sua senha atual para confirmar a atualização de dados.');
             return;
         }
-        if (!isExistingUser) {
+        if (!isExistingUser || (isExistingUser && userData.primeiro_acesso)) {
             if (userData.senha.length < 6) return mostrarAlerta('error', 'A senha deve ter no mínimo 6 caracteres.');
             if (userData.senha !== userData.confSenha) return mostrarAlerta('error', 'A senha e a confirmação não conferem.');
         }
@@ -354,7 +357,7 @@ export default function RegistrationView({ evento }) {
                         )}
                     </div>
 
-                    {isExistingUser ? (
+                    {isExistingUser && !userData.primeiro_acesso ? (
                         <>
                             <div className="divider">Confirmação de Identidade</div>
                             <Input label="Senha Atual" type="password" value={userData.senhaAtual} onChange={(v) => updateField('senhaAtual', v)} placeholder="Para atualizar seus dados, insira sua senha" />
@@ -364,7 +367,7 @@ export default function RegistrationView({ evento }) {
                         </>
                     ) : (
                         <>
-                            <div className="divider">Senha de Acesso</div>
+                            <div className="divider">{isExistingUser && userData.primeiro_acesso ? 'Crie sua Senha de Acesso' : 'Senha de Acesso'}</div>
                             <Input label="Senha" type="password" value={userData.senha} onChange={(v) => updateField('senha', v)} placeholder="Crie uma senha de acesso" />
                             <Input label="Confirmar Senha" type="password" value={userData.confSenha} onChange={(v) => updateField('confSenha', v)} placeholder="Confirme sua senha" />
                         </>

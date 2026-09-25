@@ -134,6 +134,7 @@ async function goToRegistrationForm(status = 'not_found') {
       nome: 'Existente',
       email: 'existente@email.com',
       vinculo: 1,
+      primeiro_acesso: false,
     } : undefined,
   });
 
@@ -539,6 +540,47 @@ describe('RegistrationView – Step 2: Usuário Existente', () => {
     clickFinalizar();
     await waitFor(() => {
       expect(mockMostrarAlerta).toHaveBeenCalledWith('error', 'Senha atual incorreta.');
+    });
+  });
+
+  test('exige senha e confirmação de senha para usuário existente no primeiro acesso', async () => {
+    mockRegisterAndSubscribe.mockResolvedValue({ message: 'ok' });
+    mockCheckRegistration.mockResolvedValue({
+      status: 'exists_not_registered',
+      user: {
+        nome: 'Existente Primeiro Acesso',
+        email: 'existente@email.com',
+        vinculo: 1,
+        primeiro_acesso: true,
+      },
+    });
+
+    render(<RegistrationView evento={mockEvento} />);
+    fillCpf('123.456.789-01');
+    clickVerificar();
+
+    await waitFor(() => {
+      expect(screen.getByText('Crie sua Senha de Acesso')).toBeInTheDocument();
+      expect(screen.getByTestId('input-Senha')).toBeInTheDocument();
+      expect(screen.getByTestId('input-Confirmar Senha')).toBeInTheDocument();
+    });
+
+    fillField('input-Senha', 'senhaSegura');
+    fillField('input-Confirmar Senha', 'senhaSegura');
+    // Preencher select de curso/turno/semestre para o Aluno (vinculo = 1)
+    const selectCurso = screen.getByTestId('select-Curso');
+    fireEvent.change(selectCurso, { target: { value: selectCurso.options[1].value } });
+    const selectTurno = screen.getByTestId('select-Turno');
+    fireEvent.change(selectTurno, { target: { value: selectTurno.options[1].value } });
+    const selectSemestre = screen.getByTestId('select-Semestre');
+    fireEvent.change(selectSemestre, { target: { value: selectSemestre.options[1].value } });
+    fillField('input-RA (Registro Acadêmico)', '12345');
+
+    clickFinalizar();
+    await waitFor(() => {
+      expect(mockRegisterAndSubscribe).toHaveBeenCalledWith(expect.objectContaining({
+        senha: 'senhaSegura',
+      }));
     });
   });
 });
