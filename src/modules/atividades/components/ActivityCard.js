@@ -6,6 +6,7 @@ import { darkenColor, calculateVacancyInfo } from './activityCardUtils';
 import ActivityCardHeader from './ActivityCardHeader';
 import ActivityCardDetails from './ActivityCardDetails';
 import SpeakersList from './SpeakersList';
+import ActivityResources from './ActivityResources';
 
 export default function ActivityCard({ atividade, evento, isRegistered, onParticipar, onScan, conflictError, usuario }) {
     const router = useRouter();
@@ -212,6 +213,12 @@ export default function ActivityCard({ atividade, evento, isRegistered, onPartic
                         />
                     )}
                 </div>
+
+                <ActivityResources 
+                    idAtividade={atividade.id_atividade}
+                    isRegistered={registered}
+                    isAviso={isAviso}
+                />
             </div>
         </div>
     );

@@ -8,6 +8,7 @@ import { salaService } from "@/modules/salas/services/sala.service";
 import { palestranteService } from "@/modules/palestrantes/services/palestrante.service";
 import { atividadeService } from "@/modules/atividades/services/atividade.service";
 import { useEventFilter } from "@/shared/contexts/EventFilterContext";
+import RecursosAtividade from "./RecursosAtividade";
 
 export default function AtividadesModal({ onClickSalvar, onClickCancelar, initialData }) {
     const [nome, setNome] = useState("");
@@ -210,6 +211,10 @@ export default function AtividadesModal({ onClickSalvar, onClickCancelar, initia
                 valueKey="id_atividade"
                 labelKey="nome"
             />
+
+            {initialData && initialData.id_atividade && (
+                <RecursosAtividade idAtividade={initialData.id_atividade} />
+            )}
 
             <div className="btns w-full flex justify-end mt-4">
                 <Button onClick={handleSubmit} label={initialData ? "Atualizar" : "Salvar"} color="success" mode="active" />
